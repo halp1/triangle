@@ -1,5 +1,5 @@
-import { Codec } from ".";
-import { Game } from "../../types";
+import { type Codec } from ".";
+import type { Game } from "../../types";
 
 export namespace RibbonEvents {
   export type Raw<T> = {

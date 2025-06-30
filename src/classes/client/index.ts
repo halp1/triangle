@@ -1,12 +1,12 @@
 import { Types } from "../..";
-import { Events, Game as GameTypes } from "../../types";
+import type { Events, Game as GameTypes } from "../../types";
 import { API, CONSTANTS, parseToken } from "../../utils";
 import { Game } from "../game";
 import { Ribbon } from "../ribbon";
 import { Room } from "../room";
 import { Social } from "../social";
 import { ClientUtils } from "../utils";
-import { ClientOptions, ClientUser } from "./types";
+import type { ClientOptions, ClientUser } from "./types";
 
 export type * from "./types";
 

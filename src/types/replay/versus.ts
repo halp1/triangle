@@ -1,5 +1,5 @@
 import type { BagType, KickTable } from "../../engine";
-import { Game } from "../game";
+import type { Game } from "../game";
 
 export interface Stats {
   altitude: number;

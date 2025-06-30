@@ -1,5 +1,5 @@
-import { Game, User } from "../../types";
-import { RibbonOptions } from "../ribbon/types";
+import type { Game, User } from "../../types";
+import type { RibbonOptions } from "../ribbon";
 
 export type ClientOptions = (
   | {

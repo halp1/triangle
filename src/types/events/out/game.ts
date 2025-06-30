@@ -1,4 +1,4 @@
-import { Game as GameTypes } from "../../../types";
+import type { Game as GameTypes } from "../..";
 
 export interface Game {
   "game.scope.start": number;

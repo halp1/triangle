@@ -4,7 +4,7 @@
   "entryPoints": ["./src"],
   "sort": ["kind", "instance-first", "alphabetical"],
   "navigationLinks": {
-    "GitHub": "https://github.com/Genius6942/triangle"
+    "GitHub": "https://github.com/halp1/triangle"
   },
   "projectDocuments": ["Channel.md", "Gameplay.md"]
 }

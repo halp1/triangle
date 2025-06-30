@@ -1,6 +1,6 @@
-import { BagType, KickTable } from "../engine";
-import { Game } from "./game";
-import { User } from "./user";
+import type { BagType, KickTable } from "../engine";
+import type { Game } from "./game";
+import type { User } from "./user";
 
 export namespace Room {
   export type Type = "custom";

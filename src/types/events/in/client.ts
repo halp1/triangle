@@ -1,8 +1,8 @@
+import type { Game, Room } from "../../.";
 import { Relationship, Room as RoomClass } from "../../../classes";
 import { Engine } from "../../../engine";
-import { Game, Room } from "../../../types";
-import { Game as GameEvents } from "./game";
-import { Ribbon } from "./ribbon";
+import type { Game as GameEvents } from "./game";
+import type { Ribbon } from "./ribbon";
 
 export type Hex = `#${string}`;
 
@@ -45,10 +45,7 @@ export interface Client {
   "client.room.join": RoomClass;
 
   /** Fires when a game starts */
-  "client.game.start": (
-    | { multi: false }
-    | { multi: true; ft: number; wb: number }
-  ) & {
+  "client.game.start": { multi: boolean; ft: number; wb: number } & {
     players: { id: string; name: string; points: 0 }[];
   };
 
@@ -80,8 +77,14 @@ export interface Client {
    * @see https://github.com/tetrjs/tetr.js/issues/62
    */
   "client.game.end": {
-		duration: number;
-    players: { id: string; name: string; points: number; won: boolean, raw: Game.Leaderboard}[];
+    duration: number;
+    players: {
+      id: string;
+      name: string;
+      points: number;
+      won: boolean;
+      raw: Game.Leaderboard;
+    }[];
   };
 
   /** Same as game.abort */

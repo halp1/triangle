@@ -1,25 +1,30 @@
 import type { Game } from "../types";
 import { EventEmitter } from "../utils/events";
-import { Board, BoardInitializeParams } from "./board";
+import { Board, type BoardInitializeParams } from "./board";
 import { constants } from "./constants";
 import {
   GarbageQueue,
-  GarbageQueueInitializeParams,
-  IncomingGarbage,
+  type GarbageQueueInitializeParams,
+  type IncomingGarbage,
   LegacyGarbageQueue,
-  OutgoingGarbage
+  type OutgoingGarbage
 } from "./garbage";
-import { IGEHandler, MultiplayerOptions } from "./multiplayer";
-import { Queue, QueueInitializeParams } from "./queue";
+import { IGEHandler, type MultiplayerOptions } from "./multiplayer";
+import { Queue, type QueueInitializeParams } from "./queue";
 import { Mino } from "./queue/types";
-import { EngineSnapshot, Events, IncreasableValue, LockRes } from "./types";
-import { SpinType } from "./types";
+import type {
+  EngineSnapshot,
+  Events,
+  IncreasableValue,
+  LockRes,
+  SpinType
+} from "./types";
 import { IncreaseTracker, deepCopy } from "./utils";
 import { garbageCalcV2, garbageData } from "./utils/damageCalc";
-import { KickTable, legal, performKick } from "./utils/kicks";
-import { KickTableName, kicks } from "./utils/kicks/data";
+import { type KickTable, legal, performKick } from "./utils/kicks";
+import { type KickTableName, kicks } from "./utils/kicks/data";
 import { Tetromino, tetrominoes } from "./utils/tetromino";
-import { Rotation } from "./utils/tetromino/types";
+import type { Rotation } from "./utils/tetromino/types";
 
 import chalk from "chalk";
 

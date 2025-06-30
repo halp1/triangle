@@ -1,4 +1,4 @@
-import { Events, Social as SocialTypes } from "../../types";
+import { Events, type Social as SocialTypes } from "../../types";
 import { APITypes } from "../../utils";
 import type { Client } from "../client";
 import { Relationship } from "./relationship";

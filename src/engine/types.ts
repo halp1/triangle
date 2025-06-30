@@ -6,8 +6,8 @@ import type {
   OutgoingGarbage,
   TetrominoSnapshot
 } from ".";
-import { Game } from "../types";
-import { IGEHandlerSnapshot } from "./multiplayer";
+import type { Game } from "../types";
+import { type IGEHandlerSnapshot } from "./multiplayer";
 
 export type SpinType = "none" | "mini" | "normal";
 

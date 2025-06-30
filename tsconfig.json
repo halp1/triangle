@@ -8,6 +8,7 @@
     "moduleResolution": "Node",
     "module": "ESNext",
     "strict": true,
+    "verbatimModuleSyntax": true,
 
     "noUnusedLocals": true,
     "noUnusedParameters": true,

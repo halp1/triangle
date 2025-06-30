@@ -1,4 +1,4 @@
-import { APIDefaults } from ".";
+import { type APIDefaults } from ".";
 import type { Get, Post } from "./basic";
 
 // @ts-expect-error post is unused

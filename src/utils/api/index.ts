@@ -1,6 +1,6 @@
 // export * as API from "./wrapper";
 import { CONSTANTS } from "../constants";
-import { Get, Post, basic } from "./basic";
+import { type Get, type Post, basic } from "./basic";
 import { channel } from "./channel";
 import { relationship } from "./relationship";
 import { rooms } from "./rooms";

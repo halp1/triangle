@@ -1,5 +1,5 @@
-import { Room as RoomTypes } from "../../room";
-import { Utils } from "../../utils";
+import type { Room as RoomTypes } from "../../room";
+import type { Utils } from "../../utils";
 
 export interface Room {
   "room.join": string;

@@ -1,6 +1,6 @@
-import { BoardSquare } from "../../board";
+import { type BoardSquare } from "../../board";
 import { Mino } from "../../queue/types";
-import { Rotation } from "../tetromino/types";
+import type { Rotation } from "../tetromino/types";
 import { kicks } from "./data";
 
 export { kicks as kickData };

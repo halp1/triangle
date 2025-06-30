@@ -1,4 +1,4 @@
-import { BagType, Engine, KickTable } from "../engine";
+import { type BagType, Engine, type KickTable } from "../engine";
 
 export namespace Game {
   /** Handling config interface (test on TETR.IO for limits) */

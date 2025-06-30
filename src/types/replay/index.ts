@@ -1,4 +1,4 @@
-import { VersusReplay } from "./versus";
+import type { VersusReplay } from "./versus";
 
 export type Replay = VersusReplay;
 

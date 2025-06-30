@@ -1,8 +1,8 @@
-import { Client } from "../in/client";
-import { Game } from "./game";
-import { Ribbon } from "./ribbon";
-import { Room } from "./room";
-import { Social } from "./social";
+import type { Client } from "../in/client";
+import type { Game } from "./game";
+import type { Ribbon } from "./ribbon";
+import type { Room } from "./room";
+import type { Social } from "./social";
 
 export * from "./social";
 export * from "./room";

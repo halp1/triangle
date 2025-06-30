@@ -1,4 +1,4 @@
-import { Events, Game } from "../../types";
+import { Events, type Game } from "../../types";
 
 export const roomConfigPresets: {
   [key in Game.Preset]: Events.out.Room["room.setconfig"][number][];

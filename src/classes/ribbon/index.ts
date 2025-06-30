@@ -1,9 +1,9 @@
-import { Events, Game } from "../../types";
+import type { Events, Game } from "../../types";
 import { API, type APITypes, EventEmitter } from "../../utils";
 import { CandorCodec } from "./codecs/codec-candor";
 import { tetoPack } from "./codecs/teto-pack";
 import { Bits } from "./codecs/utils/bits";
-import { RibbonEvents } from "./types";
+import type { RibbonEvents } from "./types";
 
 import chalk from "chalk";
 import { client as WebSocket, type connection as Connection } from "websocket";
@@ -775,4 +775,4 @@ export class Ribbon {
   }
 }
 
-export { RibbonOptions } from "./types";
+export type { RibbonOptions } from "./types";

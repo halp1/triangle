@@ -1,4 +1,4 @@
-import { User } from "./user";
+import type { User } from "./user";
 
 export namespace Social {
   export type Status = "online" | "away" | "busy" | "offline";

@@ -1,5 +1,5 @@
-import { APIDefaults } from ".";
-import { Social } from "../../types";
+import { type APIDefaults } from ".";
+import type { Social } from "../../types";
 import type { Get, Post } from "./basic";
 
 export const relationship = (get: Get, post: Post, __: APIDefaults) => {

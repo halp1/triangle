@@ -1,5 +1,4 @@
-// Also includes "replay" events
-import { Game as GameTypes } from "../../../types";
+import type { Game as GameTypes } from "../../.";
 
 export interface Game {
   "game.ready": GameTypes.Ready;

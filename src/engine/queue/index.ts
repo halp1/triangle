@@ -1,4 +1,4 @@
-import { BagType, RngInnerFunction, rngMap } from "./rng";
+import { type BagType, type RngInnerFunction, rngMap } from "./rng";
 import { Mino } from "./types";
 
 export interface QueueInitializeParams {

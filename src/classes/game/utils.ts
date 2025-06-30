@@ -1,5 +1,5 @@
 import { Queue } from "../../engine";
-import { Game } from "../../types";
+import type { Game } from "../../types";
 
 export const getFullFrame = (
   options: Game.ReadyOptions

@@ -1,4 +1,4 @@
-import { Social as SocialTypes } from "../../../types";
+import type { Social as SocialTypes } from "../..";
 
 export interface Social {
   "social.online": number;

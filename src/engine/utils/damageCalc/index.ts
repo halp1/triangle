@@ -1,4 +1,4 @@
-import { Mino, SpinType } from "../..";
+import { Mino, type SpinType } from "../..";
 
 export const garbageData = {
   single: 0,

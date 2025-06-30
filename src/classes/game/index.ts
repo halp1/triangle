@@ -1,5 +1,5 @@
 import { Engine } from "../../engine";
-import { Events, Game as GameTypes } from "../../types";
+import type { Events, Game as GameTypes } from "../../types";
 import { Client } from "../client";
 import { getFullFrame } from "./utils";
 
@@ -28,7 +28,7 @@ export class Game {
 
   /** The client's engine */
   public engine!: Engine;
-  /** Data on the players in game */
+  /** Data on all players in game, including the client */
   public players: {
     name: string;
     gameid: number;
@@ -38,7 +38,7 @@ export class Game {
   }[] = [];
   /** @deprecated - use `players` */
   public get opponents() {
-    return this.players;
+    return this.players.filter((p) => p.gameid !== this.gameid);
   }
   /** The client's `gameid` set by the server */
   public gameid: number;
@@ -78,7 +78,7 @@ export class Game {
       throw e;
     }
 
-		// including ourself means we get our own replay data
+    // including ourself means we get our own replay data
     ready.players.forEach((player) =>
       this.client.emit("game.scope.start", player.gameid)
     );
@@ -162,7 +162,8 @@ export class Game {
 
     const p = this.readyData.players;
     // TODO: Add support for choosing who to spectate
-    const players = p.filter((p) => p.gameid !== this.gameid);
+    // const players = p.filter((p) => p.gameid !== this.gameid);
+    const players = p;
     this.players = players.map((o) => ({
       name: o.options.username,
       userid: o.userid,

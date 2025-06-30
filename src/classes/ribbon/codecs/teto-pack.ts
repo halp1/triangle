@@ -1,6 +1,6 @@
 import { version } from "../../../utils";
 import { basic } from "../../../utils/api/basic";
-import { Server } from "../../../utils/api/server";
+import { type Server } from "../../../utils/api/server";
 
 import fsSync from "node:fs";
 import fs from "node:fs/promises";

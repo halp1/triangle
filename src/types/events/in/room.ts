@@ -1,4 +1,4 @@
-import { Game as GameTypes, Room as RoomTypes, User } from "../../../types";
+import type { Game as GameTypes, Room as RoomTypes, User } from "../..";
 
 export interface Room {
   "room.join": {

@@ -1,4 +1,4 @@
-import { APIDefaults } from ".";
+import { type APIDefaults } from ".";
 import { pack } from "../../utils";
 
 import fs from "node:fs/promises";

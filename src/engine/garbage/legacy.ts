@@ -1,8 +1,8 @@
 import {
-  GarbageQueueInitializeParams,
-  IncomingGarbage,
-  GarbageQueueSnapshot,
-  OutgoingGarbage
+  type GarbageQueueInitializeParams,
+  type IncomingGarbage,
+  type GarbageQueueSnapshot,
+  type OutgoingGarbage
 } from ".";
 import { deepCopy, RNG } from "../utils";
 
