@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { Bits as n } from "./utils/bits";
-import * as r from "./utils/msgpackr-943ed70.js";
+import r from "./utils/msgpackr-943ed70";
 import {
   OptionsList,
   spinbonuses_rules,

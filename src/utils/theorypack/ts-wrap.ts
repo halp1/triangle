@@ -1,5 +1,4 @@
-// @ts-expect-error no declaration file
-import msgpackr_raw from "./msgpackr.js";
+import msgpackr_raw from "./msgpackr";
 
 const msgpackr = msgpackr_raw as typeof import("msgpackr");
 

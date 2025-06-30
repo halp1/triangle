@@ -71,6 +71,10 @@ The following usage examples assume you are using Typescript. They also assume y
 > Warning:
 > Use Node LTS (even versions) when using Triangle.js. Triangle.js was last known to work with Node 22.x
 
+
+> Tip:
+> When using Node, add the `--enable-source-maps` flag to your node command to get better stack traces.
+
 Node:
 
 ```ts

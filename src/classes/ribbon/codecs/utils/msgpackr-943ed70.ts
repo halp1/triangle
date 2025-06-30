@@ -1,4 +1,6 @@
-module.exports = (function (t) {
+// @ts-nocheck
+
+export default (function (t) {
   "use strict";
   var n, r, i;
   try {

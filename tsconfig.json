@@ -2,6 +2,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
     "lib": ["ESNext"],
     "skipLibCheck": true,
     "target": "ESNext",
@@ -9,6 +10,8 @@
     "module": "ESNext",
     "strict": true,
     "verbatimModuleSyntax": true,
+    "declaration": true,
+		"emitDeclarationOnly": true,
 
     "noUnusedLocals": true,
     "noUnusedParameters": true,

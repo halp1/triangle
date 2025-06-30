@@ -200,7 +200,7 @@ export class Ribbon {
     token,
     handling,
     userAgent,
-    codec = "teto",
+    codec = "candor",
     spooling = true
   }: {
     verbose?: boolean;
