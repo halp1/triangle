@@ -1,4 +1,5 @@
 export * from "./events";
+export * from './replay';
 
 export * from "./game";
 export * from "./room";

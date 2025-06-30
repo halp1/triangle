@@ -19,7 +19,6 @@ export class Game {
     [];
   private timeout: NodeJS.Timeout | null = null;
   private messageQueue: GameTypes.Client.Events[] = [];
-  // private igeBuffer: Events.in.Game["game.replay.ige"][] = [];
   private startTime: number | null = null;
   private _target: GameTypes.Target = { strategy: "even" };
   private tick?: GameTypes.Tick.Func;
@@ -37,10 +36,10 @@ export class Game {
     engine: Engine;
     queue: GameTypes.Replay.Frame[];
   }[] = [];
-	/** @deprecated - use `players` */
-	public get opponents() {
-		return this.players;
-	}
+  /** @deprecated - use `players` */
+  public get opponents() {
+    return this.players;
+  }
   /** The client's `gameid` set by the server */
   public gameid: number;
   /** The raw game config sent by TETR.IO */
@@ -79,6 +78,7 @@ export class Game {
       throw e;
     }
 
+		// including ourself means we get our own replay data
     ready.players.forEach((player) =>
       this.client.emit("game.scope.start", player.gameid)
     );
@@ -116,26 +116,34 @@ export class Game {
 
   /** Kill the game. This is called automatically by the Room class when a game ends/is aborted, you don't need to use this. */
   destroy(): undefined {
+    if (!this.over) this.stop();
+
     this.listeners.forEach((l) => this.client.off(l[0], l[1]));
+
+    delete this.client.game;
+  }
+
+  /**
+   * Stops the client's gameplay, when it dies. Does not destroy the game.
+   */
+  stop() {
+    this.listeners.forEach(
+      (l) => l[0] !== "game.replay" && this.client.off(l[0], l[1])
+    );
+    this.listeners = this.listeners.filter((l) => l[0] === "game.replay");
+
     if (this.timeout)
       this.timeout = (clearTimeout(this.timeout) as any) || null;
-    delete this.client.game;
+
     this.engine.events.removeAllListeners();
     this.over = true;
     this.client.ribbon.fasterPing = false;
   }
 
-  // private addIGE(data: Events.in.Game["game.replay.ige"]) {
-  //   this.igeBuffer.push(data);
-  // }
-
   private init() {
     this.client.ribbon.fasterPing = true;
 
-    // @ts-expect-error
-    this.listen("game.match", (data) => {
-      // if (data.)
-    });
+    this.listen("game.match", (_data) => {});
     this.listen(
       "game.start",
       () => {
@@ -440,11 +448,6 @@ export class Game {
       );
 
       this.pipe(...keys);
-
-      // // handle buffered IGE data
-      // const flattenedIGEBuffer = this.igeBuffer.flat();
-      // this.handleIGE(flattenedIGEBuffer);
-      // this.igeBuffer = [];
 
       if (this.frame !== 0 && this.frame % Game.fpm === 0) {
         const frames = this.flushFrames();
