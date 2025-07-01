@@ -735,6 +735,8 @@ export class Engine {
     if (!this.#shouldLock()) {
       this.falling.locking = 0;
     }
+
+		return true as const;
   }
 
   #kick(to: Rotation): false | Exclude<ReturnType<typeof performKick>, true> {
@@ -767,7 +769,7 @@ export class Engine {
     if (this.#isSleep()) {
       if (this.handling.irs === "tap")
         this.falling.irs = (((this.falling.irs + amount) % 4) + 4) % 4;
-      return;
+      return false;
     }
 
     const to = this.#clampRotation(amount);
@@ -785,7 +787,7 @@ export class Engine {
           kick,
           isIRS
         )
-      : undefined;
+      : false;
   }
 
   nextPiece(ignoreBlockout = false, isHold = false) {
@@ -902,13 +904,12 @@ export class Engine {
     return false;
   }
 
-  /** @deprecated */
   hold(_ihs = false, ignoreBlockout = false) {
     if (this.#isSleep()) {
       if (this.handling.ihs === "tap") this.state |= constants.flags.ACTION_IHS;
-      return;
+      return false;
     }
-    if (this.holdLocked || !this.misc.allowed.hold) return;
+    if (this.holdLocked || !this.misc.allowed.hold) return false;
     this.holdLocked = !this.misc.infiniteHold;
     if (this.held) {
       const save = this.held;
@@ -920,6 +921,8 @@ export class Engine {
     }
 
     this.holdLocked = !this.misc.infiniteHold;
+
+		return true;
   }
 
   #slamToFloor() {
@@ -960,50 +963,42 @@ export class Engine {
     return false;
   }
 
-  /** @deprecated */
   rotateCW() {
     return this.#processRotate(1);
   }
 
-  /** @deprecated */
   rotateCCW() {
     return this.#processRotate(-1);
   }
 
-  /** @deprecated */
   rotate180() {
     return this.#processRotate(2);
   }
 
-  /** @deprecated */
   moveRight() {
     const res = this.falling.moveRight(this.board.state);
     if (res && this.gameOptions.spinBonuses !== "stupid") this.lastSpin = null;
     return res;
   }
 
-  /** @deprecated */
   moveLeft() {
     const res = this.falling.moveLeft(this.board.state);
     if (res && this.gameOptions.spinBonuses !== "stupid") this.lastSpin = null;
     return res;
   }
 
-  /** @deprecated */
   dasRight() {
     const res = this.falling.dasRight(this.board.state);
     if (res && this.gameOptions.spinBonuses !== "stupid") this.lastSpin = null;
     return res;
   }
 
-  /** @deprecated */
   dasLeft() {
     const res = this.falling.dasLeft(this.board.state);
     if (res && this.gameOptions.spinBonuses !== "stupid") this.lastSpin = null;
     return res;
   }
 
-  /** @deprecated */
   softDrop() {
     const res = this.falling.softDrop(this.board.state);
     if (res && this.gameOptions.spinBonuses !== "stupid") this.lastSpin = null;
@@ -1116,6 +1111,7 @@ export class Engine {
     ];
   }
 
+	/** */
   hardDrop() {
     while (this.#__internal_fall(1));
 
@@ -1355,8 +1351,8 @@ export class Engine {
     return res;
   }
 
-  press<T extends Game.Key>(key: T) {
-    if (key in this) return this[key]() as ReturnType<(typeof this)[T]>;
+  press<T extends (Game.Key | "dasLeft" | "dasRight")>(key: T) {
+    if (key in this) return this[key]();
     else throw new Error("invalid key: " + key);
   }
 
@@ -1514,7 +1510,7 @@ export class Engine {
 
   #processRotate(rotation: number) {
     this.falling.keys += rotation >= 2 ? 2 : 1;
-    this.#rotate(rotation as Rotation);
+    return this.#rotate(rotation as Rotation);
   }
 
   #processSubframe(subframe: number) {
@@ -1669,7 +1665,7 @@ export class Engine {
     return tetrominoes[piece.toLowerCase()].preview;
   }
 
-  /** @deprecated */
+  /** @deprecated Engine.onQueuePieces is deprecated and no longer functional. Switch to Engine.events.on("queue.add", (pieces) => {}) instead. */
   onQueuePieces(_listener: (pieces: Mino[]) => void) {
     console.log(
       `${chalk.redBright("[Triangle.js]")} Engine.onQueuePieces is deprecated and no longer functional. Switch to Engine.events.on("queue.add", (pieces) => {}) instead.`

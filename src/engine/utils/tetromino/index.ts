@@ -32,7 +32,7 @@ export interface TetrominoSnapshot {
 }
 
 export class Tetromino {
-  private _rotation!: Rotation;
+  #rotation!: Rotation;
   symbol: Mino;
   states: [number, number][][];
   location: [number, number];
@@ -111,11 +111,11 @@ export class Tetromino {
   }
 
   get rotation(): Rotation {
-    return (this._rotation % 4) as any;
+    return (this.#rotation % 4) as any;
   }
 
   set rotation(value: number) {
-    this._rotation = (value % 4) as any;
+    this.#rotation = (value % 4) as any;
   }
 
   get x() {

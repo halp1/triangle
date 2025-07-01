@@ -1,14 +1,16 @@
-import { Client } from "../src";
+import { Client } from "@haelp/teto";
 
 (async () => {
-  const p1 = await Client.connect({
+  const client = await Client.connect({
     username: "test",
     password: "password" // not a real password, use bot credentials instead
   });
 
-  console.log("connected to", p1.user.username);
+  console.log("connected to", client.user.username);
 
-  const room = await p1.rooms.create();
+  const room = await client.rooms.create();
 
   console.log(`<${room.id}> ${room.name}`);
+
+	await client.destroy();
 })();
