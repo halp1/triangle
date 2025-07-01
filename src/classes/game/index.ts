@@ -20,7 +20,7 @@ export class Game {
   private timeout: NodeJS.Timeout | null = null;
   private messageQueue: GameTypes.Client.Events[] = [];
   private startTime: number | null = null;
-  private _target: GameTypes.Target = { strategy: "even" };
+  #target: GameTypes.Target = { strategy: "even" };
   private tick?: GameTypes.Tick.Func;
   private over = false;
   // @ts-expect-error
@@ -387,8 +387,7 @@ export class Game {
                 ).includes(k.data.key) ||
                 typeof k.data.subframe !== "number" ||
                 isNaN(k.data.subframe) ||
-                k.data.subframe < 0 ||
-                k.data.subframe >= 1
+                k.data.subframe < 0
               ) {
                 this.#log(
                   `Invalid key event at index ${idx} passed on frame ${this.frame}:\n${JSON.stringify(k, null, 2)}`,
@@ -513,7 +512,7 @@ export class Game {
    * The current targeting strategy
    */
   get target() {
-    return this._target;
+    return this.#target;
   }
 
   /**
@@ -544,7 +543,7 @@ export class Game {
       });
     }
 
-    this._target = t;
+    this.#target = t;
   }
 
   /**
