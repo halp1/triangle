@@ -6,5 +6,5 @@
   "navigationLinks": {
     "GitHub": "https://github.com/halp1/triangle"
   },
-  "projectDocuments": ["Channel.md", "Gameplay.md"]
+  "projectDocuments": ["Channel.md", "Gameplay.md", "Engine.md"]
 }
