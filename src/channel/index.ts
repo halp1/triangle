@@ -101,6 +101,7 @@ export namespace ChannelAPI {
         return res.data;
       }
     } catch (e: any) {
+			if (e instanceof Error) throw e;
       throw new Error("Network Error", `${e.message} at ${uri}`);
     }
   };
