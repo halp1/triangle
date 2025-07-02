@@ -20,7 +20,7 @@
 > This library is not officially supported nor endorsed by TETR.IO. Use of the main game API is only permitted with an official bot account. You assume all responsibility for any actions that result in staff action (warnings/bans, etc). The main game API is not documented and this library may break at any time.
 > This restriction includes the use of the `Client` class and the `API` class.
 
-> The Tetra Channel section of this library (imported through '@haelp/teto/ch') is open to use by anyone.
+> The Tetra Channel section of this library (imported through `@haelp/teto/ch`) and the Engine (imported through `@haelp/teto/engine`) is open to use by anyone.
 
 ---
 
@@ -145,7 +145,7 @@ await client.wait("game.end");
 console.log("game over");
 ```
 
-View more gameplay documentation [here](https://triangle.haelp.dev/documents/Gameplay.html).
+View more gameplay documentation [here](https://triangle.haelp.dev/documents/Gameplay.html) and [here](https://triangle.haelp.dev/documents/Engine.html).
 
 ### Chatting
 
@@ -195,11 +195,13 @@ Client events are not sent by TETR.IO. They are events sent by the Triangle.js c
 
 For example the `client.room.players` event fires every time a player moves their bracket, joins, or leaves. Rather than listening to several events and managing a players list yourself (with `room.player.add`, `room.player.remove`, `room.update`, `room.update.bracket`, etc) you can use the single `client.room.players`. See [src/types/events/in/client](https://triangle.haelp.dev/interfaces/src.Types.Events.in.Client.html) for more events you can use.
 
+## Troubleshooting
+
+Please see the [troubleshooting guide](https://triangle.haelp.dev/documents/Troubleshooting.html).
+
 ## Other notes
 
-You should store credentials in a `.env` file. Bun will automatically load this file and make the variables available in your code. You can also use the `dotenv` package to load the file manually.
-
-The code should only be used on an authorized bot account (or you risk being banned)
+The code should only be used on an authorized bot account (or you risk being banned).
 It is recommended to set a custom `userAgent` in the client options to identify your bot to the server.
 
 Be careful with what variables you save and where. Due to the event-based nature of TETR.IO and this library, it is easy to accidentally create a memory leak.
@@ -221,7 +223,7 @@ bun run build
 
 ## Contributing
 
-File an issue and make a pull request on github
+File an issue and make a pull request on Github.
 
 ## Credits
 
@@ -229,4 +231,6 @@ File an issue and make a pull request on github
 
 - Thanks to [luke](https://github.com/encryptluke) and [redstone576](https://github.com/redstone576) for testing this library.
 
-Interested in contributing to the project? Contact `haelp` on discord (Please come with some experience with TETR.IO api and an understanding of this library).
+Enjoying Triangle.js? Leave a star!
+
+Interested in contributing to the project? Contact `haelp` on Discord (Please come with some experience with TETR.IO API and an understanding of this library).
