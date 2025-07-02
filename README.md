@@ -122,10 +122,10 @@ tick(async (data) => {
         {
           frame: data.frame,
           type: "keydown",
-					data: {
-          	key: "hardDrop",
-						subframe: 0
-					}
+          data: {
+            key: "hardDrop",
+            subframe: 0
+          }
         },
         {
           frame: data.frame,

@@ -14,12 +14,15 @@ If you are unable to upgrade your Node.js version, do the following:
    ```
 2. At the top of your code, (or anywhere before calling your first `Client.connect`), add the following code:
    **ES6/Import:**
+
    ```ts
    import { WebSocket } from "ws";
 
    globalThis.WebSocket = WebSocket;
    ```
+
    **CommonJS:**
+
    ```ts
    const { WebSocket } = require("ws");
    globalThis.WebSocket = WebSocket;
