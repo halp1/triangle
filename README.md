@@ -65,17 +65,19 @@ The following usage examples assume you are using Typescript. They also assume y
 
 ### Import
 
-> Warning:
-> Bun currently does not open the websocket correctly and Clients can not connect. This will not be fixed, and the issue will only be resolved if a new bun version fixes this bug. For now, we recommend using `esbuild` or `tsx` to compile/run your code if you use typescript.
 
 > Warning:
-> Use Node LTS (even versions) when using Triangle.js. Triangle.js was last known to work with Node 22.x
+> Use the latest LTS versoin when using Node.js with  Triangle.js. Triangle.js was last known to work with Node.js 22.x.
+
+> Warning:
+> Triangle.js uses Node.js/Bun's built-in WebSocket client. If you have to use Node.js < `v22.4.0`, use the `ws` package as a pollyfill:
+> `globalThis.WebSocket = require("ws").WebSocket;`
 
 
 > Tip:
-> When using Node, add the `--enable-source-maps` flag to your node command to get better stack traces.
+> When using Node.js, add the `--enable-source-maps` flag to your node command to get better stack traces.
 
-Node:
+Node.js:
 
 ```ts
 import { Client } from "@haelp/teto";
@@ -119,13 +121,19 @@ tick(async (data) => {
       keys: [
         {
           frame: data.frame,
-          key: "hardDrop",
-          type: "keydown"
+          type: "keydown",
+					data: {
+          	key: "hardDrop",
+						subframe: 0
+					}
         },
         {
-          frame: data.frame + 0.5,
-          key: "hardDrop",
-          type: "keydown"
+          frame: data.frame,
+          type: "keyup",
+          data: {
+            key: "hardDrop",
+            subframe: 0
+          }
         }
       ]
     };
@@ -185,7 +193,7 @@ For events that you might want to handle multiple times, you can use `client.on`
 
 Client events are not sent by TETR.IO. They are events sent by the Triangle.js client itself, to help make creating a bot easier.
 
-For example the `client.room.players` event fires every time a player moves their bracket, joins, or leaves. Rather than listening to several events and managing a players list yourself (with `room.player.add`, `room.player.remove`, `room.update`, `room.update.bracket`, etc) you can use the single `client.room.players`. See src/types/events/in/client for more events you can use.
+For example the `client.room.players` event fires every time a player moves their bracket, joins, or leaves. Rather than listening to several events and managing a players list yourself (with `room.player.add`, `room.player.remove`, `room.update`, `room.update.bracket`, etc) you can use the single `client.room.players`. See [src/types/events/in/client](https://triangle.haelp.dev/interfaces/src.Types.Events.in.Client.html) for more events you can use.
 
 ## Other notes
 

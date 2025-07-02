@@ -1,12 +1,11 @@
 import type { Events, Game } from "../../types";
-import { API, type APITypes, EventEmitter } from "../../utils";
+import { API, type APITypes, docLink, EventEmitter } from "../../utils";
 import { CandorCodec } from "./codecs/codec-candor";
 import { tetoPack } from "./codecs/teto-pack";
 import { Bits } from "./codecs/utils/bits";
 import type { RibbonEvents } from "./types";
 
 import chalk from "chalk";
-import { client as WebSocket, type connection as Connection } from "websocket";
 
 export type Codec = "json" | "teto" | "candor";
 
@@ -59,7 +58,7 @@ export class Ribbon {
 
   static SLOW_CODEC_THRESHOLD = 100;
 
-  #socket: Connection | null = null;
+  #socket: WebSocket | null = null;
 
   #token: string;
 
@@ -220,6 +219,7 @@ export class Ribbon {
     const signature = new Promise<APITypes.Server.Signature>(
       async (r) => await envPromise.then((s) => r(s.signature))
     );
+
     return new Ribbon({
       verbose,
       token,
@@ -287,6 +287,12 @@ export class Ribbon {
   }
 
   async #connect() {
+    if (typeof WebSocket === "undefined" || !WebSocket) {
+      throw new Error(
+        `Native WebSocket not found. See ${docLink("native-websocket-not-found")} for more information.`
+      );
+    }
+
     const spool = await this.#api.server.spool(this.#options.spooling);
 
     this.#spool = {
@@ -302,61 +308,73 @@ export class Ribbon {
     }
 
     if (this.#socket) {
-      this.#socket.removeAllListeners();
+      this.#socket.onopen =
+        this.#socket.onmessage =
+        this.#socket.onerror =
+        this.#socket.onclose =
+          null;
       this.#socket.close();
+      this.#socket = null;
     }
 
     this.#flags |= Ribbon.FLAGS.CONNECTING;
 
-    const socket = new WebSocket();
+    try {
+      const socket = new WebSocket(this.#uri, this.#spool.token);
+      this.#socket = socket;
 
-    socket.on(
-      "connectFailed",
-      (error: { toString: () => string; errors?: any[] }) => {
-        if (
-          error instanceof AggregateError &&
-          Array.isArray((error as any).errors)
-        ) {
-          this.log("Aggregated Connect Errors:", {
-            force: true,
-            level: "error"
-          });
-          (error as any).errors.forEach((err: any, idx: number) => {
-            this.log(
-              `  [${idx + 1}] ${err?.stack || err?.message || err?.toString?.() || err}`,
-              { force: true, level: "error" }
-            );
-          });
-        } else {
-          this.log("Connect error: " + error.toString(), {
-            force: true,
-            level: "error"
-          });
+      socket.binaryType = "arraybuffer";
+
+      socket.onopen = () => {
+        this.#onOpen();
+      };
+
+      socket.onerror = (error) => {
+        this.#onError(
+          error instanceof Error ? error : new Error(String(error))
+        );
+      };
+
+      socket.onclose = (event) => {
+        this.#onClose(event.code);
+      };
+
+      socket.onmessage = (event) => {
+        const data = event.data;
+        if (typeof data === "string") {
+          this.#onMessage(Buffer.from(data));
+        } else if (data instanceof ArrayBuffer) {
+          this.#onMessage(Buffer.from(data));
         }
+      };
+    } catch (error) {
+      if (
+        error instanceof AggregateError &&
+        Array.isArray((error as any).errors)
+      ) {
+        this.log("Aggregated Connect Errors:", {
+          force: true,
+          level: "error"
+        });
+        (error as any).errors.forEach((err: any, idx: number) => {
+          this.log(
+            `  [${idx + 1}] ${err?.stack || err?.message || err?.toString?.() || err}`,
+            { force: true, level: "error" }
+          );
+        });
+      } else {
+        this.log(
+          "Connect error: " +
+            (error instanceof Error ? error.toString() : String(error)),
+          {
+            force: true,
+            level: "error"
+          }
+        );
       }
-    );
 
-    socket.on("connect", (connection: Connection) => {
-      this.#socket = connection;
-      this.#onOpen();
-
-      connection.on("error", this.#onError.bind(this));
-
-      connection.on("close", this.#onClose.bind(this));
-
-      connection.on("message", (message) => {
-        if (message.type === "utf8" && message.utf8Data) {
-          this.#onMessage(Buffer.from(message.utf8Data));
-        } else if (message.type === "binary" && message.binaryData) {
-          this.#onMessage(message.binaryData as Buffer);
-        }
-      });
-    });
-
-    socket.connect(this.#uri, undefined, undefined, {
-      "user-agent": this.#userAgent,
-      authorization: "Bearer " + this.#spool.token
-    });
+      this.#reconnect();
+    }
   }
 
   async #switch(target: string) {
@@ -454,18 +472,61 @@ export class Ribbon {
     const packet = this.#encode(command, data);
 
     if (!Buffer.isBuffer(packet)) {
-      this.log("SEND UTF " + command + " " + JSON.stringify(data, null, 2));
-      return this.#socket?.sendUTF(packet);
+      this.log(
+        "SEND UTF " +
+          command +
+          " " +
+          JSON.stringify(
+            data,
+            (_key, value) => {
+              if (
+                value &&
+                typeof value === "object" &&
+                value.type === "Buffer" &&
+                Array.isArray(value.data)
+              ) {
+                return `Buffer<${value.data.length}>`;
+              }
+              return value;
+            },
+            2
+          )?.replace(/"Buffer<(\d+)>"/g, "Buffer<$1>")
+      );
+      if (this.#socket && this.#socket.readyState === WebSocket.OPEN) {
+        this.#socket.send(packet);
+      }
+      return;
     }
 
     if (!(packet[0] & Ribbon.CODEC_FLAGS.F_ID)) {
-      this.log("SEND " + command + " " + JSON.stringify(data, null, 2));
-      return this.#socket?.sendBytes(packet);
+      this.log(
+        "SEND " +
+          command +
+          " " +
+          JSON.stringify(
+            data,
+            (_key, value) => {
+              if (
+                value &&
+                typeof value === "object" &&
+                value.type === "Buffer" &&
+                Array.isArray(value.data)
+              ) {
+                return `Buffer<${value.data.length}>`;
+              }
+              return value;
+            },
+            2
+          )?.replace(/"Buffer<(\d+)>"/g, "Buffer<$1>")
+      );
+      if (this.#socket && this.#socket.readyState === WebSocket.OPEN) {
+        this.#socket.send(packet);
+      }
+      return;
     }
 
     const id = ++this.#sentid;
 
-    this.log(this.#connecting.toString() + " " + this.#connected.toString());
     new Bits(packet).seek(8).write(id, 24);
 
     this.#sentQueue.push({ id, packet });
@@ -473,7 +534,13 @@ export class Ribbon {
     if (!this.#connecting) {
       while (this.#sentQueue.length > Ribbon.CACHE_MAXSIZE)
         this.#sentQueue.shift();
-      if (this.#connected) this.#socket?.sendBytes(packet);
+      if (
+        this.#connected &&
+        this.#socket &&
+        this.#socket.readyState === WebSocket.OPEN
+      ) {
+        this.#socket.send(packet);
+      }
       this.emitter.emit("client.ribbon.send", {
         command,
         data
@@ -489,7 +556,6 @@ export class Ribbon {
     if (!this.#alive) {
       this.#flags |=
         Ribbon.FLAGS.TIMING_OUT | Ribbon.FLAGS.ALIVE | Ribbon.FLAGS.CONNECTING;
-      this.#reconnect();
     } else {
       this.#flags &= ~Ribbon.FLAGS.ALIVE;
       if (this.#connected) {
@@ -549,7 +615,21 @@ export class Ribbon {
         "RECEIVE " +
           message.command +
           " " +
-          JSON.stringify(message.data, null, 2)
+          JSON.stringify(
+            message.data,
+            (_key, value) => {
+              if (
+                value &&
+                typeof value === "object" &&
+                value.type === "Buffer" &&
+                Array.isArray(value.data)
+              ) {
+                return `Buffer<${value.data.length}>`;
+              }
+              return value;
+            },
+            2
+          )?.replace(/"Buffer<(\d+)>"/g, "Buffer<$1>")
       );
     }
 
@@ -644,7 +724,6 @@ export class Ribbon {
     if (this.#connected && this.#socket) {
       this.#pipe("die");
       this.#socket.close();
-      this.#socket.removeAllListeners();
     }
 
     this.#flags |= Ribbon.FLAGS.DEAD;
@@ -687,7 +766,7 @@ export class Ribbon {
   }
 
   get #connected() {
-    return !!this.#socket?.connected;
+    return !!this.#socket && this.#socket.readyState === 1; // WebSocket.OPEN
   }
 
   emit<T extends keyof Events.out.all>(

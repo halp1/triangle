@@ -14,7 +14,8 @@
 	"homepage": "https://triangle.haelp.dev",
 	"main": "dist/index.js",
 	"scripts": {
-		"test": "tsc --noEmit",
+		"check": "tsc --noEmit",
+		"test": "bun check && bun test",
 		"format": "prettier --write \"./**/*.ts\"",
 		"docs": "typedoc",
 		"clean": "rm -rf dist",
@@ -60,23 +61,23 @@
 	"author": "halp",
 	"license": "MIT",
 	"dependencies": {
+		"buffer": "^6.0.3",
 		"chalk": "^5.4.1",
 		"fast-equals": "^5.2.2",
 		"lodash": "^4.17.21",
-		"msgpackr": "^1.11.2",
-		"node-fetch": "^2.7.0",
-		"websocket": "^1.0.35"
+		"msgpackr": "^1.11.4",
+		"node-fetch": "^2.7.0"
 	},
 	"devDependencies": {
 		"@swc/cli": "^0.7.7",
-		"@swc/core": "^1.12.7",
+		"@swc/core": "^1.12.9",
 		"@trivago/prettier-plugin-sort-imports": "^4.3.0",
-		"@types/node": "^20.17.23",
-		"@types/websocket": "^1.0.10",
-		"@types/ws": "^8.18.0",
+		"@types/bun": "^1.2.17",
+		"@types/node": "22",
+		"@types/ws": "^8.18.1",
 		"esbuild": "^0.23.1",
-		"prettier": "^3.5.3",
+		"prettier": "^3.6.2",
 		"typedoc": "^0.26.11",
-		"typescript": "5.6"
+		"typescript": "~5.6.3"
 	}
 }

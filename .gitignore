@@ -4,3 +4,5 @@ dist
 bun.js
 engine.js
 ch.js
+
+.env.test

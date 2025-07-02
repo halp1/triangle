@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { Buffer } from "buffer/";
 
 export default (function (t) {
   "use strict";
