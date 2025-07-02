@@ -1,8 +1,5 @@
 node_modules
 docs
 dist
-bun.js
-engine.js
-ch.js
 
 .env.test

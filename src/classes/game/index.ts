@@ -349,7 +349,7 @@ export class Game {
     return returnFrames;
   }
 
-  private async tickGame() {
+  private async tickGame(): Promise<void> {
     if (this.over) return;
     let runAfter: GameTypes.Tick.Out["runAfter"] = [];
     if (this.tick) {
@@ -466,11 +466,14 @@ export class Game {
 
       runAfter.forEach((f) => f());
 
-      this.timeout = setTimeout(
-        this.tickGame.bind(this),
+      const target =
         ((this.frame + 1) / Game.fps) * 1000 -
-          (performance.now() - this.startTime!)
-      );
+        (performance.now() - this.startTime!);
+      if (target <= 0) {
+        return this.tickGame();
+      }
+
+      this.timeout = setTimeout(this.tickGame.bind(this), target);
     } catch (e) {
       console.error(e);
       throw e;
