@@ -15,7 +15,7 @@
 <img alt="NPM Version" src="https://img.shields.io/npm/v/%40haelp%2Fteto">
 </div>
 
-## Disclaimer:
+## Disclaimer
 
 > This library is not officially supported nor endorsed by TETR.IO. Use of the main game API is only permitted with an official bot account. You assume all responsibility for any actions that result in staff action (warnings/bans, etc). The main game API is not documented and this library may break at any time.
 > This restriction includes the use of the `Client` class and the `API` class.
