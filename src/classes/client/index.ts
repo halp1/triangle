@@ -148,7 +148,7 @@ export class Client {
     )}`;
     let self: { id: string; token: string };
     if ("token" in options) {
-			if (!options.token) throw new Error("No valid token was provided");
+      if (!options.token) throw new Error("No valid token was provided");
       self = {
         token: options.token,
         id: parseToken(options.token)

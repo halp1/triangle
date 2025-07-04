@@ -12,5 +12,5 @@ import { Client } from "@haelp/teto";
 
   console.log(`<${room.id}> ${room.name}`);
 
-	await client.destroy();
+  await client.destroy();
 })();

@@ -7,6 +7,5 @@ test("Client connect", async () => {
     token: process.env.TOKEN!
   });
 
-	expect(client.user).toBeDefined();
+  expect(client.user).toBeDefined();
 });
-

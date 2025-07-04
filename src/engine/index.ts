@@ -736,7 +736,7 @@ export class Engine {
       this.falling.locking = 0;
     }
 
-		return true as const;
+    return true as const;
   }
 
   #kick(to: Rotation): false | Exclude<ReturnType<typeof performKick>, true> {
@@ -922,7 +922,7 @@ export class Engine {
 
     this.holdLocked = !this.misc.infiniteHold;
 
-		return true;
+    return true;
   }
 
   #slamToFloor() {
@@ -1111,7 +1111,7 @@ export class Engine {
     ];
   }
 
-	/** */
+  /** */
   hardDrop() {
     while (this.#__internal_fall(1));
 
@@ -1351,7 +1351,7 @@ export class Engine {
     return res;
   }
 
-  press<T extends (Game.Key | "dasLeft" | "dasRight")>(key: T) {
+  press<T extends Game.Key | "dasLeft" | "dasRight">(key: T) {
     if (key in this) return this[key]();
     else throw new Error("invalid key: " + key);
   }

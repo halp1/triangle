@@ -4,7 +4,7 @@
       "syntax": "typescript",
       "tsx": false
     },
-    "target": "es2020"
+    "target": "esnext"
   },
   "module": {
     "type": "commonjs"

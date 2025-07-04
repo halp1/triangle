@@ -59,6 +59,19 @@ To do this, add the following to the "compilerOptions" object in your `tsconfig.
 }
 ```
 
+## Setup (Bun only)
+
+Run the following:
+```bash
+bun i buffer
+```
+
+Add the following to the top of your root file:
+```ts
+import { Buffer } from "buffer/";
+globalThis.Buffer = Buffer;
+```
+
 ## Usage
 
 The following usage examples assume you are using Typescript. They also assume you can use top level await. If you cannot, you will need to wrap the code in an async function.

@@ -1,6 +1,6 @@
 {
 	"name": "@haelp/teto",
-	"version": "3.2.0",
+	"version": "3.2.1",
 	"description": "A typescript-based controllable TETR.IO client.",
 	"maintainers": [
 		"haelp"
@@ -20,7 +20,7 @@
 		"docs": "typedoc",
 		"clean": "rm -rf dist",
 		"build:types": "tsc",
-		"build:swc": "swc src --strip-leading-paths -d dist --copy-files",
+		"build:swc": "swc src --strip-leading-paths -d dist -C module.type=es6 --copy-files && bun scripts/renameModules.ts && swc src --strip-leading-paths -d dist --copy-files",
 		"build": "bun version.js && bun clean && bun build:types && bun build:swc",
 		"pub": "npm publish --access public"
 	},
@@ -35,17 +35,17 @@
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
-			"import": "./dist/index.js",
+			"import": "./dist/index.mjs",
 			"default": "./dist/index.js"
 		},
 		"./engine": {
 			"types": "./dist/engine/index.d.ts",
-			"import": "./dist/engine/index.js",
+			"import": "./dist/engine/index.mjs",
 			"default": "./dist/engine/index.js"
 		},
 		"./ch": {
 			"types": "./dist/channel/index.d.ts",
-			"import": "./dist/channel/index.js",
+			"import": "./dist/channel/index.mjs",
 			"default": "./dist/channel/index.js"
 		}
 	},

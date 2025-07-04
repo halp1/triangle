@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Buffer } from "buffer/";
+import { Buffer } from "buffer/index.js";
 
 export default (function (t) {
   "use strict";
@@ -30,7 +30,7 @@ export default (function (t) {
   }
   class x {
     constructor(t) {
-      t &&
+      (t &&
         (!1 === t.useRecords &&
           void 0 === t.mapsAsObjects &&
           (t.mapsAsObjects = !0),
@@ -47,16 +47,17 @@ export default (function (t) {
             (((t.structures = []).uninitialized = !0),
             (t.structures.sharedLength = 0)),
         t.int64AsNumber && (t.int64AsType = "number")),
-        Object.assign(this, t);
+        Object.assign(this, t));
     }
     unpack(t, n) {
       if (r)
         return Y(
           () => (
-            Z(), this ? this.unpack(t, n) : x.prototype.unpack.call(m, t, n)
+            Z(),
+            this ? this.unpack(t, n) : x.prototype.unpack.call(m, t, n)
           )
         );
-      t.buffer ||
+      (t.buffer ||
         t.constructor !== ArrayBuffer ||
         (t = void 0 !== e ? e.from(t) : new Uint8Array(t)),
         "object" == typeof n
@@ -65,7 +66,7 @@ export default (function (t) {
         (f = 0),
         (o = null),
         (s = null),
-        (r = t);
+        (r = t));
       try {
         c =
           t.dataView ||
@@ -78,9 +79,9 @@ export default (function (t) {
         );
       }
       if (this instanceof x) {
-        if (((h = this), this.structures)) return (a = this.structures), w(n);
+        if (((h = this), this.structures)) return ((a = this.structures), w(n));
         (!a || a.length > 0) && (a = []);
-      } else (h = m), (!a || a.length > 0) && (a = []);
+      } else ((h = m), (!a || a.length > 0) && (a = []));
       return w(n);
     }
     unpackMultiple(t, e) {
@@ -91,7 +92,7 @@ export default (function (t) {
         let i = t.length,
           a = this ? this.unpack(t, i) : Q.unpack(t, i);
         if (!e) {
-          for (n = [a]; l < i; ) (r = l), n.push(w());
+          for (n = [a]; l < i; ) ((r = l), n.push(w()));
           return n;
         }
         if (!1 === e(a, r, l)) return;
@@ -99,11 +100,11 @@ export default (function (t) {
       } catch (t) {
         throw ((t.lastPosition = r), (t.values = n), t);
       } finally {
-        (y = !1), Z();
+        ((y = !1), Z());
       }
     }
     _mergeStructures(t, e) {
-      (t = t || []), Object.isFrozen(t) && (t = t.map((t) => t.slice(0)));
+      ((t = t || []), Object.isFrozen(t) && (t = t.map((t) => t.slice(0))));
       for (let e = 0, n = t.length; e < n; e++) {
         let n = t[e];
         n && ((n.isShared = !0), e >= 32 && (n.highByte = (e - 32) >> 5));
@@ -137,10 +138,10 @@ export default (function (t) {
         y && (a.restoreStructures = null),
         l == i)
       )
-        a && a.restoreStructures && _(),
+        (a && a.restoreStructures && _(),
           (a = null),
           (r = null),
-          u && (u = null);
+          u && (u = null));
       else {
         if (l > i) throw new Error("Unexpected end of MessagePack data");
         if (!y) {
@@ -158,13 +159,13 @@ export default (function (t) {
       return t;
     } catch (t) {
       throw (
-        (a && a.restoreStructures && _(),
+        a && a.restoreStructures && _(),
         Z(),
         (t instanceof RangeError ||
           t.message.startsWith("Unexpected end of buffer") ||
           l > i) &&
           (t.incomplete = !0),
-        t)
+        t
       );
     }
   }
@@ -187,7 +188,7 @@ export default (function (t) {
           let e = {};
           for (let n = 0; n < t; n++) {
             let t = W();
-            "__proto__" === t && (t = "__proto_"), (e[t] = S());
+            ("__proto__" === t && (t = "__proto_"), (e[t] = S()));
           }
           return e;
         }
@@ -234,29 +235,29 @@ export default (function (t) {
             throw new Error("Unexpected end of buffer");
           return z(e);
         case 197:
-          return (e = c.getUint16(l)), (l += 2), z(e);
+          return ((e = c.getUint16(l)), (l += 2), z(e));
         case 198:
-          return (e = c.getUint32(l)), (l += 4), z(e);
+          return ((e = c.getUint32(l)), (l += 4), z(e));
         case 199:
           return U(r[l++]);
         case 200:
-          return (e = c.getUint16(l)), (l += 2), U(e);
+          return ((e = c.getUint16(l)), (l += 2), U(e));
         case 201:
-          return (e = c.getUint32(l)), (l += 4), U(e);
+          return ((e = c.getUint32(l)), (l += 4), U(e));
         case 202:
           if (((e = c.getFloat32(l)), h.useFloat32 > 2)) {
             let t = $[((127 & r[l]) << 1) | (r[l + 1] >> 7)];
-            return (l += 4), ((t * e + (e > 0 ? 0.5 : -0.5)) | 0) / t;
+            return ((l += 4), ((t * e + (e > 0 ? 0.5 : -0.5)) | 0) / t);
           }
-          return (l += 4), e;
+          return ((l += 4), e);
         case 203:
-          return (e = c.getFloat64(l)), (l += 8), e;
+          return ((e = c.getFloat64(l)), (l += 8), e);
         case 204:
           return r[l++];
         case 205:
-          return (e = c.getUint16(l)), (l += 2), e;
+          return ((e = c.getUint16(l)), (l += 2), e);
         case 206:
-          return (e = c.getUint32(l)), (l += 4), e;
+          return ((e = c.getUint32(l)), (l += 4), e);
         case 207:
           return (
             "number" === h.int64AsType
@@ -273,9 +274,9 @@ export default (function (t) {
         case 208:
           return c.getInt8(l++);
         case 209:
-          return (e = c.getInt16(l)), (l += 2), e;
+          return ((e = c.getInt16(l)), (l += 2), e);
         case 210:
-          return (e = c.getInt32(l)), (l += 4), e;
+          return ((e = c.getInt32(l)), (l += 4), e);
         case 211:
           return (
             "number" === h.int64AsType
@@ -304,7 +305,7 @@ export default (function (t) {
             throw new Error("Unknown extension " + e);
           }
         case 213:
-          return (e = r[l]), 114 == e ? (l++, j(63 & r[l++], r[l++])) : U(2);
+          return ((e = r[l]), 114 == e ? (l++, j(63 & r[l++], r[l++])) : U(2));
         case 214:
           return U(4);
         case 215:
@@ -312,7 +313,7 @@ export default (function (t) {
         case 216:
           return U(16);
         case 217:
-          return (e = r[l++]), f >= l ? o.slice(l - p, (l += e) - p) : N(e);
+          return ((e = r[l++]), f >= l ? o.slice(l - p, (l += e) - p) : N(e));
         case 218:
           return (
             (e = c.getUint16(l)),
@@ -324,13 +325,13 @@ export default (function (t) {
             f >= (l += 4) ? o.slice(l - p, (l += e) - p) : R(e)
           );
         case 220:
-          return (e = c.getUint16(l)), (l += 2), D(e);
+          return ((e = c.getUint16(l)), (l += 2), D(e));
         case 221:
-          return (e = c.getUint32(l)), (l += 4), D(e);
+          return ((e = c.getUint32(l)), (l += 4), D(e));
         case 222:
-          return (e = c.getUint16(l)), (l += 2), M(e);
+          return ((e = c.getUint16(l)), (l += 2), M(e));
         case 223:
-          return (e = c.getUint32(l)), (l += 4), M(e);
+          return ((e = c.getUint32(l)), (l += 4), M(e));
         default:
           if (t >= 224) return t - 256;
           if (void 0 === t) {
@@ -361,16 +362,16 @@ export default (function (t) {
               .join(",") +
             "})}"
         )(S));
-        return 0 === t.highByte && (t.read = k(e, t.read)), n();
+        return (0 === t.highByte && (t.read = k(e, t.read)), n());
       }
       let r = {};
       for (let e = 0, n = t.length; e < n; e++) {
         let n = t[e];
-        "__proto__" === n && (n = "__proto_"), (r[n] = S());
+        ("__proto__" === n && (n = "__proto_"), (r[n] = S()));
       }
       return h.freezeData ? Object.freeze(r) : r;
     }
-    return (n.count = 0), 0 === t.highByte ? k(e, n) : n;
+    return ((n.count = 0), 0 === t.highByte ? k(e, n) : n);
   }
   const k = (t, e) =>
     function () {
@@ -379,7 +380,7 @@ export default (function (t) {
       let i = t < 32 ? -(t + (n << 5)) : t + (n << 5),
         o = a[i] || I()[i];
       if (!o) throw new Error("Record id is not defined for " + i);
-      return o.read || (o.read = E(o, t)), o.read();
+      return (o.read || (o.read = E(o, t)), o.read());
     };
   function I() {
     let t = Y(() => ((r = null), h.getStructures()));
@@ -411,16 +412,16 @@ export default (function (t) {
             ((63 & r[l++]) << 12) |
             ((63 & r[l++]) << 6) |
             (63 & r[l++]);
-          e > 65535 &&
+          (e > 65535 &&
             ((e -= 65536),
             a.push(((e >>> 10) & 1023) | 55296),
             (e = 56320 | (1023 & e))),
-            a.push(e);
+            a.push(e));
         } else a.push(t);
       else a.push(t);
       a.length >= 4096 && ((e += F.apply(String, a)), (a.length = 0));
     }
-    return a.length > 0 && (e += F.apply(String, a)), e;
+    return (a.length > 0 && (e += F.apply(String, a)), e);
   }
   function D(t) {
     let e = new Array(t);
@@ -432,7 +433,7 @@ export default (function (t) {
       let e = {};
       for (let n = 0; n < t; n++) {
         let t = W();
-        "__proto__" === t && (t = "__proto_"), (e[t] = S());
+        ("__proto__" === t && (t = "__proto_"), (e[t] = S()));
       }
       return e;
     }
@@ -557,10 +558,10 @@ export default (function (t) {
           t = r[l++];
           break;
         case 218:
-          (t = c.getUint16(l)), (l += 2);
+          ((t = c.getUint16(l)), (l += 2));
           break;
         case 219:
-          (t = c.getUint32(l)), (l += 4);
+          ((t = c.getUint32(l)), (l += 4));
           break;
         default:
           throw new Error("Expected string");
@@ -595,7 +596,7 @@ export default (function (t) {
   var G = new Array(4096);
   function W() {
     let t = r[l++];
-    if (!(t >= 160 && t < 192)) return l--, V(S());
+    if (!(t >= 160 && t < 192)) return (l--, V(S()));
     if (((t -= 160), f >= l)) return o.slice(l - p, (l += t) - p);
     if (!(0 == f && i < 180)) return A(t);
     let e,
@@ -617,12 +618,12 @@ export default (function (t) {
           s = 1879048192;
           break;
         }
-      if (s === u) return (l = s), a.string;
-      (u -= 3), (s = l);
+      if (s === u) return ((l = s), a.string);
+      ((u -= 3), (s = l));
     }
     for (a = [], G[n] = a, a.bytes = t; s < u; )
-      (e = c.getUint32(s)), a.push(e), (s += 4);
-    for (u += 3; s < u; ) (e = r[s++]), a.push(e);
+      ((e = c.getUint32(s)), a.push(e), (s += 4));
+    for (u += 3; s < u; ) ((e = r[s++]), a.push(e));
     let d = t < 16 ? L(t) : P(t);
     return (a.string = null != d ? d : A(t));
   }
@@ -648,16 +649,16 @@ export default (function (t) {
       n.read()
     );
   };
-  (d[0] = () => {}),
+  ((d[0] = () => {}),
     (d[0].noBuffer = !0),
     (d[66] = (t) => {
       let e = t.length,
         n = BigInt(128 & t[0] ? t[0] - 256 : t[0]);
-      for (let r = 1; r < e; r++) (n <<= 8n), (n += BigInt(t[r]));
+      for (let r = 1; r < e; r++) ((n <<= 8n), (n += BigInt(t[r])));
       return n;
-    });
+    }));
   let H = { Error, TypeError, ReferenceError };
-  (d[101] = () => {
+  ((d[101] = () => {
     let t = S();
     return (H[t[0]] || Error)(t[1]);
   }),
@@ -679,9 +680,9 @@ export default (function (t) {
         throw new Error("Structured clone extension is disabled");
       let e = c.getUint32(l - 4),
         n = u.get(e);
-      return (n.used = !0), n.target;
+      return ((n.used = !0), n.target);
     }),
-    (d[115] = () => new Set(S()));
+    (d[115] = () => new Set(S())));
   const X = [
     "Int8",
     "Uint8",
@@ -696,13 +697,13 @@ export default (function (t) {
     "BigUint64"
   ].map((t) => t + "Array");
   let q = "object" == typeof globalThis ? globalThis : window;
-  (d[116] = (t) => {
+  ((d[116] = (t) => {
     let e = t[0],
       n = X[e];
     if (!n) {
       if (16 === e) {
         let e = new ArrayBuffer(t.length - 1);
-        return new Uint8Array(e).set(t.subarray(1)), e;
+        return (new Uint8Array(e).set(t.subarray(1)), e);
       }
       throw new Error("Could not find typed array for code " + e);
     }
@@ -711,7 +712,7 @@ export default (function (t) {
     (d[120] = () => {
       let t = S();
       return new RegExp(t[0], t[1]);
-    });
+    }));
   const K = [];
   function Y(t) {
     let e = i,
@@ -744,9 +745,9 @@ export default (function (t) {
     );
   }
   function Z() {
-    (r = null), (u = null), (a = null);
+    ((r = null), (u = null), (a = null));
   }
-  (d[98] = (t) => {
+  ((d[98] = (t) => {
     let e = (t[0] << 24) + (t[1] << 16) + (t[2] << 8) + t[3],
       n = l;
     return (
@@ -784,7 +785,7 @@ export default (function (t) {
                       (t[10] << 8) +
                       t[11])
               )
-            : new Date("invalid"));
+            : new Date("invalid")));
   const $ = new Array(147);
   for (let t = 0; t < 256; t++)
     $[t] = +("1e" + Math.floor(45.15 - 0.30103 * t));
@@ -821,7 +822,7 @@ export default (function (t) {
   class wt extends x {
     constructor(t) {
       let e, n, r, i;
-      super(t), (this.offset = 0);
+      (super(t), (this.offset = 0));
       let a = ht.prototype.utf8Write
           ? function (t, e) {
               return ft.utf8Write(t, e, 4294967295);
@@ -839,8 +840,8 @@ export default (function (t) {
         throw new Error("Maximum maxSharedStructure is 8160");
       t.structuredClone && null == t.moreTypes && (this.moreTypes = !0);
       let l = t.maxOwnStructures;
-      null == l && (l = u ? 32 : 64),
-        this.structures || 0 == t.useRecords || (this.structures = []);
+      (null == l && (l = u ? 32 : 64),
+        this.structures || 0 == t.useRecords || (this.structures = []));
       let h = c > 32 || l + c > 64,
         p = c + 64,
         f = c + l + 64;
@@ -890,7 +891,7 @@ export default (function (t) {
                 i = r.transitions;
               for (let e = 0, r = t.length; e < r; e++) {
                 let r = t[e];
-                (n = i[r]), n || (n = i[r] = Object.create(null)), (i = n);
+                ((n = i[r]), n || (n = i[r] = Object.create(null)), (i = n));
               }
               i[xt] = e + 64;
             }
@@ -916,7 +917,7 @@ export default (function (t) {
               a = -1;
             for (; n && r > 0; ) {
               let i = t[--r].offset + e;
-              i < n.stringsPosition + e && -1 === a && (a = 0),
+              (i < n.stringsPosition + e && -1 === a && (a = 0),
                 i > n.position + e
                   ? a >= 0 && (a += 6)
                   : (a >= 0 &&
@@ -926,14 +927,14 @@ export default (function (t) {
                       ),
                       (a = -1)),
                     (n = n.previous),
-                    r++);
+                    r++));
             }
-            a >= 0 &&
+            (a >= 0 &&
               n &&
               mt.setUint32(n.position + e, mt.getUint32(n.position + e) + a),
               (vt += 6 * t.length),
               vt > gt && T(vt),
-              (o.offset = vt);
+              (o.offset = vt));
             let s = (function (t, e) {
               let n,
                 r = 6 * e.length,
@@ -941,19 +942,19 @@ export default (function (t) {
               for (; (n = e.pop()); ) {
                 let e = n.offset,
                   a = n.id;
-                t.copyWithin(e + r, e, i), (r -= 6);
+                (t.copyWithin(e + r, e, i), (r -= 6));
                 let o = e + r;
-                (t[o++] = 214),
+                ((t[o++] = 214),
                   (t[o++] = 105),
                   (t[o++] = a >> 24),
                   (t[o++] = (a >> 16) & 255),
                   (t[o++] = (a >> 8) & 255),
                   (t[o++] = 255 & a),
-                  (i = e);
+                  (i = e));
               }
               return t;
             })(ft.subarray(e, vt), t);
-            return (i = null), s;
+            return ((i = null), s);
           }
           return (
             (o.offset = vt),
@@ -970,7 +971,7 @@ export default (function (t) {
                   (t.isCompatible = (t) => {
                     let n =
                       !t || (e.lastNamedStructuresLength || 0) === t.length;
-                    return n || e._mergeStructures(t), n;
+                    return (n || e._mergeStructures(t), n);
                   }),
                   t
                 );
@@ -982,14 +983,17 @@ export default (function (t) {
                   ft.length > 1073741824 && (ft = null),
                   i);
           }
-          ft.length > 1073741824 && (ft = null), a & Ft && (vt = e);
+          (ft.length > 1073741824 && (ft = null), a & Ft && (vt = e));
         }
       };
       const v = () => {
           g < 10 && g++;
           let t = r.sharedLength || 0;
           if ((r.length > t && !s && (r.length = t), m > 1e4))
-            (r.transitions = null), (g = 0), (m = 0), d.length > 0 && (d = []);
+            ((r.transitions = null),
+              (g = 0),
+              (m = 0),
+              d.length > 0 && (d = []));
           else if (d.length > 0 && !s) {
             for (let t = 0, e = d.length; t < e; t++) d[t][xt] = 0;
             d = [];
@@ -1016,7 +1020,7 @@ export default (function (t) {
                 let t,
                   n,
                   r = (yt[0] ? 3 * yt[0].length + yt[1].length : 0) + 10;
-                vt + r > gt && (ft = T(vt + r)),
+                (vt + r > gt && (ft = T(vt + r)),
                   yt.position
                     ? ((n = yt),
                       (ft[vt] = 200),
@@ -1033,10 +1037,14 @@ export default (function (t) {
                   (yt = ["", ""]),
                   (yt.previous = n),
                   (yt.size = 0),
-                  (yt.position = t);
+                  (yt.position = t));
               }
               let n = bt.test(t);
-              return (yt[n ? 0 : 1] += t), (ft[vt++] = 193), void b(n ? -i : i);
+              return (
+                (yt[n ? 0 : 1] += t),
+                (ft[vt++] = 193),
+                void b(n ? -i : i)
+              );
             }
             r = i < 32 ? 1 : i < 256 ? 2 : i < 65536 ? 3 : 5;
             let o = 3 * i;
@@ -1046,7 +1054,7 @@ export default (function (t) {
                 o,
                 s = vt + r;
               for (e = 0; e < i; e++)
-                (a = t.charCodeAt(e)),
+                ((a = t.charCodeAt(e)),
                   a < 128
                     ? (ft[s++] = a)
                     : a < 2048
@@ -1061,10 +1069,10 @@ export default (function (t) {
                           (ft[s++] = (63 & a) | 128))
                         : ((ft[s++] = (a >> 12) | 224),
                           (ft[s++] = ((a >> 6) & 63) | 128),
-                          (ft[s++] = (63 & a) | 128));
+                          (ft[s++] = (63 & a) | 128)));
               n = s - vt - r;
             } else n = a(t, vt + r);
-            n < 32
+            (n < 32
               ? (ft[vt++] = 160 | n)
               : n < 256
                 ? (r < 2 && ft.copyWithin(vt + 2, vt + 1, vt + 1 + n),
@@ -1079,7 +1087,7 @@ export default (function (t) {
                     (ft[vt++] = 219),
                     mt.setUint32(vt, n),
                     (vt += 4)),
-              (vt += n);
+              (vt += n));
           } else if ("number" === r)
             if (t >>> 0 === t)
               t < 32 ||
@@ -1120,7 +1128,7 @@ export default (function (t) {
                   return void (vt += 4);
                 vt--;
               }
-              (ft[vt++] = 203), mt.setFloat64(vt, t), (vt += 8);
+              ((ft[vt++] = 203), mt.setFloat64(vt, t), (vt += 8));
             }
           else if ("object" === r || "function" === r)
             if (t) {
@@ -1153,7 +1161,7 @@ export default (function (t) {
                         (ft[vt++] = n >> 8),
                         (ft[vt++] = 255 & n))
                       : ((ft[vt++] = 223), mt.setUint32(vt, n), (vt += 4));
-                  for (let [e, n] of t) b(e), b(n);
+                  for (let [e, n] of t) (b(e), b(n));
                 }
               else {
                 for (let n = 0, r = at.length; n < r; n++) {
@@ -1218,9 +1226,9 @@ export default (function (t) {
           else if ("boolean" === r) ft[vt++] = t ? 195 : 194;
           else if ("bigint" === r) {
             if (t < BigInt(1) << BigInt(63) && t >= -(BigInt(1) << BigInt(63)))
-              (ft[vt++] = 211), mt.setBigInt64(vt, t);
+              ((ft[vt++] = 211), mt.setBigInt64(vt, t));
             else if (t < BigInt(1) << BigInt(64) && t > 0)
-              (ft[vt++] = 207), mt.setBigUint64(vt, t);
+              ((ft[vt++] = 207), mt.setBigUint64(vt, t));
             else {
               if (!this.largeBigIntToFloat) {
                 if (
@@ -1228,14 +1236,14 @@ export default (function (t) {
                   t < 2n ** 1023n &&
                   t > -(2n ** 1023n)
                 ) {
-                  (ft[vt++] = 199), vt++, (ft[vt++] = 66);
+                  ((ft[vt++] = 199), vt++, (ft[vt++] = 66));
                   let e,
                     n = [];
                   do {
                     let r = 0xffn & t;
-                    (e = (0x80n & r) === (t < 0n ? 0x80n : 0n)),
+                    ((e = (0x80n & r) === (t < 0n ? 0x80n : 0n)),
                       n.push(r),
-                      (t >>= 8n);
+                      (t >>= 8n));
                   } while ((0n !== t && -1n !== t) || !e);
                   ft[vt - 2] = n.length;
                   for (let t = n.length; t > 0; ) ft[vt++] = Number(n[--t]);
@@ -1246,7 +1254,7 @@ export default (function (t) {
                     " was too large to fit in MessagePack 64-bit integer format, use useBigIntExtension or set largeBigIntToFloat to convert to float-64"
                 );
               }
-              (ft[vt++] = 203), mt.setFloat64(vt, Number(t));
+              ((ft[vt++] = 203), mt.setFloat64(vt, Number(t)));
             }
             vt += 8;
           } else {
@@ -1275,9 +1283,9 @@ export default (function (t) {
                   for (let i = 0; i < r; i++) {
                     e = n[i];
                     let r = Number(e);
-                    b(isNaN(r) ? e : r), b(t[e]);
+                    (b(isNaN(r) ? e : r), b(t[e]));
                   }
-                else for (let i = 0; i < r; i++) b((e = n[i])), b(t[e]);
+                else for (let i = 0; i < r; i++) (b((e = n[i])), b(t[e]));
               }
             : (t) => {
                 ft[vt++] = 222;
@@ -1288,7 +1296,7 @@ export default (function (t) {
                   ("function" != typeof t.hasOwnProperty ||
                     t.hasOwnProperty(e)) &&
                     (b(e), b(t[e]), r++);
-                (ft[n++ + e] = r >> 8), (ft[n + e] = 255 & r);
+                ((ft[n++ + e] = r >> 8), (ft[n + e] = 255 & r));
               },
         w =
           !1 === this.useRecords
@@ -1312,13 +1320,13 @@ export default (function (t) {
                         let l = 0;
                         for (let t = 0, e = u.length; t < e; t++) {
                           let e = u[t];
-                          (n = a[e]),
+                          ((n = a[e]),
                             n || ((n = a[e] = Object.create(null)), l++),
-                            (a = n);
+                            (a = n));
                         }
-                        o + e + 1 == vt ? (vt--, E(a, u, l)) : k(a, u, o, l),
+                        (o + e + 1 == vt ? (vt--, E(a, u, l)) : k(a, u, o, l),
                           (i = !0),
-                          (a = c[s]);
+                          (a = c[s]));
                       }
                       b(t[s]);
                     }
@@ -1383,12 +1391,12 @@ export default (function (t) {
         },
         E = (t, e, i) => {
           let a = r.nextId;
-          a || (a = 64),
+          (a || (a = 64),
             a < p && this.shouldShareStructure && !this.shouldShareStructure(e)
               ? ((a = r.nextOwnId), a < f || (a = p), (r.nextOwnId = a + 1))
-              : (a >= f && (a = p), (r.nextId = a + 1));
+              : (a >= f && (a = p), (r.nextId = a + 1)));
           let o = (e.highByte = a >= 96 && h ? (a - 96) >> 5 : -1);
-          (t[xt] = a),
+          ((t[xt] = a),
             (t.__keys__ = e),
             (r[a - 64] = e),
             a < p
@@ -1407,28 +1415,28 @@ export default (function (t) {
                 i && (m += g * i),
                 d.length >= l && (d.shift()[xt] = 0),
                 d.push(t),
-                b(e));
+                b(e)));
         },
         k = (t, n, r, i) => {
           let a = ft,
             o = vt,
             s = gt,
             u = e;
-          (ft = dt),
+          ((ft = dt),
             (vt = 0),
             (e = 0),
             ft || (dt = ft = new lt(8192)),
             (gt = ft.length - 10),
             E(t, n, i),
-            (dt = ft);
+            (dt = ft));
           let c = vt;
           if (((ft = a), (vt = o), (gt = s), (e = u), c > 1)) {
             let t = vt + c - 1;
             t > gt && T(t);
             let n = r + e;
-            ft.copyWithin(n + c, n + 1, vt),
+            (ft.copyWithin(n + c, n + 1, vt),
               ft.set(dt.slice(0, c), n),
-              (vt = t);
+              (vt = t));
           } else ft[r + e] = dt[0];
         },
         I = (t) => {
@@ -1456,44 +1464,44 @@ export default (function (t) {
         };
     }
     useBuffer(t) {
-      (ft = t),
+      ((ft = t),
         (mt = new DataView(ft.buffer, ft.byteOffset, ft.byteLength)),
-        (vt = 0);
+        (vt = 0));
     }
     clearSharedData() {
-      this.structures && (this.structures = []),
-        this.typedStructs && (this.typedStructs = []);
+      (this.structures && (this.structures = []),
+        this.typedStructs && (this.typedStructs = []));
     }
   }
   function _t(t, e, n, r) {
     let i = t.byteLength;
     if (i + 1 < 256) {
       var { target: a, position: o } = n(4 + i);
-      (a[o++] = 199), (a[o++] = i + 1);
+      ((a[o++] = 199), (a[o++] = i + 1));
     } else if (i + 1 < 65536) {
       var { target: a, position: o } = n(5 + i);
-      (a[o++] = 200), (a[o++] = (i + 1) >> 8), (a[o++] = (i + 1) & 255);
+      ((a[o++] = 200), (a[o++] = (i + 1) >> 8), (a[o++] = (i + 1) & 255));
     } else {
       var { target: a, position: o, targetView: s } = n(7 + i);
-      (a[o++] = 201), s.setUint32(o, i + 1), (o += 4);
+      ((a[o++] = 201), s.setUint32(o, i + 1), (o += 4));
     }
-    (a[o++] = 116),
+    ((a[o++] = 116),
       (a[o++] = e),
       t.buffer || (t = new Uint8Array(t)),
-      a.set(new Uint8Array(t.buffer, t.byteOffset, t.byteLength), o);
+      a.set(new Uint8Array(t.buffer, t.byteOffset, t.byteLength), o));
   }
   function St(t, e) {
     let n = t.byteLength;
     var r, i;
     if (n < 256) {
       var { target: r, position: i } = e(n + 2);
-      (r[i++] = 196), (r[i++] = n);
+      ((r[i++] = 196), (r[i++] = n));
     } else if (n < 65536) {
       var { target: r, position: i } = e(n + 3);
-      (r[i++] = 197), (r[i++] = n >> 8), (r[i++] = 255 & n);
+      ((r[i++] = 197), (r[i++] = n >> 8), (r[i++] = 255 & n));
     } else {
       var { target: r, position: i, targetView: a } = e(n + 5);
-      (r[i++] = 198), a.setUint32(i, n), (i += 4);
+      ((r[i++] = 198), a.setUint32(i, n), (i += 4));
     }
     r.set(t, i);
   }
@@ -1526,17 +1534,17 @@ export default (function (t) {
               (e[n++] = (i >> 8) & 255),
               (e[n++] = 255 & i));
     }
-    return (e[n++] = r), e.set(t, n), (n += i);
+    return ((e[n++] = r), e.set(t, n), (n += i));
   }
   function Et(t, e, n) {
     if (yt.length > 0) {
-      mt.setUint32(yt.position + t, vt + n - yt.position - t),
-        (yt.stringsPosition = vt - t);
+      (mt.setUint32(yt.position + t, vt + n - yt.position - t),
+        (yt.stringsPosition = vt - t));
       let r = yt;
-      (yt = null), e(r[0]), e(r[1]);
+      ((yt = null), e(r[0]), e(r[1]));
     }
   }
-  (ot = [
+  ((ot = [
     Date,
     Set,
     Error,
@@ -1555,51 +1563,51 @@ export default (function (t) {
             r < 4294967296
           ) {
             let { target: t, targetView: n, position: i } = e(6);
-            (t[i++] = 214), (t[i++] = 255), n.setUint32(i, r);
+            ((t[i++] = 214), (t[i++] = 255), n.setUint32(i, r));
           } else if (r > 0 && r < 4294967296) {
             let { target: n, targetView: i, position: a } = e(10);
-            (n[a++] = 215),
+            ((n[a++] = 215),
               (n[a++] = 255),
               i.setUint32(
                 a,
                 4e6 * t.getMilliseconds() + ((r / 1e3 / 4294967296) | 0)
               ),
-              i.setUint32(a + 4, r);
+              i.setUint32(a + 4, r));
           } else if (isNaN(r)) {
-            if (this.onInvalidDate) return e(0), n(this.onInvalidDate());
+            if (this.onInvalidDate) return (e(0), n(this.onInvalidDate()));
             let { target: t, targetView: r, position: i } = e(3);
-            (t[i++] = 212), (t[i++] = 255), (t[i++] = 255);
+            ((t[i++] = 212), (t[i++] = 255), (t[i++] = 255));
           } else {
             let { target: n, targetView: i, position: a } = e(15);
-            (n[a++] = 199),
+            ((n[a++] = 199),
               (n[a++] = 12),
               (n[a++] = 255),
               i.setUint32(a, 1e6 * t.getMilliseconds()),
-              i.setBigInt64(a + 4, BigInt(Math.floor(r)));
+              i.setBigInt64(a + 4, BigInt(Math.floor(r))));
           }
         }
       },
       {
         pack(t, e, n) {
-          if (this.setAsEmptyObject) return e(0), n({});
+          if (this.setAsEmptyObject) return (e(0), n({}));
           let r = Array.from(t),
             { target: i, position: a } = e(this.moreTypes ? 3 : 0);
-          this.moreTypes && ((i[a++] = 212), (i[a++] = 115), (i[a++] = 0)),
-            n(r);
+          (this.moreTypes && ((i[a++] = 212), (i[a++] = 115), (i[a++] = 0)),
+            n(r));
         }
       },
       {
         pack(t, e, n) {
           let { target: r, position: i } = e(this.moreTypes ? 3 : 0);
-          this.moreTypes && ((r[i++] = 212), (r[i++] = 101), (r[i++] = 0)),
-            n([t.name, t.message]);
+          (this.moreTypes && ((r[i++] = 212), (r[i++] = 101), (r[i++] = 0)),
+            n([t.name, t.message]));
         }
       },
       {
         pack(t, e, n) {
           let { target: r, position: i } = e(this.moreTypes ? 3 : 0);
-          this.moreTypes && ((r[i++] = 212), (r[i++] = 120), (r[i++] = 0)),
-            n([t.source, t.flags]);
+          (this.moreTypes && ((r[i++] = 212), (r[i++] = 120), (r[i++] = 0)),
+            n([t.source, t.flags]));
         }
       },
       {
@@ -1621,7 +1629,7 @@ export default (function (t) {
           n[r] = 193;
         }
       }
-    ]);
+    ]));
   let kt = new wt({ useRecords: !1 });
   const It = kt.pack,
     At = kt.pack,
@@ -1644,7 +1652,7 @@ export default (function (t) {
           n = r.unpackMultiple(t);
         } catch (e) {
           if (!e.incomplete) throw e;
-          (i = t.slice(e.lastPosition)), (n = e.values);
+          ((i = t.slice(e.lastPosition)), (n = e.values));
         }
         return n;
       };
@@ -1701,7 +1709,7 @@ export default (function (t) {
           throw new Error(
             "Extension has no type (numeric code to identify the extension)"
           );
-        ot.unshift(t.Class), at.unshift(t);
+        (ot.unshift(t.Class), at.unshift(t));
       }
       !(function (t) {
         t.unpack ? (d[t.type] = t.unpack) : (d[t.type] = t);
