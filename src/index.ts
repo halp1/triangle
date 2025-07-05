@@ -10,7 +10,7 @@ export * as Classes from "./classes";
 export * as Engine from "./engine";
 
 const suppressKey = "TRIANGLE_VERSION_SUPPRESS";
-if (!(suppressKey in process.env)) {
+if (typeof process !== 'undefined' && !(suppressKey in process.env)) {
   fetch("https://registry.npmjs.org/@haelp/teto")
     .then((r) => r.json())
     .then((d: any) => {

@@ -1,4 +1,4 @@
-import type { Game } from "../types";
+import type { Game } from "../types/game";
 import { EventEmitter } from "../utils/events";
 import { Board, type BoardInitializeParams, ConnectedBoard } from "./board";
 import { constants } from "./constants";

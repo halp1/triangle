@@ -1,4 +1,4 @@
-import { BoardInitializeParams } from ".";
+import { type BoardInitializeParams } from ".";
 import { Mino } from "../queue";
 
 export type ConnectedBoardSquare = {
