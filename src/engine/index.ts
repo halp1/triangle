@@ -22,7 +22,12 @@ import type {
 import { IncreaseTracker, deepCopy } from "./utils";
 import { garbageCalcV2, garbageData } from "./utils/damageCalc";
 import { type KickTable, legal, performKick } from "./utils/kicks";
-import { type KickTableName, kicks } from "./utils/kicks/data";
+import {
+  type KickTableName,
+  cornerTable,
+  kicks,
+  spinbonusRules
+} from "./utils/kicks/data";
 import { Tetromino, tetrominoes } from "./utils/tetromino";
 import type { Rotation } from "./utils/tetromino/types";
 
@@ -1025,7 +1030,7 @@ export class Engine {
           "T-spins+"
         ] as Game.SpinBonuses[]
       ).includes(this.gameOptions.spinBonuses) && this.falling.symbol === "t"
-        ? this.#detectTSpin(finOrTst)
+        ? this.#detectSpinFromCorners(finOrTst)
         : false;
     const allSpin = this.falling.isAllSpinPosition(this.board.state);
 
@@ -1057,58 +1062,72 @@ export class Engine {
           ? "mini"
           : this.#maxSpin(tSpin || "none", allSpin ? "mini" : "none");
       case "handheld":
-        // TODO: How does this work?
+        this.#detectSpinFromCorners(finOrTst);
         return "none";
     }
   }
 
-  #detectTSpin(finOrTst: boolean): SpinType {
-    if (this.falling.symbol !== "t") return "none";
-
-    if (finOrTst) return "normal";
-
-    const corners = this.#getTCorners();
-
-    if (corners.filter((item) => item).length < 3) return "none";
-
-    const facingCorners: [boolean, boolean] = [
-      corners[this.falling.rotation],
-      corners[(this.falling.rotation + 1) % 4]
-    ];
-
-    if (facingCorners[0] && facingCorners[1]) {
-      return "normal";
-    }
-
-    return "mini";
+  #spinbonuses(piece: Mino) {
+    const p = tetrominoes[piece];
+    const rules =
+      spinbonusRules[
+        this.gameOptions.spinBonuses as keyof typeof spinbonusRules
+      ];
+    // @ts-expect-error
+    return p?.spinbonus_override
+      ? // @ts-expect-error
+        p.spinbonus_override?.mini
+      : // @ts-expect-error
+        !!rules?.types_mini?.includes(piece);
   }
 
-  /**
-   * Returns array of true/false corners in this form (numbers represent array indices):
-   * @example
-   *  0    1
-   *  🟦🟦🟦
-   *  3 🟦 2
-   */
-  #getTCorners() {
-    const [x, y] = [this.falling.location[0] + 1, this.falling.y - 1];
-    const getLocation = (x: number, y: number) =>
-      x < 0
-        ? true
-        : x >= this.board.width
-          ? true
-          : y < 0
-            ? true
-            : y >= this.board.fullHeight
-              ? true
-              : this.board.state[y][x] !== null;
+  #detectSpinFromCorners(finOrTst: boolean): SpinType {
+    if (
+      legal(
+        this.falling.blocks.map((block) => [
+          block[0] + this.falling.location[0],
+          -block[1] + this.falling.y - 1
+        ]),
+        this.board.state
+      )
+    )
+      return "none";
 
-    return [
-      getLocation(x - 1, y + 1),
-      getLocation(x + 1, y + 1),
-      getLocation(x + 1, y - 1),
-      getLocation(x - 1, y - 1)
-    ];
+    let corners = 0;
+    let frontCorners = 0;
+
+    for (let i = 0; i < 4; i++) {
+      const table =
+        cornerTable[this.falling.symbol as keyof typeof cornerTable]?.[
+          this.falling.rotation
+        ];
+      if (!table) break;
+
+      if (
+        this.board.state[this.falling.y - table[i][1]][
+          this.falling.x + table[i][0]
+        ] !== null
+      ) {
+        corners++;
+        if (
+          !(
+            this.falling.rotation !== table[i][2] &&
+            this.falling.rotation !== table[i][3]
+          )
+        ) {
+          frontCorners++;
+        }
+      }
+    }
+
+    if (corners < 3) return "none";
+
+    let spin: SpinType = "normal";
+    if (this.#spinbonuses(this.falling.symbol) && frontCorners !== 2)
+      spin = "mini";
+    if (finOrTst) spin = "normal";
+
+    return spin;
   }
 
   /** */
