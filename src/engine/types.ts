@@ -1,5 +1,6 @@
 import type {
   Board,
+  ConnectedBoard,
   Engine,
   GarbageQueueSnapshot,
   Mino,
@@ -29,6 +30,7 @@ export interface EngineSnapshot {
   lastWasClear: boolean;
   garbage: GarbageQueueSnapshot;
   board: Board["state"];
+	connectedBoard: ConnectedBoard["state"];
   targets?: number[];
   stats: Engine["stats"];
   glock: number;

@@ -1,6 +1,6 @@
 import type { Game } from "../types";
 import { EventEmitter } from "../utils/events";
-import { Board, type BoardInitializeParams } from "./board";
+import { Board, type BoardInitializeParams, ConnectedBoard } from "./board";
 import { constants } from "./constants";
 import {
   GarbageQueue,
@@ -96,6 +96,7 @@ export class Engine {
   falling!: Tetromino;
   private _kickTable!: KickTableName;
   board!: Board;
+  connectedBoard!: ConnectedBoard;
   lastSpin!: {
     piece: Mino;
     type: SpinType;
@@ -204,6 +205,7 @@ export class Engine {
     this._kickTable = options.kickTable;
 
     this.board = new Board(options.board);
+    this.connectedBoard = new ConnectedBoard(options.board);
 
     this.garbageQueue = new (
       (options.misc.date ?? new Date()) > new Date("2025-05-06T15:00:00-04:00")
@@ -345,6 +347,7 @@ export class Engine {
   snapshot(): EngineSnapshot {
     return {
       board: deepCopy(this.board.state),
+      connectedBoard: deepCopy(this.connectedBoard.state),
       falling: this.falling.snapshot(),
       frame: this.frame,
       garbage: this.garbageQueue.snapshot(),
@@ -367,6 +370,7 @@ export class Engine {
 
   fromSnapshot(snapshot: EngineSnapshot) {
     this.board.state = deepCopy(snapshot.board);
+    this.connectedBoard.state = deepCopy(snapshot.connectedBoard);
     this.falling = new Tetromino({
       boardHeight: this.board.height,
       boardWidth: this.board.width,
@@ -1152,7 +1156,18 @@ export class Engine {
     );
 
     this.board.add(...placed);
+    this.connectedBoard.add(
+      ...this.connect(placed.map(([_, x, y]) => [x, -y])).map(
+        ([x, y, s]) =>
+          [{ mino: this.falling.symbol, connection: s }, x, -y] as [
+            { mino: Mino; connection: number },
+            number,
+            number
+          ]
+      )
+    );
 
+    this.connectedBoard.clearBombsAndLines(placed.map((b) => [b[1], b[2]]));
     const { lines, garbageCleared } = this.board.clearBombsAndLines(
       placed.map((b) => [b[1], b[2]])
     );
@@ -1305,10 +1320,17 @@ export class Engine {
 
       if (res.garbageAdded) {
         const tankEvent: Events["garbage.tank"][] = [];
-        garbages.forEach((garbage) => {
+        garbages.forEach((garbage, idx) => {
           this.board.insertGarbage({
             ...garbage,
             bombs: this.garbageQueue.options.bombs
+          });
+          this.connectedBoard.insertGarbage({
+            ...garbage,
+            bombs: this.garbageQueue.options.bombs,
+            isBeginning: idx === 0 || garbages[idx - 1].id !== garbage.id,
+            isEnd:
+              idx === garbages.length - 1 || garbages[idx + 1].id !== garbage.id
           });
 
           if (
@@ -1682,6 +1704,42 @@ export class Engine {
 
   getPreview(piece: Mino) {
     return tetrominoes[piece.toLowerCase()].preview;
+  }
+
+  connect(blocks: [x: number, y: number][]) {
+    const exists = (x: number, y: number) =>
+      !!blocks.find(([a, b]) => a === x && y === b);
+
+    return blocks.map(([x, y]) => {
+      let state = 0;
+      if (!exists(x, y - 1)) state |= 0b1000;
+      if (!exists(x + 1, y)) state |= 0b0100;
+      if (!exists(x, y + 1)) state |= 0b0010;
+      if (!exists(x - 1, y)) state |= 0b0001;
+      if (
+        (state === 0b1001 && !exists(x + 1, y + 1)) ||
+        (state === 0b1100 && !exists(x - 1, y + 1)) ||
+        (state === 0b0011 && !exists(x + 1, y - 1)) ||
+        (state === 0b0110 && !exists(x - 1, y - 1)) ||
+        (state === 0b0010 && !exists(x + 1, y - 1) && !exists(x - 1, y - 1)) ||
+        (state === 0b0001 && !exists(x + 1, y - 1) && !exists(x + 1, y + 1)) ||
+        (state === 0b1000 && !exists(x - 1, y + 1) && !exists(x + 1, y + 1)) ||
+        (state === 0b0100 && !exists(x - 1, y - 1) && !exists(x - 1, y + 1))
+      ) {
+        state |= 0b1_0000;
+      }
+
+      return [x, y, state] as const;
+    });
+  }
+
+  getConnectedPreview(piece: Mino) {
+    const data = tetrominoes[piece.toLowerCase()].preview;
+
+    return {
+      ...data,
+      data: this.connect(data.data as any[])
+    };
   }
 
   /** @deprecated Engine.onQueuePieces is deprecated and no longer functional. Switch to Engine.events.on("queue.add", (pieces) => {}) instead. */

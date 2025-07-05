@@ -1542,23 +1542,27 @@ export namespace ChannelAPI {
         /**
          * The amount of ranked Bronze achievements this user has.
          */
-        bronze?: number;
+        1?: number;
         /**
          * The amount of ranked Silver achievements this user has.
          */
-        silver?: number;
+        2?: number;
         /**
          * The amount of ranked Gold achievements this user has.
          */
-        gold?: number;
+        3?: number;
         /**
          * The amount of ranked Platinum achievements this user has.
          */
-        platinum?: number;
+        4?: number;
         /**
          * The amount of ranked Diamond achievements this user has.
          */
-        diamond?: number;
+        5?: number;
+        /**
+         * The amount of ranked Issued achievements this user has.
+         */
+        100?: number;
         /**
          * The amount of competitive achievements this user has ranked into the top 100 with.
          */
@@ -1584,6 +1588,20 @@ export namespace ChannelAPI {
          */
         t3?: number;
       };
+
+      /**
+       * The user's previous usernames
+       */
+      oldusernames: {
+        /**
+         * The username the user used.
+         */
+        username: string;
+        /**
+         * The time at which the user changed their username away from this username.
+         */
+        ts?: number;
+      }[];
     }
 
     export interface BaseSummaryResponse {

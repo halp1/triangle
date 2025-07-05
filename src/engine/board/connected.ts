@@ -1,15 +1,13 @@
-import { Mino } from "../queue/types";
+import { BoardInitializeParams } from ".";
+import { Mino } from "../queue";
 
-export interface BoardInitializeParams {
-  width: number;
-  height: number;
-  buffer: number;
-}
+export type ConnectedBoardSquare = {
+  mino: Mino;
+  connection: number;
+} | null;
 
-export type BoardSquare = Mino | null;
-
-export class Board {
-  state: BoardSquare[][];
+export class ConnectedBoard {
+  state: ConnectedBoardSquare[][];
 
   private _height: number;
   private _width: number;
@@ -52,10 +50,10 @@ export class Board {
     return this.height + this.buffer;
   }
 
-  add(...blocks: [BoardSquare, number, number][]) {
-    blocks.forEach(([char, x, y]) => {
+  add(...blocks: [ConnectedBoardSquare, number, number][]) {
+    blocks.forEach(([item, x, y]) => {
       if (y < 0 || y >= this.fullHeight || x < 0 || x >= this.width) return;
-      this.state[y][x] = char;
+      this.state[y][x] = item;
     });
   }
 
@@ -63,9 +61,25 @@ export class Board {
     let garbageCleared = 0;
     const lines: number[] = [];
     this.state.forEach((row, idx) => {
-      if (row.every((block) => block !== null && block !== Mino.BOMB)) {
+      if (row.every((block) => block !== null && block.mino !== Mino.BOMB)) {
         lines.push(idx);
-        if (row.some((block) => block === Mino.GARBAGE)) garbageCleared++;
+        if (idx > 0) {
+          this.state[idx - 1].forEach((block) => {
+            if (block) {
+              block.connection |= 0b1000;
+              if ((block.connection & 0b0010)) block.connection &= 0b0_1111;
+            }
+          });
+        }
+        if (idx < this.fullHeight - 1) {
+          this.state[idx + 1].forEach((block) => {
+            if (block) {
+              block.connection |= 0b0010;
+              if ((block.connection & 0b1000)) block.connection &= 0b0_1111;
+            }
+          });
+        }
+        if (row.some((block) => block?.mino === Mino.GARBAGE)) garbageCleared++;
       }
     });
 
@@ -86,7 +100,7 @@ export class Board {
     const lowestBlocks = placedBlocks.filter(([_, y]) => y === lowestY);
 
     const bombColumns = lowestBlocks
-      .filter(([x, y]) => this.state[y - 1][x] === Mino.BOMB)
+      .filter(([x, y]) => this.state[y - 1][x]?.mino === Mino.BOMB)
       .map(([x, _]) => x);
     if (bombColumns.length === 0) return { lines: 0, garbageCleared: 0 };
 
@@ -94,7 +108,9 @@ export class Board {
 
     while (
       lowestY > 0 &&
-      bombColumns.some((col) => this.state[lowestY - 1][col] === Mino.BOMB)
+      bombColumns.some(
+        (col) => this.state[lowestY - 1][col]?.mino === Mino.BOMB
+      )
     ) {
       lines.push(--lowestY);
     }
@@ -126,23 +142,41 @@ export class Board {
     amount,
     size,
     column,
-    bombs
+    bombs,
+		isBeginning,
+		isEnd
   }: {
     amount: number;
     size: number;
     column: number;
     bombs: boolean;
+		isBeginning: boolean;
+		isEnd: boolean;
   }) {
     this.state.splice(
       0,
       0,
-      ...Array.from({ length: amount }, () =>
-        Array.from({ length: this.width }, (_, idx) =>
-          idx >= column && idx < column + size
+      ...Array.from({ length: amount }, (_, y) =>
+        Array.from({ length: this.width }, (_, x) =>
+          x >= column && x < column + size
             ? bombs
-              ? Mino.BOMB
+              ? { mino: Mino.BOMB, connection: 0 }
               : null
-            : Mino.GARBAGE
+            : {
+                mino: Mino.GARBAGE,
+                connection: (() => {
+                  let connection = 0;
+
+                  if (isEnd && y === 0) connection |= 0b0010;
+                  if (isBeginning && y === amount - 1) connection |= 0b1000;
+                  if (x === 0) connection |= 0b0001;
+                  if (x === this.width - 1) connection |= 0b0100;
+                  if (x === column - 1) connection |= 0b0100;
+                  if (x === column + size) connection |= 0b0001;
+
+                  return connection;
+                })()
+              }
         )
       )
     );
@@ -151,4 +185,4 @@ export class Board {
   }
 }
 
-export * from './connected';
+export * from "./connected";
