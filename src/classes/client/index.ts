@@ -1,4 +1,4 @@
-import { Types } from "../..";
+import type { Types } from "../..";
 import type { Events, Game as GameTypes } from "../../types";
 import { API, CONSTANTS, parseToken } from "../../utils";
 import { Game } from "../game";

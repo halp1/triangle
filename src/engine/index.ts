@@ -1066,8 +1066,7 @@ export class Engine {
           ? "mini"
           : this.#maxSpin(tSpin || "none", allSpin ? "mini" : "none");
       case "handheld":
-        this.#detectSpinFromCorners(finOrTst);
-        return "none";
+        return this.#detectSpinFromCorners(finOrTst);
     }
   }
 
@@ -1108,21 +1107,22 @@ export class Engine {
       if (!table) break;
 
       if (
-        this.board.state[this.falling.y - table[i][1]][
-          this.falling.x + table[i][0]
-        ] !== null
+        this.board.occupied(
+          this.falling.x + table[i][0] + 1,
+          this.falling.y - table[i][1] - 1
+        )
       ) {
         corners++;
         if (
-          !(
-            this.falling.rotation !== table[i][2] &&
-            this.falling.rotation !== table[i][3]
-          )
+          this.falling.rotation === table[i][2] ||
+          this.falling.rotation === table[i][3]
         ) {
           frontCorners++;
         }
       }
     }
+
+    console.log(corners, frontCorners, this.falling.rotation);
 
     if (corners < 3) return "none";
 
@@ -1131,6 +1131,7 @@ export class Engine {
       spin = "mini";
     if (finOrTst) spin = "normal";
 
+    console.log(spin);
     return spin;
   }
 

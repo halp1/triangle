@@ -52,6 +52,10 @@ export class Board {
     return this.height + this.buffer;
   }
 
+	occupied(x: number, y: number): boolean {
+		return x < 0 || y < 0 || x >= this.width || y >= this.fullHeight || this.state[y][x] !== null;
+	}
+
   add(...blocks: [BoardSquare, number, number][]) {
     blocks.forEach(([char, x, y]) => {
       if (y < 0 || y >= this.fullHeight || x < 0 || x >= this.width) return;

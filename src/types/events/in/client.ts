@@ -1,6 +1,6 @@
 import type { Game, Room } from "../../.";
-import { Relationship, Room as RoomClass } from "../../../classes";
-import { Engine } from "../../../engine";
+import type { Relationship, Room as RoomClass } from "../../../classes";
+import type { Engine } from "../../../engine";
 import type { Game as GameEvents } from "./game";
 import type { Ribbon } from "./ribbon";
 
