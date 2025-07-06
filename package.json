@@ -9,7 +9,7 @@
     "type": "git",
     "url": "https://github.com/halp1/triangle"
   },
-  "displayName": "triangle.js",
+  "displayName": "Triangle.js",
   "private": false,
   "homepage": "https://triangle.haelp.dev",
   "main": "dist/index.js",
