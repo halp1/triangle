@@ -177,8 +177,6 @@ export class Tetromino {
     );
   }
 
-	
-
   rotate(
     board: BoardSquare[][],
     kickTable: KickTable,

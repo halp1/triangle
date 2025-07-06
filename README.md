@@ -62,13 +62,16 @@ To do this, add the following to the "compilerOptions" object in your `tsconfig.
 ## Setup (Bun only)
 
 Run the following:
+
 ```bash
 bun i buffer
 ```
 
 Add the following to the top of your root file:
+
 ```ts
 import { Buffer } from "buffer/";
+
 globalThis.Buffer = Buffer;
 ```
 
@@ -78,14 +81,12 @@ The following usage examples assume you are using Typescript. They also assume y
 
 ### Import
 
-
 > Warning:
-> Use the latest LTS versoin when using Node.js with  Triangle.js. Triangle.js was last known to work with Node.js 22.x.
+> Use the latest LTS versoin when using Node.js with Triangle.js. Triangle.js was last known to work with Node.js 22.x.
 
 > Warning:
 > Triangle.js uses Node.js/Bun's built-in WebSocket client. If you have to use Node.js < `v22.4.0`, use the `ws` package as a pollyfill:
 > `globalThis.WebSocket = require("ws").WebSocket;`
-
 
 > Tip:
 > When using Node.js, add the `--enable-source-maps` flag to your node command to get better stack traces.

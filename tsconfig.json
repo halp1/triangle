@@ -12,7 +12,7 @@
     "verbatimModuleSyntax": true,
     "declaration": true,
     "emitDeclarationOnly": true,
-		"declarationMap": true,
+    "declarationMap": true,
 
     "noUnusedLocals": true,
     "noUnusedParameters": true,

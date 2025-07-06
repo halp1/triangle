@@ -45,7 +45,7 @@ The full size of the garbage queue can be accessed through `engine.garbageQueue.
 An `IncomingGarbage` will become tankable when the following is true:
 
 ```ts
-item.frame + this.options.garbage.speed <= frame
+item.frame + this.options.garbage.speed <= frame;
 ```
 
 Where `item` is the `IncomingGarbage` object, `this` is the `GarbageQueue` instance, and `frame` is the current game frame.
@@ -53,6 +53,7 @@ Where `item` is the `IncomingGarbage` object, `this` is the `GarbageQueue` insta
 ## Board
 
 The `Engine`'s board is available through the `engine.board` property. It is an instance of the [`Board`](https://triangle.haelp.dev/classes/src.Engine.Board.html) class. The board has a 4 key properties:
+
 - `board.width`: The width of the board.
 - `board.height`: The height of the board.
 - `board.fullHeight`: The full height of the board, which is the height of the board plus the board buffer.
@@ -67,4 +68,4 @@ The `Engine`'s falling piece is available through the `engine.falling` property.
 - `tetromino.y`: The y position of the tetromino on the board, rounded down to the nearest integer. This is NOT the same as `tetromino.location[1]`, which is a float.
 - `tetromino.rotation`: The `Rotation` of the tetromino, which one of `0`, `1`, `2`, or `3`. Setting `Rotation` will normalize the rotation to the range of `0` to `3`, but will not perform kicks or boundary checks.
 - `tetromino.location`: The location of the tetromino on the board, which is an array of `[x, y]` where `x` is the x position and `y` is the y position. `[0, 0]` is the bottom left corner of the board.
-- 
+-

@@ -188,6 +188,8 @@ export class Room {
     });
 
     this.listen("game.end", (data) => {
+      this.client.emit("client.game.round.end", data.leaderboard[0].id);
+
       const maxWins = data.leaderboard.reduce(
         (max, item) => Math.max(max, item.wins),
         0

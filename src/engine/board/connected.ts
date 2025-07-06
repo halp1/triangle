@@ -67,7 +67,7 @@ export class ConnectedBoard {
           this.state[idx - 1].forEach((block) => {
             if (block) {
               block.connection |= 0b1000;
-              if ((block.connection & 0b0010)) block.connection &= 0b0_1111;
+              if (block.connection & 0b0010) block.connection &= 0b0_1111;
             }
           });
         }
@@ -75,7 +75,7 @@ export class ConnectedBoard {
           this.state[idx + 1].forEach((block) => {
             if (block) {
               block.connection |= 0b0010;
-              if ((block.connection & 0b1000)) block.connection &= 0b0_1111;
+              if (block.connection & 0b1000) block.connection &= 0b0_1111;
             }
           });
         }
@@ -143,15 +143,15 @@ export class ConnectedBoard {
     size,
     column,
     bombs,
-		isBeginning,
-		isEnd
+    isBeginning,
+    isEnd
   }: {
     amount: number;
     size: number;
     column: number;
     bombs: boolean;
-		isBeginning: boolean;
-		isEnd: boolean;
+    isBeginning: boolean;
+    isEnd: boolean;
   }) {
     this.state.splice(
       0,

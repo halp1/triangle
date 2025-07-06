@@ -25,6 +25,9 @@ export class Game {
   private over = false;
   // @ts-expect-error
   private isPractice = false;
+  #pauseIGEs = false;
+  #forcePauseIGEs = false;
+  #igeQueue: GameTypes.IGE[] = [];
 
   /** The client's engine */
   public engine!: Engine;
@@ -173,7 +176,7 @@ export class Game {
     }));
 
     // this.listen("game.replay.ige", (data) => this.addIGE(data));
-    this.listen("game.replay.ige", (data) => this.handleIGE(data));
+    this.listen("game.replay.ige", (data) => this.#handleIGE(data));
     this.listen("game.replay", ({ gameid, frames }) => {
       const game = this.players.find((player) => player.gameid === gameid);
       if (!game || game.engine.toppedOut) return false;
@@ -422,6 +425,9 @@ export class Game {
     }
     if (this.over) return;
 
+    // ideally, iges get flushed here
+    this.#flushIGEs();
+
     const keys: typeof this.keyQueue = [];
 
     for (let i = this.keyQueue.length - 1; i >= 0; i--) {
@@ -466,6 +472,9 @@ export class Game {
 
       runAfter.forEach((f) => f());
 
+      // flush at the time `keyQueue` is most likely to be empty (so that continuous playing doesn't cause an ige backup). Garbage might be a frame late.
+      this.#flushIGEs();
+
       const target =
         ((this.frame + 1) / Game.fps) * 1000 -
         (performance.now() - this.startTime!);
@@ -488,39 +497,46 @@ export class Game {
     this.frameQueue.push(...frames);
   }
 
-  private handleIGE(data: Events.in.Game["game.replay.ige"]) {
-    data.iges.forEach((ige) => {
-      const frame: GameTypes.Replay.Frame = {
-        frame: this.frame,
-        type: "ige",
-        data: ige
-      };
+  #handleIGE(data: Events.in.Game["game.replay.ige"]) {
+    this.#igeQueue.push(...data.iges);
+    this.#flushIGEs();
+  }
 
-      this.pipe(frame);
-      this.incomingGarbage.push({ ...frame });
+  #flushIGEs() {
+    if (this.igesPaused) return;
+    this.#igeQueue
+      .splice(0, this.#igeQueue.length)
+      .forEach((ige) => this.#__internal_handleIGE(ige));
+  }
 
-      if (ige.type === "interaction_confirm") {
-        if (ige.data.type === "targeted") {
-          // TODO: implement
-        }
-      } else if (ige.type === "target") {
-        this.serverTargets = ige.data.targets;
-      } else if (ige.type === "allow_targeting") {
-        this.canTarget = ige.data.value;
+  #__internal_handleIGE(ige: GameTypes.IGE) {
+    const frame: GameTypes.Replay.Frame = {
+      frame: this.frame,
+      type: "ige",
+      data: ige
+    };
+
+    this.pipe(frame);
+    this.incomingGarbage.push({ ...frame });
+
+    if (ige.type === "interaction_confirm") {
+      if (ige.data.type === "targeted") {
+        // TODO: implement
       }
-    });
+    } else if (ige.type === "target") {
+      this.serverTargets = ige.data.targets;
+    } else if (ige.type === "allow_targeting") {
+      this.canTarget = ige.data.value;
+    }
   }
 
   /**
-   * The current targeting strategy
+   * The current targeting strategy. Setting a targeting strategy throws error if targeting is not allowed.
    */
   get target() {
     return this.#target;
   }
 
-  /**
-   * Set the current targeting strategy, throws error if targeting is not allowed
-   */
   set target(t: GameTypes.Target) {
     if (!this.canTarget) throw new Error("Targeting not allowed.");
     const strategyMap = {
@@ -558,5 +574,32 @@ export class Game {
 
   private set frame(newFrame: number) {
     this.engine.frame = newFrame;
+  }
+
+  /** Pauses accepting IGEs (garbage events) when the `keyQueue` has items, when `pauseIGEs` is set to true. */
+  public get pauseIGEs() {
+    return this.#pauseIGEs;
+  }
+
+  public set pauseIGEs(value: boolean) {
+    this.#pauseIGEs = value;
+    this.#flushIGEs();
+  }
+
+  /** Force stops the processing of all IGEs (garbage, etc). If left `true` for too long, the client will be kicked. Use sparingly. */
+  public get forcePauseIGEs() {
+    return this.#forcePauseIGEs;
+  }
+
+  public set forcePauseIGEs(value: boolean) {
+    this.#forcePauseIGEs = value;
+    this.#flushIGEs();
+  }
+
+  /** Whether or not the `Game` is currently allowed to process IGEs. */
+  public get igesPaused() {
+    return (
+      this.#forcePauseIGEs || (this.#pauseIGEs && this.keyQueue.length > 0)
+    );
   }
 }

@@ -30,7 +30,7 @@ export interface EngineSnapshot {
   lastWasClear: boolean;
   garbage: GarbageQueueSnapshot;
   board: Board["state"];
-	connectedBoard: ConnectedBoard["state"];
+  connectedBoard: ConnectedBoard["state"];
   targets?: number[];
   stats: Engine["stats"];
   glock: number;

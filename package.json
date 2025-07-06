@@ -1,81 +1,81 @@
 {
-	"name": "@haelp/teto",
-	"version": "3.2.1",
-	"description": "A typescript-based controllable TETR.IO client.",
-	"maintainers": [
-		"haelp"
-	],
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/halp1/triangle"
-	},
-	"displayName": "triangle.js",
-	"private": false,
-	"homepage": "https://triangle.haelp.dev",
-	"main": "dist/index.js",
-	"scripts": {
-		"check": "tsc --noEmit",
-		"test": "bun check && bun test",
-		"format": "prettier --write \"./**/*.ts\"",
-		"docs": "typedoc",
-		"clean": "rm -rf dist",
-		"build:types": "tsc",
-		"build:swc": "swc src --strip-leading-paths -d dist -C module.type=es6 --copy-files && bun scripts/renameModules.ts && swc src --strip-leading-paths -d dist --copy-files",
-		"build": "bun version.js && bun clean && bun build:types && bun build:swc",
-		"pub": "npm publish --access public"
-	},
-	"files": [
-		"dist",
-		"engine.js",
-		"engine.d.ts",
-		"ch.js",
-		"ch.d.ts",
-		"src"
-	],
-	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/index.mjs",
-			"default": "./dist/index.js"
-		},
-		"./engine": {
-			"types": "./dist/engine/index.d.ts",
-			"import": "./dist/engine/index.mjs",
-			"default": "./dist/engine/index.js"
-		},
-		"./ch": {
-			"types": "./dist/channel/index.d.ts",
-			"import": "./dist/channel/index.mjs",
-			"default": "./dist/channel/index.js"
-		}
-	},
-	"types": "dist/index.d.ts",
-	"keywords": [
-		"tetrio",
-		"tetris",
-		"ribbon",
-		"websocket",
-		"bot"
-	],
-	"author": "halp",
-	"license": "MIT",
-	"dependencies": {
-		"buffer": "^6.0.3",
-		"chalk": "^5.4.1",
-		"fast-equals": "^5.2.2",
-		"lodash": "^4.17.21",
-		"msgpackr": "^1.11.4",
-		"node-fetch": "^2.7.0"
-	},
-	"devDependencies": {
-		"@swc/cli": "^0.7.7",
-		"@swc/core": "^1.12.9",
-		"@trivago/prettier-plugin-sort-imports": "^4.3.0",
-		"@types/bun": "^1.2.17",
-		"@types/node": "22",
-		"@types/ws": "^8.18.1",
-		"prettier": "^3.6.2",
-		"typedoc": "^0.26.11",
-		"typescript": "~5.6.3"
-	}
+  "name": "@haelp/teto",
+  "version": "3.2.1",
+  "description": "A typescript-based controllable TETR.IO client.",
+  "maintainers": [
+    "haelp"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/halp1/triangle"
+  },
+  "displayName": "triangle.js",
+  "private": false,
+  "homepage": "https://triangle.haelp.dev",
+  "main": "dist/index.js",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "test": "bun check && bun test",
+    "format": "prettier --write \"./**/*.ts\"",
+    "docs": "typedoc",
+    "clean": "rm -rf dist",
+    "build:types": "tsc",
+    "build:swc": "swc src --strip-leading-paths -d dist -C module.type=es6 --copy-files && bun scripts/renameModules.ts && swc src --strip-leading-paths -d dist --copy-files",
+    "build": "bun version.js && bun clean && bun build:types && bun build:swc",
+    "pub": "npm publish --access public"
+  },
+  "files": [
+    "dist",
+    "engine.js",
+    "engine.d.ts",
+    "ch.js",
+    "ch.d.ts",
+    "src"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.js"
+    },
+    "./engine": {
+      "types": "./dist/engine/index.d.ts",
+      "import": "./dist/engine/index.mjs",
+      "default": "./dist/engine/index.js"
+    },
+    "./ch": {
+      "types": "./dist/channel/index.d.ts",
+      "import": "./dist/channel/index.mjs",
+      "default": "./dist/channel/index.js"
+    }
+  },
+  "types": "dist/index.d.ts",
+  "keywords": [
+    "tetrio",
+    "tetris",
+    "ribbon",
+    "websocket",
+    "bot"
+  ],
+  "author": "halp",
+  "license": "MIT",
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "chalk": "^5.4.1",
+    "fast-equals": "^5.2.2",
+    "lodash": "^4.17.21",
+    "msgpackr": "^1.11.4",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "@swc/cli": "^0.7.7",
+    "@swc/core": "^1.12.9",
+    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "@types/bun": "^1.2.17",
+    "@types/node": "22",
+    "@types/ws": "^8.18.1",
+    "prettier": "^3.6.2",
+    "typedoc": "^0.26.11",
+    "typescript": "~5.6.3"
+  }
 }

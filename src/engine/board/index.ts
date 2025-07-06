@@ -151,4 +151,4 @@ export class Board {
   }
 }
 
-export * from './connected';
+export * from "./connected";
