@@ -1122,8 +1122,6 @@ export class Engine {
       }
     }
 
-    console.log(corners, frontCorners, this.falling.rotation);
-
     if (corners < 3) return "none";
 
     let spin: SpinType = "normal";
@@ -1131,7 +1129,6 @@ export class Engine {
       spin = "mini";
     if (finOrTst) spin = "normal";
 
-    console.log(spin);
     return spin;
   }
 
