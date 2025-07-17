@@ -239,6 +239,19 @@ bun run build
 
 File an issue and make a pull request on Github.
 
+### Tests
+The `Engine` test suite requires a large number of replays that are not included in the repository. To download the test prerequisites, make sure you have Git LFS installed, then run:
+
+```bash
+bun download-test-data
+```
+
+If you add test replays for the engine, you can bundle them into a compressed archive with:
+
+```bash
+bun bundle-test-data
+```
+
 ## Credits
 
 - Made by [halp](https://github.com/halp1) [(website under construction)](https://haelp.dev)

@@ -3,3 +3,5 @@ docs
 dist
 
 .env.test
+
+test/data/replays
