@@ -1,4 +1,4 @@
-import type { Game as GameTypes } from "../../.";
+import type { Game as GameTypes } from "../..";
 
 export interface Game {
   "game.ready": GameTypes.Ready;

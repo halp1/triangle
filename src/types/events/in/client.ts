@@ -1,4 +1,4 @@
-import type { Game, Room } from "../../.";
+import type { Game, Room } from "../..";
 import type { Relationship, Room as RoomClass } from "../../../classes";
 import type { Engine } from "../../../engine";
 import type { Game as GameEvents } from "./game";

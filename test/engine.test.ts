@@ -296,6 +296,8 @@ export namespace tester {
         data: (i + 1) / files.length
       });
     }
+
+		return true;
   };
 }
 
