@@ -374,7 +374,7 @@ export class Client {
     this.emit("config.handling", handling);
   }
 
-  /** Clean up the client */
+  /** Clean up the client. Leaves any rooms first. */
   async destroy() {
     if (this.room) {
       try {

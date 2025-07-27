@@ -297,7 +297,7 @@ export namespace tester {
       });
     }
 
-		return true;
+    return true;
   };
 }
 
@@ -306,12 +306,10 @@ let currentLog: string;
 test(
   "Replay test",
   async () => {
-		const p = "./data/replays";
+    const p = "./data/replays";
     const files = await fs
       .readdir(path.join(__dirname, p))
-      .then((r) =>
-        r.map((v) => path.join(__dirname, p, v))
-      );
+      .then((r) => r.map((v) => path.join(__dirname, p, v)));
 
     if (files.length === 0)
       throw new Error(
@@ -335,7 +333,7 @@ test(
       }
     });
 
-		expect(res).toBeTrue();
+    expect(res).toBeTrue();
   },
   {
     timeout: 10 * 60 * 1000

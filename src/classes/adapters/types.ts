@@ -31,10 +31,10 @@ export namespace messages {
       hold: Mino | null;
       queue: Mino[];
 
-			garbage: number[];
+      garbage: number[];
 
-			combo: number;
-			b2b: number;
+      combo: number;
+      b2b: number;
 
       data: Data["state"];
     }
