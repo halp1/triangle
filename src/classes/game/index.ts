@@ -28,6 +28,7 @@ export class Game {
   #pauseIGEs = false;
   #forcePauseIGEs = false;
   #igeQueue: GameTypes.IGE[] = [];
+  #slowTickWarning = false;
 
   /** The client's engine */
   public engine!: Engine;
@@ -478,11 +479,20 @@ export class Game {
       const target =
         ((this.frame + 1) / Game.fps) * 1000 -
         (performance.now() - this.startTime!);
-      if (target <= 0) {
+
+      if (target <= -2000 && !this.#slowTickWarning) {
+        console.log(
+          `${chalk.red("[Triangle.js]")} Triangle.js is lagging behind by more than 2 seconds! Your \`tick\` function is likely taking too long to execute.`
+        );
+        this.#slowTickWarning = true;
+      }
+
+      // Every half second, use timeout even if we lag to ensure the websocket can send frames
+      if (target <= 0 && (this.engine.frame % Game.fps) / 2 !== 0) {
         return this.tickGame();
       }
 
-      this.timeout = setTimeout(this.tickGame.bind(this), target);
+      this.timeout = setTimeout(this.tickGame.bind(this), Math.max(0, target));
     } catch (e) {
       console.error(e);
       throw e;

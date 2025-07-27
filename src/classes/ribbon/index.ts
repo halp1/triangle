@@ -818,7 +818,7 @@ export class Ribbon {
         : level === "warning"
           ? chalk.yellow
           : chalk.red;
-    console.log(`${func("[🎀\u2009Ribbon]")}: ${msg}`);
+    console[level === "error" ? "error" : "log"](`${func("[🎀\u2009Ribbon]")}: ${msg}`);
   }
 
   /** The last ping time, in ms */

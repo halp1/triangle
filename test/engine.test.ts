@@ -6,7 +6,7 @@ import type { Replay } from "../src/types";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { test, expect } from "bun:test";
+import { test } from "bun:test";
 import chalk from "chalk";
 
 namespace _console {
@@ -320,7 +320,7 @@ test(
 
     _console.info(`Testing against ${files.length} replays...`);
 
-    await tester.runFiles(files, (event) => {
+    const res = await tester.runFiles(files, (event) => {
       if (event.type === "step") {
         if (currentLog) {
           _console.progress(currentLog, 1);
@@ -334,6 +334,8 @@ test(
         _console.info(event.message);
       }
     });
+
+		expect(res).toBeTrue();
   },
   {
     timeout: 10 * 60 * 1000
