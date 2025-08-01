@@ -22,7 +22,6 @@ export class Game {
   private startTime: number | null = null;
   #target: GameTypes.Target = { strategy: "even" };
   private tick?: GameTypes.Tick.Func;
-  private over = false;
   // @ts-expect-error
   private isPractice = false;
   #pauseIGEs = false;
@@ -58,6 +57,8 @@ export class Game {
   public keyQueue: NonNullable<GameTypes.Tick.Out["keys"]> = [];
   /** Whether or not targeting is allowed (changed by server). Setting target while this is `false` will throw an error. */
   public canTarget = true;
+  /** Whether or not the client's game is over (topped out), and no longer ticking. */
+  public over = false;
 
   /** The Frames Per Second of the TETR.IO engine */
   static fps = 60;
