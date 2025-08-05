@@ -99,6 +99,23 @@ Sent to update the external process with the current game state.
 - `b2b`: Current back-to-back count
 - `data`: Custom data field for engine-specific state information
 
+### Pieces Message
+
+Sent when new pieces are added to the queue.
+
+```json
+{
+	"type": "pieces",
+	"pieces": ["T", "S", "Z", "I", "O", "J", "L"],
+	"data": null
+}
+```
+
+**Fields:**
+- `type`: Always `"pieces"`
+- `pieces`: Array of new piece symbols
+- `data`: Custom data field for engine-specific piece information
+
 ### Play Message
 
 Sent when requesting a move from the external process.
