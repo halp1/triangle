@@ -25,7 +25,7 @@ export interface AdapterIOConfig {
 /**
  * Communicates with a binary engine executable using Standard Input/Output.
  * Uses JSON messages.
- * @see {@link ./types.ts}
+ * @see {@link Messages.CustomMessageData}
  */
 export class AdapterIO<
   T extends Messages.CustomMessageData

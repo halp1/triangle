@@ -37,7 +37,7 @@ bun install @haelp/teto
 
 Finally, add your bot credentials to a new `.env` file:
 
-```env
+```
 USERNAME=your-bot-username
 PASSWORD=your-bot-password
 ```

@@ -6,10 +6,28 @@
   "navigationLinks": {
     "GitHub": "https://github.com/halp1/triangle"
   },
+  "highlightLanguages": [
+    "bash",
+    "console",
+    "css",
+    "html",
+    "javascript",
+    "json",
+    "jsonc",
+    "json5",
+    "yaml",
+    "tsx",
+    "typescript",
+    "powershell",
+    "python"
+  ],
   "projectDocuments": [
+    "documents/Adapters.md",
     "documents/Channel.md",
+    "documents/Engine.md",
     "documents/Gameplay.md",
-    "documents/Troubleshooting.md",
-    "documents/Engine.md"
+    "documents/Protocol.md",
+    "documents/Quickstart.md",
+    "documents/Troubleshooting.md"
   ]
 }
