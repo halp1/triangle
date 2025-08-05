@@ -614,7 +614,9 @@ export namespace Game {
   export type BoardSquare = Mino | "gb" | null;
 
   export namespace Client {
-    export type Events = Garbage | Frameset;
+    export type Event = Garbage | Frameset;
+		/** @deprecated */
+		export type Events = Event;
 
     export interface Frameset {
       type: "frameset";

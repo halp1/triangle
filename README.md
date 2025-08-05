@@ -26,6 +26,8 @@
 
 Triangle.js was last known to work with TETR.IO Beta version **1.7.3.**
 
+## [>> Quickstart <<](https://triangle.haelp.dev/documents/Quickstart.html)
+
 ## Installation
 
 ```bash
@@ -241,7 +243,7 @@ File an issue and make a pull request on Github.
 
 ### Tests
 
-The `Engine` test suite requires a large number of replays that are not included in the repository. To download the test prerequisites, make sure you have Git LFS installed, then run:
+The `Engine` test suite requires a large number of replays that are not included in the repository. To download the test prerequisites, make sure you have Git LFS, `pv`, and `pigz` installed, then run:
 
 ```bash
 bun download-test-data

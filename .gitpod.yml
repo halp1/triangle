@@ -1,4 +1,0 @@
-tasks:
-  - before: curl -fsSL https://bun.sh/install | bash && source /home/gitpod/.bashrc && nvm install node
-    init: npm install
-    command: echo "ready!"

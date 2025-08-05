@@ -82,6 +82,8 @@ client.on("client.game.round.start", ([tick, engine]) => {
 
 ### Processing a tick (frame)
 
+> Note: if the `Game` has an active `BotWrapper` in use, the tick callback will not be called.
+
 The tick callback is called every frame. It can be asynchronous, but you should optimize it to be as fast as possible. The tick callback takes in the engine and incoming events, and should return data about keys pressed, etc. The keys returned by the callback may have a `frame` property in the future: they will be queued to be played at the assigned frame.
 
 ```ts

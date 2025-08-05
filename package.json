@@ -1,6 +1,6 @@
 {
   "name": "@haelp/teto",
-  "version": "3.2.2",
+  "version": "3.3.0",
   "description": "A typescript-based controllable TETR.IO client.",
   "maintainers": [
     "haelp"
@@ -21,10 +21,10 @@
     "clean": "rm -rf dist",
     "build:types": "tsc",
     "build:swc": "swc src --strip-leading-paths -d dist -C module.type=es6 --copy-files && bun scripts/renameModules.ts && swc src --strip-leading-paths -d dist --copy-files",
-    "build": "bun version.js && bun clean && bun build:types && bun build:swc",
+    "build": "bun scripts/version.ts && bun clean && bun build:types && bun build:swc",
     "pub": "npm publish --access public",
     "bundle-test-data": "tar -C test/data/replays -cf - . | pv -s $(du -sb test/data/replays | awk '{print $1}') | pigz -9 > test/data/replays.tar.gz",
-    "download-test-data": "git lfs fetch --include=\"test/data/**\" && git lfs checkout test/data && bun extract-test-data",
+    "download-test-data": "git lfs fetch --include=\"test/data/**\" --exclude=\"\" && git lfs checkout test/data && bun extract-test-data",
     "extract-test-data": "mkdir -p test/data/replays && pv test/data/replays.tar.gz | pigz -d | tar -xf - -C test/data/replays"
   },
   "files": [
@@ -50,7 +50,13 @@
       "types": "./dist/channel/index.d.ts",
       "import": "./dist/channel/index.mjs",
       "default": "./dist/channel/index.js"
-    }
+    },
+
+		"./utils": {
+			"types": "./dist/utils/index.d.ts",
+			"import": "./dist/utils/index.mjs",
+			"default": "./dist/utils/index.js"
+		}
   },
   "types": "dist/index.d.ts",
   "keywords": [

@@ -1,5 +1,6 @@
 import { Engine } from "../../engine";
 import type { Events, Game as GameTypes } from "../../types";
+import type { BotWrapper } from "../../utils/bot-wrapper";
 import { Client } from "../client";
 import { getFullFrame } from "./utils";
 
@@ -59,6 +60,8 @@ export class Game {
   public canTarget = true;
   /** Whether or not the client's game is over (topped out), and no longer ticking. */
   public over = false;
+  /** The BotWrapper in use. When a BotWrapper is set, `tick` will not be called. */
+  public botWrapper?: BotWrapper;
 
   /** The Frames Per Second of the TETR.IO engine */
   static fps = 60;
@@ -124,6 +127,8 @@ export class Game {
     if (!this.over) this.stop();
 
     this.listeners.forEach((l) => this.client.off(l[0], l[1]));
+
+    this.players.forEach((engine) => engine.engine.events.removeAllListeners());
 
     delete this.client.game;
   }

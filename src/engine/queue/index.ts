@@ -71,7 +71,7 @@ export class Queue {
       added.push(...newValues);
     }
 
-    if (this.repopulateListener) {
+    if (this.repopulateListener && added.length) {
       this.repopulateListener(added);
     }
   }

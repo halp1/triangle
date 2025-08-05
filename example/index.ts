@@ -1,16 +1,37 @@
 import { Client } from "@haelp/teto";
+import { BotWrapper, adapters } from "@haelp/teto/utils";
+import path from "path";
 
-(async () => {
-  const client = await Client.connect({
-    username: "test",
-    password: "password" // not a real password, use bot credentials instead
+const client = await Client.connect({
+  username: process.env.USERNAME!,
+  password: process.env.PASSWORD!
+});
+
+// Or:
+// const client = await Client.connect({
+//   token: process.env.TOKEN!
+// });
+
+const { roomid } = await client.wait("social.invite");
+await client.rooms.join(roomid);
+await client.room?.switch("player").catch(() => {});
+
+client.on("client.game.round.start", async ([tick, engine]) => {
+  const adapter = new adapters.IO({
+    path: path.join(__dirname, "./solver/target/release/triangle-rust-demo")
+  });
+  const wrapper = new BotWrapper(adapter, {
+    pps: 1
+  });
+  const initPromise = wrapper.init(engine);
+
+  tick(async ({ engine, events }) => {
+    await initPromise;
+    return {
+      keys: await wrapper.tick(engine, events)
+    };
   });
 
-  console.log("connected to", client.user.username);
-
-  const room = await client.rooms.create();
-
-  console.log(`<${room.id}> ${room.name}`);
-
-  await client.destroy();
-})();
+  await client.wait("client.game.over");
+  wrapper.stop();
+});

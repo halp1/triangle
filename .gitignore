@@ -5,3 +5,5 @@ dist
 .env.test
 
 test/data/replays
+
+example/solver/target

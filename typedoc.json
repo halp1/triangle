@@ -7,9 +7,9 @@
     "GitHub": "https://github.com/halp1/triangle"
   },
   "projectDocuments": [
-    "Channel.md",
-    "Gameplay.md",
-    "Troubleshooting.md",
-    "Engine.md"
+    "documents/Channel.md",
+    "documents/Gameplay.md",
+    "documents/Troubleshooting.md",
+    "documents/Engine.md"
   ]
 }
