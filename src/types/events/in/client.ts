@@ -95,6 +95,14 @@ export interface Client {
 
   /** Fires when a message is sent to the server. Contains the raw data of the server message. Useful for logging. */
   "client.ribbon.send": { command: string; data?: any };
+	
+	/** Fires whenever a Ribbon log is outputted */
+	"client.ribbon.log": string;
+	/** Fires whenever a Ribbon warning is outputted*/
+	"client.ribbon.warn": string;
+	/** Fires whenever Ribbon encounters an error */
+	"client.ribbon.error": string;
+
 
   // relationship stuff
   /** Fires whenever the client is friended */

@@ -1,4 +1,4 @@
-import { type Codec } from ".";
+import { type Codec, type LoggingLevel } from ".";
 import type { Game } from "../../types";
 
 export namespace RibbonEvents {
@@ -25,14 +25,22 @@ export interface RibbonOptions {
    */
   codec: Codec;
   /**
-   * Enables logging
-   * @default false
+   * The target level of Ribbon terminal log output.
+   * `none` = no logs
+   * `error` = only errors
+   * `all` = all logs
    */
-  verbose: boolean;
+  logging: LoggingLevel;
   /**
    * Whether or not connect to a spool (when off, the client will connect directly to tetr.io).
    * It is highly recommended to leave this on.
    * @default true
    */
   spooling: boolean;
+  /**
+   * @deprecated - use `logging`
+   * Enables logging
+   * @default false
+   */
+  verbose: boolean;
 }

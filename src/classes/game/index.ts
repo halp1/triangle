@@ -40,7 +40,6 @@ export class Game {
     engine: Engine;
     queue: GameTypes.Replay.Frame[];
   }[] = [];
-  /** @deprecated - use `players` */
   public get opponents() {
     return this.players.filter((p) => p.gameid !== this.gameid);
   }
@@ -62,9 +61,13 @@ export class Game {
   public over = false;
   /** The BotWrapper in use. When a BotWrapper is set, `tick` will not be called. */
   public botWrapper?: BotWrapper;
+	/** The last time IGEs were flushed */
+	public lastIGEFlush: number = performance.now();
 
   /** The Frames Per Second of the TETR.IO engine */
   static fps = 60;
+	/** The maximum amount of time before all IGEs are force-flushed */
+	static maxIGETimeout = 30000;
   /** Frames per message */
   private static fpm = 12;
 
@@ -519,10 +522,11 @@ export class Game {
   }
 
   #flushIGEs() {
-    if (this.igesPaused) return;
+    if (this.igesPaused && this.lastIGEFlush + Game.maxIGETimeout > performance.now()) return;
     this.#igeQueue
       .splice(0, this.#igeQueue.length)
       .forEach((ige) => this.#__internal_handleIGE(ige));
+		this.lastIGEFlush = performance.now();
   }
 
   #__internal_handleIGE(ige: GameTypes.IGE) {
@@ -602,7 +606,7 @@ export class Game {
     this.#flushIGEs();
   }
 
-  /** Force stops the processing of all IGEs (garbage, etc). If left `true` for too long, the client will be kicked. Use sparingly. */
+  /** Force stops the processing of all IGEs (garbage, etc). If left `true` for too long (~30s), IGEs will be automatically flushed to avoid a forced disconnect. Use sparingly. */
   public get forcePauseIGEs() {
     return this.#forcePauseIGEs;
   }

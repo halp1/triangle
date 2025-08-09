@@ -22,6 +22,8 @@ interface CodecHandler {
   decode: (data: Buffer | string) => RibbonEvents.Raw<Events.in.all>;
 }
 
+export type LoggingLevel = "all" | "error" | "none";
+
 export class Ribbon {
   static CACHE_MAXSIZE = 4096;
   static BATCH_TIMEOUT = 25;
@@ -102,7 +104,7 @@ export class Ribbon {
   #reconnectTimeout: null | NodeJS.Timeout = null;
 
   #options: {
-    verbose: boolean;
+    logging: LoggingLevel;
     spooling: boolean;
   };
 
@@ -159,8 +161,9 @@ export class Ribbon {
     }
   }
 
-  constructor({
-    verbose,
+  /** @hideconstructor */
+  private constructor({
+    logging,
     token,
     handling,
     userAgent,
@@ -170,7 +173,7 @@ export class Ribbon {
     self,
     spooling = true
   }: {
-    verbose: boolean;
+    logging: LoggingLevel;
     token: string;
     handling: Game.Handling;
     userAgent: string;
@@ -193,7 +196,7 @@ export class Ribbon {
     this.#self = self;
 
     this.#options = {
-      verbose,
+      logging,
       spooling
     };
 
@@ -202,13 +205,16 @@ export class Ribbon {
 
   static async create({
     verbose = false,
+    logging,
     token,
     handling,
     userAgent,
     codec = "candor",
     spooling = true
   }: {
+    /** @deprecated - use `logging` instead */
     verbose?: boolean;
+    logging?: LoggingLevel;
     token: string;
     handling: Game.Handling;
     userAgent: string;
@@ -228,8 +234,10 @@ export class Ribbon {
 
     const self = api.users.me();
 
+    const loggingLevel = (logging ?? verbose) ? "all" : "error";
+
     return new Ribbon({
-      verbose,
+      logging: loggingLevel,
       token,
       handling,
       userAgent,
@@ -312,9 +320,7 @@ export class Ribbon {
       signature: this.#spool.signature
     };
 
-    if (this.#options.verbose) {
-      this.log(`Connecting to <${this.#spool.host}/${this.#spool.endpoint}>`);
-    }
+    this.log(`Connecting to <${this.#spool.host}/${this.#spool.endpoint}>`);
 
     if (this.#socket) {
       this.#socket.onopen =
@@ -428,8 +434,7 @@ export class Ribbon {
   }
 
   async #onOpen() {
-    if (this.#options.verbose)
-      this.log(`Connected to <${this.#spool.host}/${this.#spool.endpoint}>`);
+    this.log(`Connected to <${this.#spool.host}/${this.#spool.endpoint}>`);
 
     this.#flags |= Ribbon.FLAGS.ALIVE | Ribbon.FLAGS.SUCCESSFUL;
     this.#flags &= ~Ribbon.FLAGS.TIMING_OUT;
@@ -455,10 +460,14 @@ export class Ribbon {
 
   #onError(error: Error) {
     if (!this.#hasConnectedOnce) {
-      this.log("Connection error: " + error.toString(), {
-        force: true,
-        level: "error"
-      });
+      this.log(
+        "Connection error: " +
+          (error.stack ?? error.message ?? error.toString()),
+        {
+          force: true,
+          level: "error"
+        }
+      );
     }
   }
 
@@ -811,7 +820,15 @@ export class Ribbon {
       level: "info"
     }
   ) {
-    if (!this.#options.verbose && !force) return;
+		if (level === "error") this.emit("client.ribbon.error", msg);
+		if (level === "warning") this.emit("client.ribbon.warn", msg);
+		if (level === "info") this.emit("client.ribbon.log", msg);
+
+    if (
+      this.#options.logging === "none" ||
+      (this.#options.logging === "error" && !force)
+    )
+      return;
     const func =
       level === "info"
         ? chalk.blue
@@ -861,7 +878,7 @@ export class Ribbon {
   /** Clones a ribbon. Used internally by Client.reconnect. */
   async clone() {
     const newRibbon = await Ribbon.create({
-      verbose: this.#options.verbose,
+      logging: this.#options.logging,
       token: this.#token,
       handling: this.#handling,
       userAgent: this.#userAgent,

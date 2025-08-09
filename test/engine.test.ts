@@ -6,7 +6,7 @@ import type { Replay } from "../src/types";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { test } from "bun:test";
+import { expect, test } from "bun:test";
 import chalk from "chalk";
 
 namespace _console {
