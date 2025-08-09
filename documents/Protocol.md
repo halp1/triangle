@@ -1,6 +1,8 @@
 # Triangle.js Adapter Protocol Documentation
 
-This document describes the JSON-based communication protocol used by Triangle.js adapters to interface with external engines and AI systems. The protocol enables bidirectional communication between Triangle.js and external processes through a communication channel such as standard input/output or a WebSocket.
+This document describes the JSON-based communication protocol used by Triangle.js adapters to interface with external engines. The protocol enables bidirectional communication between Triangle.js and external processes through a communication channel such as standard input/output or a WebSocket.
+
+Transparency note: this document was AI-generated based on the Triangle.js adapter source code.
 
 ## Overview
 
@@ -14,7 +16,7 @@ The adapter protocol is implemented by the `AdapterIO` class and uses line-delim
 
 ## Outgoing Messages (Triangle.js → External Process)
 
-These messages are sent from Triangle.js to the external engine/AI.
+These messages are sent from Triangle.js to the external engine.
 
 ### Config Message
 
@@ -137,7 +139,7 @@ Sent when requesting a move from the external process.
 
 ## Incoming Messages (External Process → Triangle.js)
 
-These messages are received by Triangle.js from the external engine/AI.
+These messages are received by Triangle.js from the external engine.
 
 ### Info Message
 

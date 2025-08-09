@@ -1,6 +1,6 @@
 # Triangle.JS Quickstart Guide
 
-This document outlines the fastest way to connect your bot to TETR.IO via Triangle.js. It provides a step-by-step explanation of the example code.
+This document outlines the fastest way to connect your bot to TETR.IO via Triangle.js. It provides a step-by-step explanation of the example code. If you want to avoid using Typescript as much as possible, this document is for you. If you are more experienced with Typescript and want fine-grained control over your client, you may want to refer to the [full documentation](https://triangle.haelp.dev).
 
 ## Step 0: Create an engine and compile it
 

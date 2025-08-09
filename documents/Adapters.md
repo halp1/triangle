@@ -1,6 +1,8 @@
 # Triangle.js Adapters Documentation
 
-This document describes the adapter system in Triangle.js, which provides a standardized interface for integrating external AI engines and bots with the Triangle.js game engine. Adapters abstract away the communication layer, allowing developers to focus on AI logic rather than protocol implementation.
+This document describes the adapter system in Triangle.js, which provides a standardized interface for integrating external engines and bots with the Triangle.js game engine. Adapters abstract away the communication layer, allowing developers to focus on game logic rather than protocol implementation.
+
+Transparency note: this document was AI-generated based on the Triangle.js adapter source code.
 
 ## Overview
 
