@@ -188,14 +188,14 @@ The `keys` array in move messages can contain the following actions:
 - `moveRight` - Move piece right
 - `softDrop` - Move piece down
 - `hardDrop` - Drop piece to bottom
-- `rotateClockwise` - Rotate piece clockwise
-- `rotateCounterclockwise` - Rotate piece counterclockwise
+- `rotateCW` - Rotate piece clockwise
+- `rotateCCW` - Rotate piece counterclockwise
 - `rotate180` - Rotate piece 180 degrees
 - `hold` - Hold current piece
 
 **Extended Keys:**
-- `dasLeft` - Delayed Auto Shift left (continuous movement)
-- `dasRight` - Delayed Auto Shift right (continuous movement)
+- `dasLeft` - Delayed Auto Shift left (instant movement)
+- `dasRight` - Delayed Auto Shift right (instant movement)
 
 ## Custom Data Fields
 
