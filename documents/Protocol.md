@@ -51,7 +51,7 @@ Sent once at the beginning to configure the game rules and settings.
 - `type`: Always `"config"`
 - `boardWidth`: Width of the game board (typically 10)
 - `boardHeight`: Height of the visible game board (typically 20)
-- `kicks`: Kick table name (e.g., "SRS", "TETR.IO")
+- `kicks`: Kick table name (e.g., "SRS", "SRS+", etc)
 - `spins`: Spin detection settings for T-spins and other piece spins
 - `comboTable`: Array defining combo multipliers
 - `b2bCharing`: Whether back-to-back bonus charging is enabled
