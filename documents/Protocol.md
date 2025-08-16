@@ -169,7 +169,7 @@ Sent in response to a `play` message to specify the desired move.
 ```json
 {
   "type": "move",
-  "keys": ["moveLeft", "moveLeft", "rotateClockwise", "hardDrop"],
+  "keys": ["moveLeft", "moveLeft", "rotateCCW", "hardDrop"],
   "data": null
 }
 ```
