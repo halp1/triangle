@@ -75,7 +75,7 @@ The base class provides three helper methods that extract relevant data from the
 The `AdapterIO` class communicates with external processes via standard input/output using JSON messages. It's available through the `adapters.IO` export.
 
 ```typescript
-import { adapters } from "@haelp/triangle";
+import { adapters } from "@haelp/teto/utils";
 
 const adapter = new adapters.IO({
   path: "./my-bot", // Required: path to executable

@@ -356,6 +356,7 @@ export class Client {
       }
     );
 
+    delete this.room;
     this.social = await Social.create(this, data.social);
   }
 
