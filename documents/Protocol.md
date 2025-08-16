@@ -74,7 +74,7 @@ Sent to update the external process with the current game state.
 {
   "type": "state",
   "board": [
-		...,
+    ...,
     [null, null, null, null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null, null, null, null],
     ["T", "T", "T", null, null, null, null, null, null, null],
@@ -107,9 +107,9 @@ Sent when new pieces are added to the queue.
 
 ```json
 {
-	"type": "pieces",
-	"pieces": ["T", "S", "Z", "I", "O", "J", "L"],
-	"data": null
+  "type": "pieces",
+  "pieces": ["T", "S", "Z", "I", "O", "J", "L"],
+  "data": null
 }
 ```
 
@@ -226,36 +226,36 @@ import json
 import sys
 
 def send_message(msg):
-    print(json.dumps(msg), flush=True)
+  print(json.dumps(msg), flush=True)
 
 def receive_message():
-    line = sys.stdin.readline()
-    return json.loads(line.strip())
+  line = sys.stdin.readline()
+  return json.loads(line.strip())
 
 # Send info message
 send_message({
-    "type": "info",
-    "name": "SimpleBot",
-    "version": "1.0.0",
-    "author": "Example"
+  "type": "info",
+  "name": "SimpleBot",
+  "version": "1.0.0",
+  "author": "Example"
 })
 
 # Main loop
 while True:
-		msg = receive_message()
-		
-		if msg["type"] == "config":
-				# Store configuration
-				pass
-		elif msg["type"] == "state":
-				# Update internal state
-				pass
-		elif msg["type"] == "play":
-				# Calculate and send move
-				send_message({
-						"type": "move",
-						"keys": ["hardDrop"]
-				})
+  msg = receive_message()
+  
+  if msg["type"] == "config":
+    # Store configuration
+    pass
+  elif msg["type"] == "state":
+    # Update internal state
+    pass
+  elif msg["type"] == "play":
+    # Calculate and send move
+    send_message({
+      "type": "move",
+      "keys": ["hardDrop"]
+    })
 ```
 
 ## Best Practices
