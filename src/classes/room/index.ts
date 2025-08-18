@@ -188,7 +188,7 @@ export class Room {
     });
 
     this.listen("game.end", (data) => {
-      this.client.emit("client.game.round.end", data.scoreboard[0].id);
+      this.client.emit("client.game.round.end", data.scoreboard[0]?.id ?? null);
 
       const maxWins = data.scoreboard.reduce(
         (max, item) => Math.max(max, item.wins),

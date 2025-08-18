@@ -71,8 +71,8 @@ export interface Client {
     | {
         reason: "leave";
       };
-  /** Fires when a round is over, sends the gameid of the winning player. */
-  "client.game.round.end": string;
+  /** Fires when a round is over, sends the user id of the winning player, if there is one. */
+  "client.game.round.end": string | null;
   /**
    * Fires when a game ends. Likely known issue:
    * @see https://github.com/tetrjs/tetr.js/issues/62
