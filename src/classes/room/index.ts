@@ -188,15 +188,15 @@ export class Room {
     });
 
     this.listen("game.end", (data) => {
-      this.client.emit("client.game.round.end", data.leaderboard[0].id);
+      this.client.emit("client.game.round.end", data.scoreboard[0].id);
 
-      const maxWins = data.leaderboard.reduce(
+      const maxWins = data.scoreboard.reduce(
         (max, item) => Math.max(max, item.wins),
         0
       );
       this.client.emit("client.game.end", {
         duration: performance.now() - (this.gameStart ?? 0),
-        players: data.leaderboard.map(
+        players: data.scoreboard.map(
           (item) =>
             ({
               id: item.id,

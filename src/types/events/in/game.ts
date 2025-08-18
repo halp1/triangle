@@ -79,8 +79,16 @@ export interface Game {
   };
   "game.end": {
     leaderboard: GameTypes.Leaderboard[];
-    currentboard: GameTypes.Leaderboard[];
+    scoreboard: GameTypes.Leaderboard[];
     xpPerUser: number;
+    winners: {
+      id: string;
+      username: string;
+      active: boolean;
+      naturalorder: number;
+      shadows: any[];
+      shadowedBy: (null | any)[];
+    }[];
   };
   "game.replay.state": {
     gameid: number;
