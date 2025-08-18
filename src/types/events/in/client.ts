@@ -1,6 +1,7 @@
 import type { Game, Room } from "../..";
 import type { Relationship, Room as RoomClass } from "../../../classes";
 import type { Engine } from "../../../engine";
+import type { Social } from "../../social";
 import type { Game as GameEvents } from "./game";
 import type { Ribbon } from "./ribbon";
 
@@ -95,14 +96,13 @@ export interface Client {
 
   /** Fires when a message is sent to the server. Contains the raw data of the server message. Useful for logging. */
   "client.ribbon.send": { command: string; data?: any };
-	
-	/** Fires whenever a Ribbon log is outputted */
-	"client.ribbon.log": string;
-	/** Fires whenever a Ribbon warning is outputted*/
-	"client.ribbon.warn": string;
-	/** Fires whenever Ribbon encounters an error */
-	"client.ribbon.error": string;
 
+  /** Fires whenever a Ribbon log is outputted */
+  "client.ribbon.log": string;
+  /** Fires whenever a Ribbon warning is outputted*/
+  "client.ribbon.warn": string;
+  /** Fires whenever Ribbon encounters an error */
+  "client.ribbon.error": string;
 
   // relationship stuff
   /** Fires whenever the client is friended */
@@ -112,6 +112,6 @@ export interface Client {
   "client.dm": {
     user: Relationship;
     content: string;
-    reply: (message: string) => Promise<void>;
+    reply: (message: string) => Promise<Social.DM>;
   };
 }

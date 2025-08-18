@@ -207,7 +207,11 @@ export class Client {
       handling
     );
 
-    client.social = await Social.create(client, data.social);
+    client.social = await Social.create(
+      client,
+      options.social || {},
+      data.social
+    );
 
     return client;
   }
@@ -357,7 +361,7 @@ export class Client {
     );
 
     delete this.room;
-    this.social = await Social.create(this, data.social);
+    this.social = await Social.create(this, this.social.config, data.social);
   }
 
   /** The client's current handling. */

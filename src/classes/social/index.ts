@@ -3,6 +3,8 @@ import { APITypes } from "../../utils";
 import type { Client } from "../client";
 import { Relationship } from "./relationship";
 
+import { merge } from "lodash";
+
 interface SocialInitData {
   online: number;
   notifications: SocialTypes.Notification[];
@@ -34,10 +36,21 @@ export class Social {
   public blocked: SocialTypes.Blocked[];
   /** Notifications */
   public notifications: SocialTypes.Notification[];
+  /** Social config */
+  public config: SocialTypes.Config;
+
+  public static defaultConfig: SocialTypes.Config = {
+    suppressDMErrors: false
+  };
 
   /** @hideconstructor */
-  private constructor(client: Client, init: SocialInitData) {
+  private constructor(
+    client: Client,
+    config: Partial<SocialTypes.Config>,
+    init: SocialInitData
+  ) {
     this.client = client;
+    this.config = merge(Social.defaultConfig, config);
 
     this.init();
     this.online = init.online;
@@ -74,6 +87,7 @@ export class Social {
 
   static async create(
     client: Client,
+    config: Partial<SocialTypes.Config>,
     initData: Events.in.Client["client.ready"]["social"]
   ) {
     const rel = initData.relationships.map((r) =>
@@ -94,7 +108,7 @@ export class Social {
         }))
     };
 
-    return new Social(client, data);
+    return new Social(client, config, data);
   }
 
   private get api() {
@@ -186,9 +200,7 @@ export class Social {
       this.client.emit("client.dm", {
         user,
         content: dm.data.content,
-        reply: async (content: string) => {
-          await this.dm(dm.data.user, content);
-        }
+        reply: (content: string) => this.dm(dm.data.user, content)
       });
     });
   }
@@ -264,8 +276,8 @@ export class Social {
    * @example
    * await client.social.dm(await client.social.resolve('halp'), 'what\'s up?');
    */
-  async dm(userID: string, message: string) {
-    return await this.client.wrap(
+  dm(userID: string, message: string) {
+    const res = this.client.wrap(
       "social.dm",
       {
         recipient: userID,
@@ -274,6 +286,10 @@ export class Social {
       "social.dm",
       ["social.dm.fail", "client.error"]
     );
+
+    if (this.config.suppressDMErrors) res.catch(() => {});
+
+    return res;
   }
 
   /**

@@ -1,4 +1,4 @@
-import type { Game, User } from "../../types";
+import type { Game, User, Social } from "../../types";
 import type { RibbonOptions } from "../ribbon";
 
 export type ClientOptions = (
@@ -25,6 +25,8 @@ export type ClientOptions = (
   turnstile?: string;
   /** The Ribbon (websocket handler) config */
   ribbon?: Partial<RibbonOptions>;
+	/** The `Social` config */
+	social?: Partial<Social.Config>;
 };
 
 export interface ClientUser {

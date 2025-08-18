@@ -4,8 +4,7 @@ export interface Social {
   "social.online": number;
 
   "social.dm": SocialTypes.DM;
-  /** Known: `they.fail` */
-  "social.dm.fail": string;
+  "social.dm.fail": "they.fail" | "they.ban" | string;
 
   "social.presence": {
     user: string;
