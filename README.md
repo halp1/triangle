@@ -17,10 +17,10 @@
 
 ## Disclaimer
 
-> This library is not officially supported nor endorsed by TETR.IO. Use of the main game API is only permitted with an official bot account. You assume all responsibility for any actions that result in staff action (warnings/bans, etc). The main game API is not documented and this library may break at any time.
+> This library is not officially supported nor endorsed by TETR.IO. Use of the main game API is only permitted with an official bot account. You assume all responsibility for any actions that result in staff action (warnings/bans, etc). The main game API is not documented, and this library may break at any time.
 > This restriction includes the use of the `Client` class and the `API` class.
 
-> The Tetra Channel section of this library (imported through `@haelp/teto/ch`) and the Engine (imported through `@haelp/teto/engine`) is open to use by anyone.
+> The Tetra Channel section of this library (imported through `@haelp/teto/ch`) and the Engine (imported through `@haelp/teto/engine`) are open to use by anyone.
 
 ---
 
@@ -84,7 +84,7 @@ The following usage examples assume you are using Typescript. They also assume y
 ### Import
 
 > Warning:
-> Use the latest LTS versoin when using Node.js with Triangle.js. Triangle.js was last known to work with Node.js 22.x.
+> Use the latest LTS version when using Node.js with Triangle.js. Triangle.js was last known to work with Node.js 22.x.
 
 > Warning:
 > Triangle.js uses Node.js/Bun's built-in WebSocket client. If you have to use Node.js < `v22.4.0`, use the `ws` package as a pollyfill:
@@ -181,7 +181,7 @@ client.on("room.chat", (data) => {
 
 ## Events
 
-The Triangle.js client follows an async/await based method, while TETR.IO generally has a event/callback based system. To help facilitate the connection between these two systems, the client provides several helper methods.
+The Triangle.js client follows an async/await based method, while TETR.IO generally has an event/callback based system. To help facilitate the connection between these two systems, the client provides several helper methods.
 
 All of these methods are typed, so your ide will likely assist with autocomplete. All events are in src/types/events
 
@@ -207,9 +207,9 @@ For events that you might want to handle multiple times, you can use `client.on`
 
 ### Client Events
 
-Client events are not sent by TETR.IO. They are events sent by the Triangle.js client itself, to help make creating a bot easier.
+Client events are not sent by TETR.IO. They are events sent by the Triangle.js client itself to help make creating a bot easier.
 
-For example the `client.room.players` event fires every time a player moves their bracket, joins, or leaves. Rather than listening to several events and managing a players list yourself (with `room.player.add`, `room.player.remove`, `room.update`, `room.update.bracket`, etc) you can use the single `client.room.players`. See [src/types/events/in/client](https://triangle.haelp.dev/interfaces/src.Types.Events.in.Client.html) for more events you can use.
+For example, the `client.room.players` event fires every time a player moves their bracket, joins, or leaves. Rather than listening to several events and managing a players list yourself (with `room.player.add`, `room.player.remove`, `room.update`, `room.update.bracket`, etc), you can use the single `client.room.players`. See [src/types/events/in/client](https://triangle.haelp.dev/interfaces/src.Types.Events.in.Client.html) for more events you can use.
 
 ## Troubleshooting
 
@@ -239,7 +239,7 @@ bun run build
 
 ## Contributing
 
-File an issue and make a pull request on Github.
+File an issue and make a pull request on GitHub.
 
 ### Tests
 
