@@ -105,14 +105,13 @@ export class BotWrapper<
     if (engine.frame >= this.nextFrame) {
       if (this.needsNewMove) {
         this.nextFrame = BotWrapper.nextFrame(engine, this.config.pps);
-				this.needsNewMove = false;	
-			}
-      else {
+        this.needsNewMove = false;
+      } else {
         const { keys } = await this.adapter.play(engine, fullData.play);
 
         const frames = BotWrapper.frames(engine, keys);
 
-				this.needsNewMove = true;
+        this.needsNewMove = true;
 
         return frames;
       }

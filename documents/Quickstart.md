@@ -83,27 +83,25 @@ Inside the callback, create a new Adapter. This creates a bridge between your ty
 
 ```ts
 const adapter = new adapters.IO({
-	path: path.join(__dirname, "./your-binary")
+  path: path.join(__dirname, "./your-binary")
 });
 ```
 
 Then, create a `BotWrapper`. This wraps around the adapter and controls the gameplay logic:
 
 ```ts
-const wrapper = new BotWrapper(
-	adapter,
-	{ pps: 1 }
-);
+const wrapper = new BotWrapper(adapter, { pps: 1 });
 const initPromise = wrapper.init(engine);
 ```
+
 The BotWrapper then needs to be used in the game loop:
 
 ```ts
 tick(async ({ engine, events }) => {
-	await initPromise; // ensure the BotWrapper is ready before using it
-	return {
-		keys: await wrapper.tick(engine, events)
-	};
+  await initPromise; // ensure the BotWrapper is ready before using it
+  return {
+    keys: await wrapper.tick(engine, events)
+  };
 });
 ```
 
@@ -160,6 +158,6 @@ client.on("client.game.round.start", async ([tick, engine]) => {
 
 Now that your bot is complete, you can explore additional features and improvements:
 
-* Read the other core documents to understand how Triangle.JS works
-* Adding chat commands to control the bot, using the `room.chat` event
-* Allow the bot to join multiple rooms by spawning a new `Client` on each invite
+- Read the other core documents to understand how Triangle.JS works
+- Adding chat commands to control the bot, using the `room.chat` event
+- Allow the bot to join multiple rooms by spawning a new `Client` on each invite

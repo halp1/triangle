@@ -3,7 +3,7 @@ import { APITypes } from "../../utils";
 import type { Client } from "../client";
 import { Relationship } from "./relationship";
 
-import { merge } from "lodash";
+import _ from "lodash";
 
 interface SocialInitData {
   online: number;
@@ -50,7 +50,7 @@ export class Social {
     init: SocialInitData
   ) {
     this.client = client;
-    this.config = merge(Social.defaultConfig, config);
+    this.config = _.merge(Social.defaultConfig, config);
 
     this.init();
     this.online = init.online;

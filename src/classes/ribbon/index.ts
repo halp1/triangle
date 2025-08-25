@@ -820,9 +820,9 @@ export class Ribbon {
       level: "info"
     }
   ) {
-		if (level === "error") this.emit("client.ribbon.error", msg);
-		if (level === "warning") this.emit("client.ribbon.warn", msg);
-		if (level === "info") this.emit("client.ribbon.log", msg);
+    if (level === "error") this.emit("client.ribbon.error", msg);
+    if (level === "warning") this.emit("client.ribbon.warn", msg);
+    if (level === "info") this.emit("client.ribbon.log", msg);
 
     if (
       this.#options.logging === "none" ||

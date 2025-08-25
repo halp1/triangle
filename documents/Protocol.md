@@ -48,6 +48,7 @@ Sent once at the beginning to configure the game rules and settings.
 ```
 
 **Fields:**
+
 - `type`: Always `"config"`
 - `boardWidth`: Width of the game board (typically 10)
 - `boardHeight`: Height of the visible game board (typically 20)
@@ -91,6 +92,7 @@ Sent to update the external process with the current game state.
 ```
 
 **Fields:**
+
 - `type`: Always `"state"`
 - `board`: 2D array representing the game board, where each cell is either `null` (empty) or a piece symbol string. Row 0 is the bottom of the board
 - `current`: Symbol of the currently falling piece
@@ -114,6 +116,7 @@ Sent when new pieces are added to the queue.
 ```
 
 **Fields:**
+
 - `type`: Always `"pieces"`
 - `pieces`: Array of new piece symbols
 - `data`: Custom data field for engine-specific piece information
@@ -132,6 +135,7 @@ Sent when requesting a move from the external process.
 ```
 
 **Fields:**
+
 - `type`: Always `"play"`
 - `garbageMultiplier`: Current garbage damage multiplier
 - `garbageCap`: Current garbage cap for this turn
@@ -156,6 +160,7 @@ Sent once at startup to identify the external process.
 ```
 
 **Fields:**
+
 - `type`: Always `"info"`
 - `name`: Display name of the bot/engine
 - `version`: Version string
@@ -175,6 +180,7 @@ Sent in response to a `play` message to specify the desired move.
 ```
 
 **Fields:**
+
 - `type`: Always `"move"`
 - `keys`: Array of key actions to perform in sequence
 - `data`: Custom data field for engine-specific move information
@@ -184,6 +190,7 @@ Sent in response to a `play` message to specify the desired move.
 The `keys` array in move messages can contain the following actions:
 
 **Standard Game Keys:**
+
 - `moveLeft` - Move piece left
 - `moveRight` - Move piece right
 - `softDrop` - Move piece down
@@ -194,6 +201,7 @@ The `keys` array in move messages can contain the following actions:
 - `hold` - Hold current piece
 
 **Extended Keys:**
+
 - `dasLeft` - Delayed Auto Shift left (instant movement)
 - `dasRight` - Delayed Auto Shift right (instant movement)
 
@@ -243,7 +251,7 @@ send_message({
 # Main loop
 while True:
   msg = receive_message()
-  
+
   if msg["type"] == "config":
     # Store configuration
     pass

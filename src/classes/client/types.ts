@@ -25,8 +25,8 @@ export type ClientOptions = (
   turnstile?: string;
   /** The Ribbon (websocket handler) config */
   ribbon?: Partial<RibbonOptions>;
-	/** The `Social` config */
-	social?: Partial<Social.Config>;
+  /** The `Social` config */
+  social?: Partial<Social.Config>;
 };
 
 export interface ClientUser {

@@ -615,8 +615,8 @@ export namespace Game {
 
   export namespace Client {
     export type Event = Garbage | Frameset;
-		/** @deprecated */
-		export type Events = Event;
+    /** @deprecated */
+    export type Events = Event;
 
     export interface Frameset {
       type: "frameset";

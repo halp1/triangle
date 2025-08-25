@@ -1,9 +1,9 @@
 import type { User } from "./user";
 
 export namespace Social {
-	export interface Config {
-		suppressDMErrors: boolean;
-	}
+  export interface Config {
+    suppressDMErrors: boolean;
+  }
 
   export type Status = "online" | "away" | "busy" | "offline";
 

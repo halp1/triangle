@@ -58,7 +58,7 @@ export abstract class Adapter<
 
   abstract update(engine: Engine, data?: T["state"]): void;
 
-	abstract addPieces(pieces: Mino[], data?: T["pieces"]): void;
+  abstract addPieces(pieces: Mino[], data?: T["pieces"]): void;
 
   abstract play(
     engine: Engine,
