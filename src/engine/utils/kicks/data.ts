@@ -2626,6 +2626,24 @@ export const kicks = {
       ],
       types_mini: ["t"]
     },
+    "all+": {
+      types: [
+        "i1",
+        "i2",
+        "i3",
+        "l3",
+        "i5",
+        "z",
+        "l",
+        "o",
+        "s",
+        "i",
+        "j",
+        "t",
+        "oo"
+      ],
+      types_mini: ["t"]
+    },
     "all-mini": {
       types: [
         "i1",
@@ -2682,8 +2700,5 @@ export const kicks = {
     },
     handheld: { types: ["t", "s", "z", "l", "j"], types_mini: ["t"] },
     "T-spins": { types: ["t"], types_mini: ["t"] },
-    "T-spins+": {
-      types: ["t"],
-      types_mini: ["t"]
-    }
+    "T-spins+": { types: ["t"], types_mini: ["t"] }
   };
