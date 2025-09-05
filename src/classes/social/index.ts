@@ -40,7 +40,8 @@ export class Social {
   public config: SocialTypes.Config;
 
   public static defaultConfig: SocialTypes.Config = {
-    suppressDMErrors: false
+    suppressDMErrors: false,
+    autoLoadDMs: true
   };
 
   /** @hideconstructor */
@@ -176,7 +177,7 @@ export class Social {
     this.client.on("social.dm", async (dm) => {
       let user = this.get({ id: dm.data.user });
       if (user) {
-        if (!user.dmsLoaded) await user.loadDms();
+        if (!user.dmsLoaded && this.config.autoLoadDMs) await user.loadDms();
         else user.dms.push(dm);
       } else {
         const u = await this.who(dm.data.user);
@@ -194,7 +195,7 @@ export class Social {
         );
 
         user = this.get({ id: dm.data.user })!;
-        await user.loadDms();
+        if (this.config.autoLoadDMs) await user.loadDms();
       }
 
       this.client.emit("client.dm", {

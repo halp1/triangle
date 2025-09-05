@@ -2,7 +2,17 @@ import type { User } from "./user";
 
 export namespace Social {
   export interface Config {
+		/**
+		 * When set to `true`, errors when sending DMs will not be thrown.
+		 * @default false
+		 */
     suppressDMErrors: boolean;
+		/**
+		 * When set to `true`, DMs will be automatically loaded upon receiving a new DM from a user.
+		 * You can always manually load DMs using `Relationship.loadDMs()`
+		 * @default true
+		 */
+		autoLoadDMs: boolean;
   }
 
   export type Status = "online" | "away" | "busy" | "offline";

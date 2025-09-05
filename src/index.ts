@@ -8,6 +8,7 @@ export * as Types from "./types";
 export { Client } from "./classes";
 export * as Classes from "./classes";
 export * as Engine from "./engine";
+export {version} from './utils'
 
 const suppressKey = "TRIANGLE_VERSION_SUPPRESS";
 if (typeof process !== "undefined" && !(suppressKey in process.env)) {

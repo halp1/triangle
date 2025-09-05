@@ -154,7 +154,7 @@ export class Client {
         id: parseToken(options.token)
       };
     } else if ("username" in options) {
-      self = await api.users.authenticate(options.username, options.password);
+      self = await api.users.authenticate(options.username.toLowerCase(), options.password);
     } else {
       throw new Error("Invalid client options");
     }
