@@ -266,6 +266,17 @@ export class Room {
   }
 
   /**
+   * Ban a user from the room (if host)
+   * Uses `room.kick` under the hood, the same way TETR.IO does
+   * @param id - id of user to ban
+   * @example
+   * await client.room!.ban('646f633d276f42a80ba44304');
+   */
+  async ban(id: string) {
+    return await this.kick(id, 2592e3);
+  }
+
+  /**
    * Unban a user from the room
    * @example
    * client.room!.unban('halp');
