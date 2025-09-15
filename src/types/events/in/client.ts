@@ -77,16 +77,31 @@ export interface Client {
    * Fires when a game ends. Likely known issue:
    * @see https://github.com/tetrjs/tetr.js/issues/62
    */
-  "client.game.end": {
-    duration: number;
-    players: {
-      id: string;
-      name: string;
-      points: number;
-      won: boolean;
-      raw: Game.Leaderboard;
-    }[];
-  };
+  "client.game.end":
+    | {
+        duration: number;
+        source: "scoreboard";
+        players: {
+          id: string;
+          name: string;
+          /** @deprecated */
+          points: number;
+          won: boolean;
+					lifetime: number;
+          raw: Game.Scoreboard;
+        }[];
+      }
+    | {
+        duration: number;
+        source: "leaderboard";
+        players: {
+          id: string;
+          name: string;
+          points: number;
+          won: boolean;
+          raw: Game.Leaderboard;
+        }[];
+      };
 
   /** Same as game.abort */
   "client.game.abort": void;

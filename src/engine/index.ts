@@ -2,22 +2,36 @@ import type { Game } from "../types/game";
 import { EventEmitter } from "../utils/events";
 import { Board, type BoardInitializeParams, ConnectedBoard } from "./board";
 import { constants } from "./constants";
-import { GarbageQueue, type GarbageQueueInitializeParams, type IncomingGarbage, LegacyGarbageQueue, type OutgoingGarbage } from "./garbage";
+import {
+  GarbageQueue,
+  type GarbageQueueInitializeParams,
+  type IncomingGarbage,
+  LegacyGarbageQueue,
+  type OutgoingGarbage
+} from "./garbage";
 import { IGEHandler, type MultiplayerOptions } from "./multiplayer";
 import { Queue, type QueueInitializeParams } from "./queue";
 import { Mino } from "./queue/types";
-import type { EngineSnapshot, Events, IncreasableValue, LockRes, SpinType } from "./types";
+import type {
+  EngineSnapshot,
+  Events,
+  IncreasableValue,
+  LockRes,
+  SpinType
+} from "./types";
 import { IncreaseTracker, deepCopy } from "./utils";
 import { garbageCalcV2, garbageData } from "./utils/damageCalc";
 import { type KickTable, legal, performKick } from "./utils/kicks";
-import { type KickTableName, cornerTable, kicks, spinbonusRules } from "./utils/kicks/data";
+import {
+  type KickTableName,
+  cornerTable,
+  kicks,
+  spinbonusRules
+} from "./utils/kicks/data";
 import { Tetromino, tetrominoes } from "./utils/tetromino";
 import type { Rotation } from "./utils/tetromino/types";
 
-
-
 import chalk from "chalk";
-
 
 export interface GameOptions {
   spinBonuses: Game.SpinBonuses;
@@ -357,7 +371,7 @@ export class Engine {
   }
 
   fromSnapshot(snapshot: EngineSnapshot) {
-		const options = deepCopy(this.initializer, [
+    const options = deepCopy(this.initializer, [
       { type: Date, copy: (d) => new Date(d) }
     ]);
     this.board.state = deepCopy(snapshot.board);

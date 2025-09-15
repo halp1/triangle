@@ -79,7 +79,7 @@ export interface Game {
   };
   "game.end": {
     leaderboard: GameTypes.Leaderboard[];
-    scoreboard: GameTypes.Leaderboard[];
+    scoreboard: GameTypes.Scoreboard[];
     xpPerUser: number;
     winners: {
       id: string;

@@ -106,6 +106,7 @@ export namespace Game {
     garbageblocking: GarbageBlocking;
     garbagetargetbonus: GarbageTargetBonus;
     garbagespecialbonus: boolean;
+    usebombs: boolean;
     presets: Preset;
     bagtype: BagType;
     spinbonuses: SpinBonuses;
@@ -403,31 +404,40 @@ export namespace Game {
 
   export type IGE = IGEBase & IGEs.all;
 
-  export interface Leaderboard {
+  export interface LeaderboardStats {
+    apm: number | null;
+    pps: number | null;
+    vsscore: number | null;
+    garbagesent: number;
+    garbagereceived: number;
+    kills: number;
+    altitude: number;
+    rank: number;
+    targetingfactor: number;
+    targetinggrace: number;
+    btb: number;
+    revives: number;
+    escapeartist: number;
+    blockrationing_app: number;
+    blockrationing_final: number;
+  }
+
+  export interface LeaderboardBase {
     id: string;
     username: string;
     active: boolean;
     naturalorder: number;
     shadows: any[];
     shadowedBy: (null | any)[];
+    stats: LeaderboardStats;
+  }
+  export interface Leaderboard extends LeaderboardBase {
     wins: number;
-    stats: {
-      apm: number | null;
-      pps: number | null;
-      vsscore: number | null;
-      garbagesent: number;
-      garbagereceived: number;
-      kills: number;
-      altitude: number;
-      rank: number;
-      targetingfactor: number;
-      targetinggrace: number;
-      btb: number;
-      revives: number;
-      escapeartist: number;
-      blockrationing_app: number;
-      blockrationing_final: number;
-    };
+  }
+
+  export interface Scoreboard extends LeaderboardBase {
+		alive: boolean;
+    lifetime: number;
   }
 
   export type Key =

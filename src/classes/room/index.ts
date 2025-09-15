@@ -167,7 +167,6 @@ export class Room {
     this.listen("game.score", (data) => {
       if (this.client.game) {
         this.client.game = this.client.game.destroy();
-        this.client.emit("client.game.over", { reason: "end" });
       }
 
       this.client.emit("client.game.round.end", data.victor);
@@ -188,25 +187,44 @@ export class Room {
     });
 
     this.listen("game.end", (data) => {
-      this.client.emit("client.game.round.end", data.scoreboard[0]?.id ?? null);
+      const useScoreboard = this.match.ft === 1 && this.match.wb === 1;
+      const board = useScoreboard ? data.scoreboard : data.leaderboard;
+      this.client.emit("client.game.round.end", board[0]?.id ?? null);
 
-      const maxWins = data.scoreboard.reduce(
-        (max, item) => Math.max(max, item.wins),
-        0
-      );
-      this.client.emit("client.game.end", {
-        duration: performance.now() - (this.gameStart ?? 0),
-        players: data.scoreboard.map(
-          (item) =>
-            ({
-              id: item.id,
-              name: item.username,
-              points: item.wins,
-              won: item.wins === maxWins,
-              raw: item
-            }) satisfies Events.in.Client["client.game.end"]["players"][number]
-        )
-      });
+      const duration = performance.now() - (this.gameStart ?? 0);
+      if (useScoreboard) {
+        this.client.emit("client.game.end", {
+          duration,
+          source: "scoreboard",
+          players: data.scoreboard.map((item) => ({
+            id: item.id,
+            name: item.username,
+            points: item.alive && item.active ? 1 : 0,
+            won: item.alive && item.active,
+            lifetime: item.lifetime,
+            raw: item
+          }))
+        });
+      } else {
+        const maxWins = data.leaderboard.reduce(
+          (max, item) => Math.max(max, item.wins),
+          0
+        );
+        this.client.emit("client.game.end", {
+          duration: performance.now() - (this.gameStart ?? 0),
+          source: "leaderboard",
+          players: data.leaderboard.map(
+            (item) =>
+              ({
+                id: item.id,
+                name: item.username,
+                points: item.wins,
+                won: item.wins === maxWins,
+                raw: item
+              }) satisfies Events.in.Client["client.game.end"]["players"][number]
+          )
+        });
+      }
 
       if (!this.client.game) return;
       this.client.game = this.client.game.destroy();

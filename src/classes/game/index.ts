@@ -20,7 +20,6 @@ export class Game {
     [];
   private timeout: NodeJS.Timeout | null = null;
   private messageQueue: GameTypes.Client.Events[] = [];
-  private startTime: number | null = null;
   #target: GameTypes.Target = { strategy: "even" };
   private tick?: GameTypes.Tick.Func;
   // @ts-expect-error
@@ -61,6 +60,8 @@ export class Game {
   public over = false;
   /** The BotWrapper in use. When a BotWrapper is set, `tick` will not be called. */
   public botWrapper?: BotWrapper;
+  /** The performance.now() timestamp when the gameplay started */
+  public startTime: number | null = null;
   /** The last time IGEs were flushed */
   public lastIGEFlush: number = performance.now();
 
@@ -175,7 +176,6 @@ export class Game {
 
     const p = this.readyData.players;
     // TODO: Add support for choosing who to spectate
-    // const players = p.filter((p) => p.gameid !== this.gameid);
     const players = p;
     this.players = players.map((o) => ({
       name: o.options.username,
