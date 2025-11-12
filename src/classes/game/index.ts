@@ -256,7 +256,8 @@ export class Game {
         garbageBlocking: options.garbageblocking as any,
         clutch: options.clutch,
         garbageTargetBonus: options.garbagetargetbonus,
-        spinBonuses: options.spinbonuses
+        spinBonuses: options.spinbonuses,
+        stock: options.stock,
       },
       queue: {
         minLength: 31,

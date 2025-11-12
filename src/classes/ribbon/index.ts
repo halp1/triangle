@@ -1,13 +1,14 @@
 import type { Events, Game } from "../../types";
 import { API, type APITypes, docLink, EventEmitter } from "../../utils";
-import { CandorCodec } from "./codecs/codec-candor";
+import { Codec as Amber } from "./codecs/amber";
+import { CandorCodec as Candor } from "./codecs/candor";
 import { tetoPack } from "./codecs/teto-pack";
 import { Bits } from "./codecs/utils/bits";
-import type { RibbonEvents } from "./types";
+import type { RibbonEvents, RibbonSnapshot } from "./types";
 
 import chalk from "chalk";
 
-export type Codec = "json" | "teto" | "candor";
+export type Codec = "json" | "teto" | "candor" | "amber";
 
 export interface Spool {
   host: string;
@@ -19,7 +20,7 @@ export interface Spool {
 interface CodecHandler {
   method: Codec;
   encode: (msg: string, data?: Record<string, any>) => Buffer | string;
-  decode: (data: Buffer | string) => RibbonEvents.Raw<Events.in.all>;
+  decode: (data: Buffer) => RibbonEvents.Raw<Events.in.all>;
 }
 
 export type LoggingLevel = "all" | "error" | "none";
@@ -88,10 +89,10 @@ export class Ribbon {
     ribbonID: null as string | null
   };
 
-  #sentid = 0;
-  #receivedId = 0;
+  #sentID = 0;
+  #receivedID = 0;
   #flags = 0;
-  #lastDisconnectReason:
+  lastDisconnectReason:
     | (typeof Ribbon.CLOSE_CODES)[keyof typeof Ribbon.CLOSE_CODES]
     | "ping timeout"
     | "failed to connect"
@@ -115,20 +116,9 @@ export class Ribbon {
       case "json":
         return {
           method: codec,
-          encode: (msg, data) => {
-            if (data) {
-              return JSON.stringify({ command: msg, data });
-            }
-            return JSON.stringify({ command: msg });
-          },
-          decode: (data) => {
-            if (typeof data === "string") {
-              return JSON.parse(data) as RibbonEvents.Raw<Events.in.all>;
-            }
-            return JSON.parse(
-              data.toString()
-            ) as RibbonEvents.Raw<Events.in.all>;
-          }
+          encode: (msg, data) =>
+            JSON.stringify(data ? { command: msg, data } : { command: msg }),
+          decode: (data) => JSON.parse(data.toString("utf-8"))
         };
       case "teto":
         let pack: Awaited<ReturnType<typeof tetoPack>>;
@@ -137,26 +127,20 @@ export class Ribbon {
         });
         return {
           method: codec,
-          encode: (msg, data) => {
-            return pack.encode(msg, data);
-          },
-          decode: (data) => {
-            if (typeof data === "string")
-              throw new Error("Invalid data type for teto codec");
-            return pack.decode(data);
-          }
+          encode: (msg, data) => pack.encode(msg, data),
+          decode: (data) => pack.decode(data)
         };
       case "candor":
         return {
           method: codec,
-          encode: (msg, data) => {
-            return CandorCodec.Encode(msg, data);
-          },
-          decode: (data) => {
-            if (typeof data === "string")
-              throw new Error("Invalid data type for candor codec");
-            return CandorCodec.Decode(data);
-          }
+          encode: (msg, data) => Candor.Encode(msg, data),
+          decode: (data) => Candor.Decode(data)
+        };
+      case "amber":
+        return {
+          method: codec,
+          encode: (msg, data) => Amber.Encode(msg, data),
+          decode: (data) => Amber.Decode(data)
         };
     }
   }
@@ -284,21 +268,28 @@ export class Ribbon {
     return res;
   }
 
-  #processPacket(packet: any) {
+  #processPacket(packet: Buffer | { command: string; data: any; id?: number }) {
+    if (!Buffer.isBuffer(packet)) return packet;
+
     let command = "ribbon:unparsed";
     try {
-      const decoded =
-        this.#codec.method === "json" ? packet : this.#decode(packet);
+      const decoded = this.#decode(packet);
 
       command = decoded.command;
 
       return decoded;
     } catch (e) {
-      console.error(
-        `failed to unpack packet with command ${command}`,
-        packet,
-        e
-      );
+      console.log("-----");
+      console.error(e);
+
+      if (this.#codec.method === "amber") {
+        try {
+          const alt = Candor.Decode(packet);
+          console.log("TARGET:", JSON.stringify(alt, null, 2));
+        } catch {
+          console.log("failed to decode with candor too");
+        }
+      }
       throw new Error(`failed to unpack packet with command ${command}`);
     }
   }
@@ -357,7 +348,7 @@ export class Ribbon {
       socket.onmessage = (event) => {
         const data = event.data;
         if (typeof data === "string") {
-          this.#onMessage(Buffer.from(data));
+          this.#onMessage(Buffer.from(data, "utf-8"));
         } else if (data instanceof ArrayBuffer) {
           this.#onMessage(Buffer.from(data));
         }
@@ -449,7 +440,7 @@ export class Ribbon {
     }
   }
 
-  #onMessage(data: string | Buffer) {
+  #onMessage(data: Buffer) {
     this.#flags |= Ribbon.FLAGS.ALIVE;
     this.#flags &= ~Ribbon.FLAGS.TIMING_OUT;
 
@@ -461,8 +452,7 @@ export class Ribbon {
   #onError(error: Error) {
     if (!this.#hasConnectedOnce) {
       this.log(
-        "Connection error: " +
-          (error.stack ?? error.message ?? error.toString()),
+        "Connection error: " + (error.stack ?? error.message ?? String(error)),
         {
           force: true,
           level: "error"
@@ -473,17 +463,19 @@ export class Ribbon {
 
   #onClose(code: number) {
     this.#socket = null;
-    this.#lastDisconnectReason =
+    this.lastDisconnectReason =
       Ribbon.CLOSE_CODES[code as keyof typeof Ribbon.CLOSE_CODES] || "unknown";
     this.#flags |= Ribbon.FLAGS.CONNECTING;
 
-    if (this.#lastDisconnectReason === "ribbon lost") {
+    if (this.lastDisconnectReason === "ribbon lost") {
       if (this.#isTimingOut) {
-        this.#lastDisconnectReason = "ping timeout";
+        this.lastDisconnectReason = "ping timeout";
       } else if (!this.#hasConnectedOnce) {
-        this.#lastDisconnectReason = "failed to connect";
+        this.lastDisconnectReason = "failed to connect";
       }
     }
+
+    this.#reconnect();
   }
 
   #pipe(command: string, data?: Record<string, any>) {
@@ -543,7 +535,7 @@ export class Ribbon {
       return;
     }
 
-    const id = ++this.#sentid;
+    const id = ++this.#sentID;
 
     new Bits(packet).seek(8).write(id, 24);
 
@@ -574,19 +566,20 @@ export class Ribbon {
     if (!this.#alive) {
       this.#flags |=
         Ribbon.FLAGS.TIMING_OUT | Ribbon.FLAGS.ALIVE | Ribbon.FLAGS.CONNECTING;
+      this.#reconnect();
     } else {
       this.#flags &= ~Ribbon.FLAGS.ALIVE;
       if (this.#connected) {
         this.#pinger.last = Date.now();
-        this.#pipe("ping", { recvid: this.#receivedId });
+        this.#pipe("ping", { recvid: this.#receivedID });
       }
     }
   }
 
   #processMessage(message: { command: string; data?: any; id?: number }) {
     if (message.id) {
-      if (message.id > this.#receivedId) {
-        if (message.id === this.#receivedId + 1) {
+      if (message.id > this.#receivedID) {
+        if (message.id === this.#receivedID + 1) {
           this.#runMessage(message);
         } else {
           this.#receivedQueue.push(message);
@@ -609,12 +602,12 @@ export class Ribbon {
     while (this.#receivedQueue.length > 0) {
       const item = this.#receivedQueue[0];
 
-      if (item.id <= this.#receivedId) {
+      if (item.id <= this.#receivedID) {
         this.#receivedQueue.shift();
         continue;
       }
 
-      if (item.id !== this.#receivedId + 1) {
+      if (item.id !== this.#receivedID + 1) {
         break;
       }
 
@@ -624,7 +617,7 @@ export class Ribbon {
 
   async #runMessage(message: { command: string; data?: any; id?: number }) {
     if (message.id) {
-      this.#receivedId = message.id;
+      this.#receivedID = message.id;
     }
 
     if (message.command !== "ping" && message.command !== "packets") {
@@ -688,7 +681,7 @@ export class Ribbon {
       case "kick":
         const { reason } = msg.data;
 
-        this.#lastDisconnectReason = "server closed ribbon";
+        this.lastDisconnectReason = "server closed ribbon";
 
         this.log(`kicked: ${reason}`, { force: true, level: "error" });
 
@@ -696,7 +689,7 @@ export class Ribbon {
         break;
       case "nope":
         const { reason: nopeReason } = msg.data;
-        this.#lastDisconnectReason = nopeReason as any;
+        this.lastDisconnectReason = nopeReason as any;
         this.log(`nope: ${nopeReason}`, { force: true, level: "error" });
 
         this.#close();
@@ -747,9 +740,9 @@ export class Ribbon {
     this.emitter.emit(msg.command, (msg as any).data);
   }
 
-  #close(reason: string = this.#lastDisconnectReason) {
-    this.#lastDisconnectReason = reason as any;
-    this.emitter.emit("client.dead", this.#lastDisconnectReason);
+  #close(reason: string = this.lastDisconnectReason) {
+    this.lastDisconnectReason = reason as any;
+    this.emitter.emit("client.dead", this.lastDisconnectReason);
     if (this.#connected && this.#socket) {
       this.#pipe("die");
       this.#socket.close();
@@ -864,7 +857,7 @@ export class Ribbon {
   /** Closes and cleans up the ribbon, called automatically by `client.destroy()` */
   destroy() {
     this.emitter.removeAllListeners();
-    this.#close(this.#lastDisconnectReason);
+    this.#close(this.lastDisconnectReason);
   }
 
   /** Automatically disconnect the ribbon's connection. It will attempt to automatically reconnect. */
@@ -890,6 +883,38 @@ export class Ribbon {
     newRibbon.emitter.import(emitter);
 
     return newRibbon;
+  }
+
+  async snapshot(): Promise<RibbonSnapshot> {
+    return {
+      token: this.#token,
+      handling: this.#handling,
+      userAgent: this.#userAgent,
+      codec: this.#codec.method,
+      spool: this.#spool,
+      api: this.#api.defaults,
+      self: await this.#self,
+
+      pinger: { ...this.#pinger },
+      session: { ...this.#session },
+
+      sentID: this.#sentID,
+      receivedID: this.#receivedID,
+      flags: this.#flags,
+      lastDisconnectReason: this.lastDisconnectReason,
+      sentQueue: [...this.#sentQueue],
+      receivedQueue: [...this.#receivedQueue],
+      lastReconnect: this.#lastReconnect,
+      reconnectCount: this.#reconnectCount,
+      reconnectPenalty: this.#reconnectPenalty,
+      reconnectTimeout: this.#reconnectTimeout,
+
+      options: { ...this.#options },
+      emitter: {
+        maxListeners: this.emitter.maxListeners,
+        verbose: this.emitter.verbose
+      }
+    };
   }
 }
 

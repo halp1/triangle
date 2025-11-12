@@ -39,6 +39,7 @@ export interface GameOptions {
   garbageTargetBonus: "none" | "normal" | string;
   clutch: boolean;
   garbageBlocking: "combo blocking" | "limited blocking" | "none";
+	stock: number;
 }
 
 export type PCOptions =
@@ -172,6 +173,7 @@ export class Engine {
   misc!: MiscellaneousOptions;
 
   state!: number;
+	stock!: number;
 
   currentSpike!: number;
 
@@ -274,6 +276,8 @@ export class Engine {
 
     this.glock = 0;
 
+		this.stock = options.options.stock;
+
     this.misc = options.misc;
 
     this.gameOptions = options.options;
@@ -363,6 +367,7 @@ export class Engine {
       targets: this.multiplayer?.targets,
       stats: deepCopy(this.stats),
       glock: this.glock,
+			stock: this.stock,
       ige: this.igeHandler.snapshot(),
       state: this.state,
       currentSpike: this.currentSpike,
@@ -431,6 +436,7 @@ export class Engine {
 
     this.stats = deepCopy(snapshot.stats);
     this.glock = snapshot.glock;
+		this.stock = snapshot.stock;
     this.state = snapshot.state;
     this.currentSpike = snapshot.currentSpike;
     this.igeHandler.fromSnapshot(snapshot.ige);
@@ -512,6 +518,11 @@ export class Engine {
   #isSleep() {
     return !!(this.state & constants.flags.STATE_SLEEP);
   }
+
+	#setSleep(sleep: boolean) {
+		if (sleep) this.state |= constants.flags.STATE_SLEEP;
+		else this.state &= ~constants.flags.STATE_SLEEP;
+	}
 
   // @ts-expect-error unused
   #isFloored() {
@@ -809,6 +820,16 @@ export class Engine {
 
     this.initiatePiece(newTetromino, ignoreBlockout, isHold);
   }
+
+	#loseStockOrGameOver(reason: "topout" | "topout_clear" | "garbagesmash") {
+		if (this.stock <= 0) {
+			// TODO: game over or something idk
+		} else {
+			this.#setSleep(true);
+			// TODO: lose stock event
+			
+		}
+	}
 
   initiatePiece(piece: Mino, ignoreBlockout = false, isHold = false) {
     if (this.handling.irs === "hold" && this.falling) {

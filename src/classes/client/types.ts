@@ -1,5 +1,8 @@
 import type { Game, User, Social } from "../../types";
+import type { APIDefaults } from "../../utils";
 import type { RibbonOptions } from "../ribbon";
+import type { RibbonSnapshot } from "../ribbon/types";
+import type { SocialSnapshot } from "../social/types";
 
 export type ClientOptions = (
   | {
@@ -35,4 +38,13 @@ export interface ClientUser {
   role: User.Role;
   sessionID: string;
   userAgent: string;
+}
+
+export interface ClientSnapshot {
+	user: ClientUser;
+	token: string;
+	handling: Game.Handling;
+	ribbon: RibbonSnapshot;
+	social: SocialSnapshot;
+	api: APIDefaults;
 }

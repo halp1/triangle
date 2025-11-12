@@ -34,6 +34,7 @@ export interface EngineSnapshot {
   targets?: number[];
   stats: Engine["stats"];
   glock: number;
+  stock: number;
   state: number;
   currentSpike: number;
   ige: IGEHandlerSnapshot;
