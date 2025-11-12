@@ -118,27 +118,26 @@ export class Social {
   }
 
   private init() {
-    if (this.config.autoProcessNotifications)
-      setTimeout(
-        () =>
-          this.notifications.forEach((n) => {
+    if (this.config.autoProcessNotifications) {
+      setTimeout(() => {
+        this.notifications.forEach((n) => {
+          if (!n.seen) {
             if (n.type === "friend") {
-              if (!n.seen) {
-                const rel = processRelationship(
-                  n.data.relationship,
-                  this.client.user.id
-                );
-                this.client.emit("client.friended", {
-                  id: rel.user.id,
-                  name: rel.user.username,
-                  avatar: rel.user.avatar
-                });
-              }
+              const rel = processRelationship(
+                n.data.relationship,
+                this.client.user.id
+              );
+              this.client.emit("client.friended", {
+                id: rel.user.id,
+                name: rel.user.username,
+                avatar: rel.user.avatar
+              });
             }
-            this.markNotificationsAsRead();
-          }),
-        0
-      );
+          }
+        });
+        this.markNotificationsAsRead();
+      }, 0);
+    }
 
     this.client.on("social.online", (count) => {
       this.online = count;
@@ -219,6 +218,7 @@ export class Social {
    */
   markNotificationsAsRead() {
     this.client.emit("social.notification.ack");
+    this.notifications.forEach((n) => (n.seen = true));
   }
 
   /**
