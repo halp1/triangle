@@ -821,6 +821,8 @@ export class Engine {
     this.initiatePiece(newTetromino, ignoreBlockout, isHold);
   }
 
+	// TODO: finish
+	// @ts-expect-error wip
 	#loseStockOrGameOver(reason: "topout" | "topout_clear" | "garbagesmash") {
 		if (this.stock <= 0) {
 			// TODO: game over or something idk
