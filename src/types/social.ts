@@ -13,6 +13,12 @@ export namespace Social {
      * @default true
      */
     autoLoadDMs: boolean;
+    /**
+     * When set to `true`, new notifications (including missed notifications when initializing) will be processed and marked as seen.
+     * For instance, a friend notification will automatically trigger the "client.friended" event and then be marked as seen.
+     * @default true
+     */
+    autoProcessNotifications: boolean;
   }
 
   export type Status = "online" | "away" | "busy" | "offline";

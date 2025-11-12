@@ -41,7 +41,8 @@ export class Social {
 
   public static defaultConfig: SocialTypes.Config = {
     suppressDMErrors: false,
-    autoLoadDMs: true
+    autoLoadDMs: true,
+    autoProcessNotifications: true
   };
 
   /** @hideconstructor */
@@ -117,25 +118,27 @@ export class Social {
   }
 
   private init() {
-    setTimeout(
-      () =>
-        this.notifications.forEach((n) => {
-          if (n.type === "friend") {
-            if (!n.seen) {
-              const rel = processRelationship(
-                n.data.relationship,
-                this.client.user.id
-              );
-              this.client.emit("client.friended", {
-                id: rel.user.id,
-                name: rel.user.username,
-                avatar: rel.user.avatar
-              });
+    if (this.config.autoProcessNotifications)
+      setTimeout(
+        () =>
+          this.notifications.forEach((n) => {
+            if (n.type === "friend") {
+              if (!n.seen) {
+                const rel = processRelationship(
+                  n.data.relationship,
+                  this.client.user.id
+                );
+                this.client.emit("client.friended", {
+                  id: rel.user.id,
+                  name: rel.user.username,
+                  avatar: rel.user.avatar
+                });
+              }
             }
-          }
-        }),
-      0
-    );
+            this.markNotificationsAsRead();
+          }),
+        0
+      );
 
     this.client.on("social.online", (count) => {
       this.online = count;
@@ -144,33 +147,36 @@ export class Social {
     this.client.on("social.notification", async (n) => {
       this.notifications.splice(0, 0, n);
 
-      if (n.type === "friend") {
-        const rel = processRelationship(
-          n.data.relationship,
-          this.client.user.id
-        );
-        this.client.emit("client.friended", {
-          id: rel.user.id,
-          name: rel.user.username,
-          avatar: rel.user.avatar
-        });
-
-        const user = this.get({ id: rel.user.id });
-
-        if (!user) {
-          this.other.push(
-            new Relationship(
-              {
-                id: rel.user.id,
-                username: rel.user.username,
-                avatar: rel.user.avatar,
-                relationshipID: ""
-              },
-              this,
-              this.client
-            )
+      if (this.config.autoProcessNotifications) {
+        if (n.type === "friend") {
+          const rel = processRelationship(
+            n.data.relationship,
+            this.client.user.id
           );
+          this.client.emit("client.friended", {
+            id: rel.user.id,
+            name: rel.user.username,
+            avatar: rel.user.avatar
+          });
+
+          const user = this.get({ id: rel.user.id });
+
+          if (!user) {
+            this.other.push(
+              new Relationship(
+                {
+                  id: rel.user.id,
+                  username: rel.user.username,
+                  avatar: rel.user.avatar,
+                  relationshipID: ""
+                },
+                this,
+                this.client
+              )
+            );
+          }
         }
+        this.markNotificationsAsRead();
       }
     });
 
