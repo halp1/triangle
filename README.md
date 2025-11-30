@@ -61,7 +61,7 @@ To do this, add the following to the "compilerOptions" object in your `tsconfig.
 }
 ```
 
-## Setup (Bun only)
+<!-- ## Setup (Bun only)
 
 Run the following:
 
@@ -75,7 +75,7 @@ Add the following to the top of your root file:
 import { Buffer } from "buffer/";
 
 globalThis.Buffer = Buffer;
-```
+``` -->
 
 ## Usage
 

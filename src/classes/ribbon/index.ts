@@ -6,6 +6,7 @@ import { tetoPack } from "./codecs/teto-pack";
 import { Bits } from "./codecs/utils/bits";
 import type { RibbonEvents, RibbonSnapshot } from "./types";
 
+import { Buffer } from "buffer/";
 import chalk from "chalk";
 
 export type Codec = "json" | "teto" | "candor" | "amber";

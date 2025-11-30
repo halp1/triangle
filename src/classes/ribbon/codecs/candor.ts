@@ -9,6 +9,7 @@ import {
   minocolors
 } from "./utils/shared";
 
+import { Buffer } from "buffer/";
 import { strictShallowEqual } from "fast-equals";
 
 const e = Buffer;

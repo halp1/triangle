@@ -1,6 +1,8 @@
 // @ts-nocheck
 import { Bits } from "./utils/bits";
 import r from "./utils/msgpackr-943ed70";
+
+import { Buffer } from "buffer/";
 import { strictShallowEqual } from "fast-equals";
 
 const k = 11;

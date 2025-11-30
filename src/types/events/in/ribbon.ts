@@ -1,6 +1,8 @@
 import type { Social } from "../../social";
 import type { Client } from "./client";
 
+import { Buffer } from "buffer/";
+
 export interface Ribbon {
   session: {
     ribbonid: string;

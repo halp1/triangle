@@ -1,3 +1,5 @@
+import { Buffer } from "buffer/";
+
 const MAX_BITS = Number.MAX_SAFE_INTEGER.toString(2).length;
 
 export class Bits {

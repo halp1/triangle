@@ -10,66 +10,102 @@ import { expect, test } from "bun:test";
 import chalk from "chalk";
 
 namespace _console {
-  const _logger = (name: string) => {
+  const _logger = (() => {
     let lastProgress = false;
-    const log = (
-      level: "info" | "warning" | "error" | "success" | "progress",
-      name: string,
-      newline: boolean = true,
-      ...messages: any[]
-    ) => {
-      const func =
-        level === "info"
-          ? chalk.blue
-          : level === "warning"
-            ? chalk.yellow
-            : level === "success"
-              ? chalk.greenBright
-              : level === "progress"
-                ? chalk.magenta
-                : chalk.red;
-      if (newline) {
-        console.log(
-          `${lastProgress ? "\n" : ""}${func(`[${name}]`)}`,
-          ...messages
-        );
-        lastProgress = false;
-      } else {
-        process.stdout.write(
-          `${lastProgress ? "\r" : ""}${func(`[${name}]`)} ${messages
-            .map((m) => (typeof m === "string" ? m : JSON.stringify(m)))
-            .join(" ")}`
-        );
-        lastProgress = true;
-      }
-    };
+    return (name: string) => {
+      const log = (
+        level: "info" | "warning" | "error" | "success" | "progress",
+        name: string,
+        newline: boolean = true,
+        ...messages: any[]
+      ) => {
+        const func =
+          level === "info"
+            ? chalk.blue
+            : level === "warning"
+              ? chalk.yellow
+              : level === "success"
+                ? chalk.greenBright
+                : level === "progress"
+                  ? chalk.magenta
+                  : chalk.red;
 
-    return {
-      log: (...messages: any[]) => log("info", name, true, ...messages),
-      warn: (...messages: any[]) => log("warning", name, true, ...messages),
-      error: (...messages: any[]) => log("error", name, true, ...messages),
-      success: (...messages: any[]) => log("success", name, true, ...messages),
-      info: (...messages: any[]) => log("info", name, true, ...messages),
-      progress: (message: string, progress: number) => {
-        const fullLength =
-          process.stdout.columns - 2 - name.length - 3 - message.length - 1;
+        const output = `${func(`[${name}]`)} ${messages
+          .map((m) => (typeof m === "string" ? m : JSON.stringify(m)))
+          .join(" ")}`;
 
-        log(
-          "progress",
-          name,
-          false,
-          `${message}${
-            process.stdout.columns
-              ? " [" +
-                "=".repeat(Math.round(progress * fullLength)) +
-                " ".repeat(fullLength - Math.round(progress * fullLength)) +
-                "]"
-              : `... ${Math.floor(progress * 100)}%`
-          }`
-        );
-      }
+        if (newline) {
+          console.log(`${lastProgress ? "\n" : ""}${output}`);
+          lastProgress = false;
+        } else {
+          process.stdout.write(`${lastProgress ? "\r" : ""}${output}`);
+          lastProgress = true;
+        }
+      };
+
+      return {
+        log: (...messages: any[]) => log("info", name, true, ...messages),
+        warn: (...messages: any[]) => log("warning", name, true, ...messages),
+        error: (...messages: any[]) => log("error", name, true, ...messages),
+        success: (...messages: any[]) =>
+          log("success", name, true, ...messages),
+        info: (...messages: any[]) => log("info", name, true, ...messages),
+
+        progress: (message: string, progress: number) => {
+          const cols = process.stdout.columns || 80;
+          const namePlain = `[${name}]`;
+          const prefixPlain = `${namePlain} ${message}`;
+          let contentPlain =
+            prefixPlain.length >= cols
+              ? prefixPlain.slice(0, cols)
+              : prefixPlain + " ".repeat(cols - prefixPlain.length);
+
+          const p = Math.max(0, Math.min(1, progress));
+          const filledLength = Math.round(p * cols);
+
+          const nameLen = namePlain.length + 0;
+          const nameFilledOverlap = Math.max(
+            0,
+            Math.min(filledLength, nameLen)
+          );
+          const nameEmptyOverlap = Math.max(0, nameLen - nameFilledOverlap);
+
+          const filledRaw = contentPlain.slice(0, filledLength);
+          const emptyRaw = contentPlain.slice(filledLength);
+
+          let filledRendered = "";
+          if (filledLength === 0) {
+            filledRendered = "";
+          } else {
+            if (nameFilledOverlap > 0) {
+              const namePart = filledRaw.slice(0, nameFilledOverlap);
+              const rest = filledRaw.slice(nameFilledOverlap);
+              filledRendered =
+                chalk.bgWhite.magenta(namePart) + chalk.bgWhite(rest);
+            } else {
+              filledRendered = chalk.bgWhite(filledRaw);
+            }
+          }
+
+          let emptyRendered = "";
+          if (emptyRaw.length === 0) {
+            emptyRendered = "";
+          } else {
+            if (nameEmptyOverlap > 0) {
+              const namePart = emptyRaw.slice(0, nameEmptyOverlap);
+              const rest = emptyRaw.slice(nameEmptyOverlap);
+              emptyRendered = chalk.magenta(namePart) + rest;
+            } else {
+              emptyRendered = emptyRaw;
+            }
+          }
+
+          process.stdout.write("\r" + filledRendered + emptyRendered);
+          lastProgress = true;
+        }
+      };
     };
-  };
+  })();
 
   export const logger = _logger;
   const defaultLogger = _logger("Triangle.js");
@@ -112,7 +148,8 @@ export namespace tetrio {
           round.replay.options.garbageblocking ?? "combo blocking",
         clutch: round.replay.options.clutch ?? true,
         garbageTargetBonus: round.replay.options.garbagetargetbonus ?? "none",
-        spinBonuses: round.replay.options.spinbonuses ?? "all-mini+"
+        spinBonuses: round.replay.options.spinbonuses ?? "all-mini+",
+        stock: 0
       },
       queue: {
         minLength: 10,
