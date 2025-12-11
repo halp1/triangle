@@ -351,7 +351,7 @@ export class Room {
         typeof opt.value === "number"
           ? { index: opt.index, value: opt.value.toString() }
           : typeof opt.value === "boolean"
-            ? { index: opt.index, value: opt.value ? "1" : "0" }
+            ? { index: opt.index, value: opt.value ? 1 : 0 }
             : opt
       ),
       "room.update"

@@ -3130,6 +3130,7 @@ export const OptionsList = {
       "14+1-lone-bag",
       "7+2-lone-bag",
       "14+2-lone-bag",
+      "zenith",
       "7-bag"
     ]
   },
