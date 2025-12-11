@@ -1,9 +1,4 @@
-import type {
-  Events,
-  Game as GameTypes,
-  Room as RoomTypes,
-  Utils
-} from "../../types";
+import type { Events, Game as GameTypes, Room as RoomTypes } from "../../types";
 import { Client } from "../client";
 import { Game } from "../game";
 import { roomConfigPresets } from "./presets";
@@ -349,18 +344,15 @@ export class Room {
    * await client.room!.update({ index: 'name', value: 'test room'});
    * @returns
    */
-  async update<T extends Utils.DeepKeys<RoomTypes.SetConfig>>(
-    ...options: {
-      index: T;
-      value: Utils.DeepKeyValue<RoomTypes.SetConfig, T>;
-    }[]
-  ) {
+  async update(...options: RoomTypes.SetConfigItem[]) {
     return await this.client.wrap(
       "room.setconfig",
       options.map((opt) =>
         typeof opt.value === "number"
           ? { index: opt.index, value: opt.value.toString() }
-          : opt
+          : typeof opt.value === "boolean"
+            ? { index: opt.index, value: opt.value ? "1" : "0" }
+            : opt
       ),
       "room.update"
     );

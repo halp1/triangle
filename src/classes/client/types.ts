@@ -41,10 +41,10 @@ export interface ClientUser {
 }
 
 export interface ClientSnapshot {
-	user: ClientUser;
-	token: string;
-	handling: Game.Handling;
-	ribbon: RibbonSnapshot;
-	social: SocialSnapshot;
-	api: APIDefaults;
+  user: ClientUser;
+  token: string;
+  handling: Game.Handling;
+  ribbon: RibbonSnapshot;
+  social: SocialSnapshot;
+  api: APIDefaults;
 }

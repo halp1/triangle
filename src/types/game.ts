@@ -436,7 +436,7 @@ export namespace Game {
   }
 
   export interface Scoreboard extends LeaderboardBase {
-		alive: boolean;
+    alive: boolean;
     lifetime: number;
   }
 

@@ -87,7 +87,7 @@ export interface Client {
           /** @deprecated */
           points: number;
           won: boolean;
-					lifetime: number;
+          lifetime: number;
           raw: Game.Scoreboard;
         }[];
       }

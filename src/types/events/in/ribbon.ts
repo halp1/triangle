@@ -58,6 +58,8 @@ export interface Ribbon {
     reason: string;
   };
 
+  rejected: void;
+
   error: any;
   err: any;
   packets: {

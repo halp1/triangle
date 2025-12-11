@@ -24,7 +24,7 @@
 
 ---
 
-Triangle.js was last known to work with TETR.IO Beta version **1.7.3.**
+Triangle.js was last known to work with TETR.IO Beta version **1.7.5.**
 
 ## [>> Quickstart <<](https://triangle.haelp.dev/documents/Quickstart.html)
 

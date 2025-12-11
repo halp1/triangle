@@ -5,7 +5,6 @@ import { Game } from "../game";
 import { Ribbon } from "../ribbon";
 import { Room } from "../room";
 import { Social } from "../social";
-import { ClientUtils } from "../utils";
 import type { ClientOptions, ClientUser } from "./types";
 
 export type * from "./types";
@@ -15,11 +14,6 @@ export class Client {
   public user: ClientUser;
   /** Whether the client has been disconnected. If true, the client needs to be reconnected with `.reconnect()` or destroyed */
   public disconnected: boolean = false;
-  /**
-   * Utils for the client.
-   * @deprecated - functionality has been moved to other sections. This may be removed in the future.
-   */
-  public utils: ClientUtils;
   /** The client's token */
   public token: string;
   /** @hidden */
@@ -49,11 +43,26 @@ export class Client {
    * client.on('social.dm', () => console.log('DM received!'));
    */
   public on: typeof this.ribbon.emitter.on;
-  /** Raw ribbon handler. */
+  /**
+   * Raw ribbon handler.
+   * @example
+   * const listener = () => console.log('DM received!');
+   * client.on('social.dm', listener);
+   *
+   * // later
+   * client.off('social.dm', listener);
+   */
   public off: typeof this.ribbon.emitter.off;
-  /** Raw ribbon handler. You likely want to use `client.wait` instead. */
+  /**
+   * Raw ribbon handler.
+   * You might want to use `client.wait` instead.
+   * @example
+   * client.once('social.invite', ({ roomid }) => console.log(`Invited to room ${roomid}`));
+   */
   public once: typeof this.ribbon.emitter.once;
-  /** Raw ribbon handler for sending messages. */
+  /**
+   * Raw ribbon handler for sending messages.
+   */
   public emit: typeof this.ribbon.emit;
 
   /** @hideconstructor */
@@ -81,8 +90,6 @@ export class Client {
     };
 
     this._handling = handling;
-
-    this.utils = new ClientUtils(this);
 
     this.api = new API({ token: this.token, userAgent });
 

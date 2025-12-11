@@ -2,7 +2,7 @@ import { Ribbon, type Codec, type LoggingLevel, type Spool } from ".";
 import type { Game } from "../../types";
 import type { APIDefaults, APITypes } from "../../utils";
 
-import {Buffer} from "buffer/";
+import { Buffer } from "buffer/";
 
 export namespace RibbonEvents {
   export type Raw<T> = {
@@ -75,18 +75,18 @@ export interface RibbonSnapshot {
   lastDisconnectReason: Ribbon["lastDisconnectReason"];
   sentQueue: { id: number; packet: Buffer | string }[];
   receivedQueue: { command: string; data?: any; id?: any }[];
-	lastReconnect: number;
-	reconnectCount: number;
-	reconnectPenalty: number;
-	reconnectTimeout: NodeJS.Timeout | null;
+  lastReconnect: number;
+  reconnectCount: number;
+  reconnectPenalty: number;
+  reconnectTimeout: NodeJS.Timeout | null;
 
-	options: {
-		logging: LoggingLevel;
-		spooling: boolean;
-	}
+  options: {
+    logging: LoggingLevel;
+    spooling: boolean;
+  };
 
-	emitter: {
-		maxListeners: number;
-		verbose: boolean;
-	}
+  emitter: {
+    maxListeners: number;
+    verbose: boolean;
+  };
 }

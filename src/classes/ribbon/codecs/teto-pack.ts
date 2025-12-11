@@ -1,13 +1,13 @@
 import { version } from "../../../utils";
 import { basic } from "../../../utils/api/basic";
 import { type Server } from "../../../utils/api/server";
-import { Buffer } from "buffer/";
 
 import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 
+import { Buffer } from "buffer/";
 import chalk from "chalk";
 
 let Amadeus: Awaited<ReturnType<typeof tetoPack>> | null = null;

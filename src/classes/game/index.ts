@@ -257,7 +257,7 @@ export class Game {
         clutch: options.clutch,
         garbageTargetBonus: options.garbagetargetbonus,
         spinBonuses: options.spinbonuses,
-        stock: options.stock,
+        stock: options.stock
       },
       queue: {
         minLength: 31,

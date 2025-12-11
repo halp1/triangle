@@ -1,6 +1,7 @@
 import type { BagType, KickTable } from "../engine";
 import type { Game } from "./game";
 import type { User } from "./user";
+import type { Utils } from "./utils";
 
 export namespace Room {
   export type Type = "custom";
@@ -62,23 +63,23 @@ export namespace Room {
   export interface SetConfig {
     name: string;
     options: {
-      g: number | string;
-      stock: number | string;
+      g: number;
+      stock: number;
       display_next: boolean;
       display_hold: boolean;
-      gmargin: number | string;
-      gincrease: number | string;
-      garbagemultiplier: number | string;
-      garbagemargin: number | string;
-      garbageincrease: number | string;
-      garbagecap: number | string;
-      garbagecapincrease: number | string;
-      garbagecapmax: number | string;
-      garbageattackcap: number | string;
-      garbageabsolutecap: boolean;
-      garbagephase: number | string;
+      gmargin: number;
+      gincrease: number;
+      garbagemultiplier: number;
+      garbagemargin: number;
+      garbageincrease: number;
+      garbagecap: number;
+      garbagecapincrease: number;
+      garbagecapmax: number;
+      garbageattackcap: number;
+      garbageabsolutecap: number;
+      garbagephase: number;
       garbagequeue: boolean;
-      garbageare: number | string;
+      garbageare: number;
       garbageentry: string;
       garbageblocking: string;
       garbagetargetbonus: string;
@@ -87,42 +88,42 @@ export namespace Room {
       spinbonuses: Game.SpinBonuses;
       combotable: Game.ComboTable;
       kickset: KickTable;
-      nextcount: number | string;
+      nextcount: number;
       allow_harddrop: boolean;
       display_shadow: boolean;
-      locktime: number | string;
-      garbagespeed: number | string;
-      are: number | string;
-      lineclear_are: number | string;
+      locktime: number;
+      garbagespeed: number;
+      are: number;
+      lineclear_are: number;
       infinitemovement: boolean;
-      lockresets: number | string;
+      lockresets: number;
       allow180: boolean;
       room_handling: boolean;
-      room_handling_arr: number | string;
-      room_handling_das: number | string;
-      room_handling_sdf: number | string;
+      room_handling_arr: number;
+      room_handling_das: number;
+      room_handling_sdf: number;
       manual_allowed: boolean;
       b2bchaining: boolean;
       b2bcharging: boolean;
-      openerphase: boolean;
-      allclear_garbage: number | string;
-      allclear_b2b: number | string;
-      garbagespecialbonus: number | string;
+      openerphase: number;
+      allclear_garbage: number;
+      allclear_b2b: number;
+      garbagespecialbonus: boolean;
       roundmode: string;
       allclears: boolean;
       clutch: boolean;
       nolockout: boolean;
       passthrough: Game.Passthrough;
-      boardwidth: number | string;
-      boardheight: number | string;
-      messiness_change: number | string;
-      messiness_inner: number | string;
+      boardwidth: number;
+      boardheight: number;
+      messiness_change: number;
+      messiness_inner: number;
       messiness_nosame: boolean;
-      messiness_timeout: number | string;
+      messiness_timeout: number;
       usebombs: boolean;
     };
-    userLimit: number | string;
-    autoStart: number | string;
+    userLimit: number;
+    autoStart: number;
     allowAnonymous: boolean;
     allowUnranked: boolean;
     userRankLimit: string;
@@ -132,8 +133,15 @@ export namespace Room {
     match: {
       gamemode: Game.GameMode;
       modename: string;
-      ft: number | string;
-      wb: number | string;
+      ft: number;
+      wb: number;
     };
   }
+
+  export type SetConfigItem = {
+    [K in Utils.DeepKeys<SetConfig>]: {
+      index: K;
+      value: Utils.DeepKeyValue<SetConfig, K>;
+    };
+  }[Utils.DeepKeys<SetConfig>];
 }
