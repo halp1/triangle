@@ -197,13 +197,20 @@ export class Client {
       (resolve, reject) => {
         const t = setTimeout(() => {
           ribbon.destroy();
-          reject("Failed to connect");
+          reject("Failed to connect: Connection timeout");
         }, 5000);
         ribbon.emitter.once("client.ready", (d) => {
           if (d) {
             clearTimeout(t);
             resolve(d);
           }
+        });
+        ribbon.emitter.once("client.fail", (e) => {
+          clearTimeout(t);
+          reject(
+            "Failed to connect: " +
+              (e.stack ?? e.message)?.replace("Error: ", "")
+          );
         });
       }
     );

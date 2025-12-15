@@ -13,6 +13,8 @@ export interface Client {
     endpoint: string;
     social: Ribbon["server.authorize"]["social"];
   };
+  /** Fires whenever Ribbon.#connect() throws an error. */
+  "client.fail": Error;
   /** Fires when recieving an "err" notification. Data is the "msg" of the notification */
   "client.error": string;
   /** Fires when the client dies. */

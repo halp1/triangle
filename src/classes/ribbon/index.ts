@@ -185,7 +185,7 @@ export class Ribbon {
       spooling
     };
 
-    this.#connect().catch(() => {});
+    this.#connect();
   }
 
   static async create({
@@ -218,10 +218,6 @@ export class Ribbon {
     const self = await api.users.me();
 
     const loggingLevel = (logging ?? verbose) ? "all" : "error";
-
-    // ideally, we don't want this
-    // but we need to catch unhandled rejections from api.server.environment()
-    await envPromise;
 
     return new Ribbon({
       logging: loggingLevel,
@@ -298,91 +294,95 @@ export class Ribbon {
   }
 
   async #connect() {
-    if (typeof WebSocket === "undefined" || !WebSocket) {
-      throw new Error(
-        `Native WebSocket not found. See ${docLink("native-websocket-not-found")} for more information.`
-      );
-    }
-
-    const spool = await this.#api.server.spool(this.#options.spooling);
-
-    this.#spool = {
-      host: spool.host,
-      endpoint:
-        this.#spool.endpoint !== "" ? this.#spool.endpoint : spool.endpoint,
-      token: spool.token,
-      signature: this.#spool.signature
-    };
-
-    this.log(`Connecting to <${this.#spool.host}/${this.#spool.endpoint}>`);
-
-    if (this.#socket) {
-      this.#socket.onopen =
-        this.#socket.onmessage =
-        this.#socket.onerror =
-        this.#socket.onclose =
-          null;
-      this.#socket.close();
-      this.#socket = null;
-    }
-
-    this.#flags |= Ribbon.FLAGS.CONNECTING;
-
     try {
-      const socket = new WebSocket(this.#uri, this.#spool.token);
-      this.#socket = socket;
-
-      socket.binaryType = "arraybuffer";
-
-      socket.onopen = () => {
-        this.#onOpen();
-      };
-
-      socket.onerror = (error) => {
-        this.#onError(
-          error instanceof Error ? error : new Error(String(error))
-        );
-      };
-
-      socket.onclose = (event) => {
-        this.#onClose(event.code);
-      };
-
-      socket.onmessage = (event) => {
-        const data = event.data;
-        if (typeof data === "string") {
-          this.#onMessage(Buffer.from(data, "utf-8"));
-        } else if (data instanceof ArrayBuffer) {
-          this.#onMessage(Buffer.from(data));
-        }
-      };
-    } catch (error) {
-      if (
-        error instanceof AggregateError &&
-        Array.isArray((error as any).errors)
-      ) {
-        this.log("Aggregated Connect Errors:", {
-          force: true,
-          level: "error"
-        });
-        (error as any).errors.forEach((err: any, idx: number) => {
-          this.log(
-            `  [${idx + 1}] ${err?.stack || err?.message || err?.toString?.() || err}`,
-            { force: true, level: "error" }
-          );
-        });
-      } else {
-        this.log(
-          "Connect error: " +
-            (error instanceof Error ? error.toString() : String(error)),
-          {
-            force: true,
-            level: "error"
-          }
+      if (typeof WebSocket === "undefined" || !WebSocket) {
+        throw new Error(
+          `Native WebSocket not found. See ${docLink("native-websocket-not-found")} for more information.`
         );
       }
 
-      this.#reconnect();
+      const spool = await this.#api.server.spool(this.#options.spooling);
+
+      this.#spool = {
+        host: spool.host,
+        endpoint:
+          this.#spool.endpoint !== "" ? this.#spool.endpoint : spool.endpoint,
+        token: spool.token,
+        signature: this.#spool.signature
+      };
+
+      this.log(`Connecting to <${this.#spool.host}/${this.#spool.endpoint}>`);
+
+      if (this.#socket) {
+        this.#socket.onopen =
+          this.#socket.onmessage =
+          this.#socket.onerror =
+          this.#socket.onclose =
+            null;
+        this.#socket.close();
+        this.#socket = null;
+      }
+
+      this.#flags |= Ribbon.FLAGS.CONNECTING;
+
+      try {
+        const socket = new WebSocket(this.#uri, this.#spool.token);
+        this.#socket = socket;
+
+        socket.binaryType = "arraybuffer";
+
+        socket.onopen = () => {
+          this.#onOpen();
+        };
+
+        socket.onerror = (error) => {
+          this.#onError(
+            error instanceof Error ? error : new Error(String(error))
+          );
+        };
+
+        socket.onclose = (event) => {
+          this.#onClose(event.code);
+        };
+
+        socket.onmessage = (event) => {
+          const data = event.data;
+          if (typeof data === "string") {
+            this.#onMessage(Buffer.from(data, "utf-8"));
+          } else if (data instanceof ArrayBuffer) {
+            this.#onMessage(Buffer.from(data));
+          }
+        };
+      } catch (error) {
+        if (
+          error instanceof AggregateError &&
+          Array.isArray((error as any).errors)
+        ) {
+          this.log("Aggregated Connect Errors:", {
+            force: true,
+            level: "error"
+          });
+          (error as any).errors.forEach((err: any, idx: number) => {
+            this.log(
+              `  [${idx + 1}] ${err?.stack || err?.message || err?.toString?.() || err}`,
+              { force: true, level: "error" }
+            );
+          });
+        } else {
+          this.log(
+            "Connect error: " +
+              (error instanceof Error ? error.toString() : String(error)),
+            {
+              force: true,
+              level: "error"
+            }
+          );
+        }
+
+        this.#reconnect();
+      }
+    } catch (e: any) {
+      this.emit("client.fail", Error.isError(e) ? e : new Error(e));
     }
   }
 
@@ -423,7 +423,7 @@ export class Ribbon {
   #__internal_reconnect() {
     this.#reconnectTimeout = null;
     if (!this.#dead) {
-      this.#connect().catch(() => {});
+      this.#connect();
     }
   }
 
