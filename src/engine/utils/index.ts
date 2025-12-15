@@ -10,29 +10,45 @@ export interface Handler<T> {
   type: new (...args: any[]) => T;
   copy: (value: T) => T;
 }
+
 export function deepCopy<T>(obj: T): T;
-export function deepCopy<T, H extends Handler<any>[]>(obj: T, handlers: H): T;
-export function deepCopy<T, H extends Handler<any>[]>(
+export function deepCopy<T, H extends readonly Handler<any>[]>(
   obj: T,
-  handlers: H = [] as unknown as H
-): T {
-  if (obj === null || obj === undefined || typeof obj !== "object") {
+  handlers: H
+): T;
+export function deepCopy<T>(obj: T, handlers?: readonly Handler<any>[]): T {
+  if (obj === null || typeof obj !== "object") {
     return obj;
   }
 
-  for (const h of handlers) {
-    if (obj instanceof h.type) {
-      return h.copy(obj as any) as T;
+  if (handlers !== undefined) {
+    for (let i = 0, n = handlers.length; i < n; i++) {
+      const h = handlers[i];
+      if (obj instanceof h.type) {
+        return h.copy(obj);
+      }
     }
   }
 
   if (Array.isArray(obj)) {
-    return obj.map((item) => deepCopy(item, handlers)) as any;
+    const arr = obj as unknown as any[];
+    const len = arr.length;
+    const out = new Array(len);
+    for (let i = 0; i < len; i++) {
+      out[i] = deepCopy(arr[i], handlers as any);
+    }
+    return out as unknown as T;
   }
 
-  const out: { [k: string]: any } = {};
-  for (const key of Object.keys(obj)) {
-    out[key] = deepCopy((obj as any)[key], handlers);
+  const src = obj as Record<string, any>;
+  const out: Record<string, any> = {};
+
+  for (const k in src) {
+    // faster than Object.keys + indexing
+    if (Object.prototype.hasOwnProperty.call(src, k)) {
+      out[k] = deepCopy(src[k], handlers as any);
+    }
   }
+
   return out as T;
 }

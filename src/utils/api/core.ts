@@ -9,7 +9,7 @@ export type Res<T = any> =
   | { success: false; error: { msg: string; [key: string]: any } }
   | ({ success: true } & T);
 
-export const basic = (defaults: APIDefaults) => {
+export const core = (defaults: APIDefaults) => {
   return {
     get: async <T = any>({
       token,
@@ -183,5 +183,5 @@ export const basic = (defaults: APIDefaults) => {
   };
 };
 
-export type Get = ReturnType<typeof basic>["get"];
-export type Post = ReturnType<typeof basic>["post"];
+export type Get = ReturnType<typeof core>["get"];
+export type Post = ReturnType<typeof core>["post"];

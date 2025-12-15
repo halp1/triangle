@@ -3,6 +3,7 @@ import { APITypes } from "../../utils";
 import type { Client } from "../client";
 import { Relationship } from "./relationship";
 
+import chalk from "chalk";
 import _ from "lodash";
 
 interface SocialInitData {
@@ -179,28 +180,52 @@ export class Social {
       }
     });
 
-    this.client.on("social.dm", async (dm) => {
-      let user = this.get({ id: dm.data.user });
+    this.client.on("social.dm", async (raw) => {
+      const dm: SocialTypes.DM = { ...raw, ts: new Date(raw.ts) };
+
+      let target = dm.data.user;
+
+      if (dm.data.user === this.client.user.id) {
+        const userID = dm.stream
+          .split(":")
+          .filter((id) => id !== this.client.user.id)[0];
+
+        // failsafe
+        if (!userID) return;
+
+        target = userID;
+      }
+
+      let user = this.get({ id: target });
       if (user) {
         if (!user.dmsLoaded && this.config.autoLoadDMs) await user.loadDms();
         else user.dms.push(dm);
       } else {
-        const u = await this.who(dm.data.user);
-        this.other.push(
-          new Relationship(
-            {
-              id: u._id,
-              username: u.username,
-              avatar: u.avatar_revision,
-              relationshipID: ""
-            },
-            this,
-            this.client
-          )
-        );
+        try {
+          const u = await this.who(target);
+          this.other.push(
+            new Relationship(
+              {
+                id: u._id,
+                username: u.username,
+                avatar: u.avatar_revision,
+                relationshipID: ""
+              },
+              this,
+              this.client
+            )
+          );
 
-        user = this.get({ id: dm.data.user })!;
-        if (this.config.autoLoadDMs) await user.loadDms();
+          user = this.get({ id: target })!;
+          if (this.config.autoLoadDMs) await user.loadDms();
+        } catch {}
+      }
+
+      if (!user) {
+        console.warn(
+          `${chalk.yellowBright("[Triangle.js]")}: Failed to load user data for ${target}. 'client.dm' event discareded.`
+        );
+        return;
       }
 
       this.client.emit("client.dm", {
@@ -279,24 +304,32 @@ export class Social {
   }
 
   /**
-   * Send a message to a specified user (based on id)
+   * Send a message to a specified user (based on id).
+   * Returns `Promise<"you.fail" | "they.fail" | "you.ban" | "they.ban">` if `suppressDMErrors` is `true` and an error (`social.dm.fail`) is thrown.
    * @example
    * await client.social.dm(await client.social.resolve('halp'), 'what\'s up?');
    */
-  dm(userID: string, message: string) {
-    const res = this.client.wrap(
-      "social.dm",
-      {
-        recipient: userID,
-        msg: message
-      },
-      "social.dm",
-      ["social.dm.fail", "client.error"]
-    );
+  async dm(
+    userID: string,
+    message: string
+  ): Promise<SocialTypes.DM | Events.in.all["social.dm.fail"]> {
+    try {
+      const res = await this.client.wrap(
+        "social.dm",
+        { recipient: userID, msg: message },
+        "social.dm",
+        ["social.dm.fail", "client.error"]
+      );
 
-    if (this.config.suppressDMErrors) res.catch(() => {});
-
-    return res;
+      return {
+        ...res,
+        ts: new Date(res.ts)
+      };
+    } catch (e) {
+      if (this.config.suppressDMErrors)
+        return e as Events.in.all["social.dm.fail"];
+      throw e;
+    }
   }
 
   /**

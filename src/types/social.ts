@@ -56,7 +56,7 @@ export namespace Social {
       };
       system: boolean;
     };
-    stream: string;
+    stream: `${string}:${string}`;
     ts: Date;
     id: string;
   }

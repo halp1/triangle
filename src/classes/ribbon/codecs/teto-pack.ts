@@ -1,5 +1,5 @@
 import { version } from "../../../utils";
-import { basic } from "../../../utils/api/basic";
+import { core } from "../../../utils/api/core";
 import { type Server } from "../../../utils/api/server";
 
 import fsSync from "node:fs";
@@ -244,7 +244,7 @@ export const tetoPack = (
   if (Amadeus && options.global) return Promise.resolve(Amadeus);
 
   return new Promise(async (resolve) => {
-    const serverVersion = await basic({
+    const serverVersion = await core({
       userAgent,
       token: "",
       turnstile: null

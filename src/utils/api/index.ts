@@ -1,7 +1,7 @@
 // export * as API from "./wrapper";
 import { CONSTANTS } from "../constants";
-import { type Get, type Post, basic } from "./basic";
 import { channel } from "./channel";
+import { type Get, type Post, core } from "./core";
 import { relationship } from "./relationship";
 import { rooms } from "./rooms";
 import { server } from "./server";
@@ -40,7 +40,7 @@ export class API {
       this.defaults[key] = options[key]!;
     });
 
-    const b = basic(this.defaults);
+    const b = core(this.defaults);
     this.get = b.get;
     this.post = b.post;
 

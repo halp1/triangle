@@ -5,7 +5,7 @@ import type { Social } from "../../social";
 import type { Game as GameEvents } from "./game";
 import type { Ribbon } from "./ribbon";
 
-export type Hex = `#${string}`;
+type Hex = `#${string}`;
 
 export interface Client {
   /** Fires inside Client.create(), will never fire afterwards. */
@@ -127,6 +127,6 @@ export interface Client {
   "client.dm": {
     user: Relationship;
     content: string;
-    reply: (message: string) => Promise<Social.DM>;
+    reply: (message: string) => Promise<Social.DM | string>;
   };
 }

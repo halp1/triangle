@@ -1,5 +1,5 @@
 import { type APIDefaults } from ".";
-import type { Get, Post } from "./basic";
+import type { Get, Post } from "./core";
 
 // @ts-expect-error post is unused
 export const channel = (get: Get, post: Post, __: APIDefaults) => {

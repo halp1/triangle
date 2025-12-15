@@ -1,5 +1,5 @@
 import { type APIDefaults } from ".";
-import type { Get, Post } from "./basic";
+import type { Get, Post } from "./core";
 
 export namespace Rooms {
   export interface Room {

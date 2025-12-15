@@ -244,7 +244,7 @@ export class Client {
    * @param event - the `command` of the event to send
    * @param data - the data to send along with the command. For void (no) data, just pass in `undefined`
    * @param listen - the event to wait for before resolving.
-   * @param error - a list of custom error events to listen for. Defaults to `[client.error]`.
+   * @param error - a list of custom error events to listen for. Defaults to `["client.error"]`.
    * @returns the data sent by the `listen` event
    * @throws an error if the error event provided (or `client.error`) is received from TETR.IO
    * @example

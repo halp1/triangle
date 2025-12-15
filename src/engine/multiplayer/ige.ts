@@ -12,31 +12,16 @@ interface PlayerData {
 
 export interface IGEHandlerSnapshot {
   iid: number;
-  players: { [key: number]: string };
+  players: { [key: number]: PlayerData };
 }
 /**
  * Manages network IGE cancelling
  */
 export class IGEHandler {
   /** @hidden */
-  private players: polyfills.Map<
-    number,
-    // { incoming: number; outgoing: GarbageRecord[] }
-    //! there was an issue where as an object some garbage numbers would magically turn into other numbers, wtf js
-    string
-  >;
+  private players: polyfills.Map<number, PlayerData>;
   /** @hidden */
   private iid = 0;
-
-  /** @hidden */
-  private extract(data: string): PlayerData {
-    return JSON.parse(data);
-  }
-
-  /** @hidden */
-  private stringify(data: PlayerData): string {
-    return JSON.stringify(data);
-  }
 
   /**
    * Manages network IGE cancelling
@@ -45,7 +30,7 @@ export class IGEHandler {
   constructor(players: number[]) {
     this.players = new polyfills.Map();
     players.forEach((player) => {
-      this.players.set(player, this.stringify({ incoming: 0, outgoing: [] }));
+      this.players.set(player, { incoming: 0, outgoing: [] });
     });
   }
 
@@ -68,13 +53,10 @@ export class IGEHandler {
         ].join(", ")}`
       );
 
-    this.players.set(
-      playerID,
-      JSON.stringify({
-        incoming: JSON.parse(player).incoming,
-        outgoing: [...this.extract(player).outgoing, { iid, amount }]
-      })
-    );
+    this.players.set(playerID, {
+      incoming: player.incoming,
+      outgoing: [...player.outgoing, { iid, amount }]
+    });
 
     // console.log(
     //   "send",
@@ -114,14 +96,12 @@ export class IGEHandler {
         ].join(", ")}`
       );
 
-    const p = this.extract(player);
-
-    const incomingIID = Math.max(iid, p.incoming ?? 0);
+    const incomingIID = Math.max(iid, player.incoming ?? 0);
 
     const newIGEs: GarbageRecord[] = [];
 
     let runningAmount = amount;
-    p.outgoing.forEach((item) => {
+    player.outgoing.forEach((item) => {
       if (item.iid <= ackiid) return;
       const amt = Math.min(item.amount, runningAmount);
       item.amount -= amt;
@@ -129,10 +109,7 @@ export class IGEHandler {
       if (item.amount > 0) newIGEs.push(item);
     });
 
-    this.players.set(
-      playerID,
-      this.stringify({ incoming: incomingIID, outgoing: newIGEs })
-    );
+    this.players.set(playerID, { incoming: incomingIID, outgoing: newIGEs });
 
     // console.log(
     //   "receive",
