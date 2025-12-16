@@ -427,3 +427,4 @@ export class Social {
 }
 
 export * from "./relationship";
+export * from "./types";

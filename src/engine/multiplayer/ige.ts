@@ -1,11 +1,11 @@
 import { polyfills } from "../utils";
 
-interface GarbageRecord {
+export interface GarbageRecord {
   amount: number;
   iid: number;
 }
 
-interface PlayerData {
+export interface PlayerData {
   incoming: number;
   outgoing: GarbageRecord[];
 }

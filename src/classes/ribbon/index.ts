@@ -1,3 +1,4 @@
+import { deepCopy } from "../../engine";
 import type { Events, Game } from "../../types";
 import { API, type APITypes, docLink, EventEmitter } from "../../utils";
 import { Codec as Amber } from "./codecs/amber";
@@ -184,7 +185,9 @@ export class Ribbon {
       logging,
       spooling
     };
+  }
 
+  open() {
     this.#connect();
   }
 
@@ -382,7 +385,7 @@ export class Ribbon {
         this.#reconnect();
       }
     } catch (e: any) {
-      this.emit("client.fail", Error.isError(e) ? e : new Error(e));
+      this.emit("client.fail", e instanceof Error ? e : new Error(e));
     }
   }
 
@@ -888,7 +891,7 @@ export class Ribbon {
     return newRibbon;
   }
 
-  async snapshot(): Promise<RibbonSnapshot> {
+  snapshot(): RibbonSnapshot {
     return {
       token: this.#token,
       handling: this.#handling,
@@ -905,12 +908,18 @@ export class Ribbon {
       receivedID: this.#receivedID,
       flags: this.#flags,
       lastDisconnectReason: this.lastDisconnectReason,
-      sentQueue: [...this.#sentQueue],
-      receivedQueue: [...this.#receivedQueue],
+      sentQueue: this.#sentQueue.map(({ id, packet }) => ({
+        id,
+        packet: typeof packet === "string" ? packet : Buffer.from(packet)
+      })),
+      receivedQueue: this.#receivedQueue.map(({ command, data, id }) => ({
+        command,
+        data: deepCopy(data),
+        id
+      })),
       lastReconnect: this.#lastReconnect,
       reconnectCount: this.#reconnectCount,
       reconnectPenalty: this.#reconnectPenalty,
-      reconnectTimeout: this.#reconnectTimeout,
 
       options: { ...this.#options },
       emitter: {
@@ -919,6 +928,45 @@ export class Ribbon {
       }
     };
   }
+
+  static fromSnapshot(snapshot: RibbonSnapshot) {
+    const ribbon = new Ribbon({
+      logging: snapshot.options.logging,
+      token: snapshot.token,
+      handling: snapshot.handling,
+      userAgent: snapshot.userAgent,
+      codec: snapshot.codec,
+      spool: snapshot.spool,
+      api: new API(snapshot.api),
+      self: snapshot.self,
+      spooling: snapshot.options.spooling
+    });
+
+    ribbon.#sentID = snapshot.sentID;
+    ribbon.#receivedID = snapshot.receivedID;
+    ribbon.#flags = snapshot.flags;
+    ribbon.lastDisconnectReason = snapshot.lastDisconnectReason;
+    ribbon.#sentQueue = snapshot.sentQueue.map(({ id, packet }) => ({
+      id,
+      packet: typeof packet === "string" ? packet : Buffer.from(packet)
+    }));
+    ribbon.#receivedQueue = snapshot.receivedQueue.map(
+      ({ command, data, id }) => ({
+        command,
+        data: deepCopy(data),
+        id
+      })
+    );
+    ribbon.#lastReconnect = snapshot.lastReconnect;
+    ribbon.#reconnectCount = snapshot.reconnectCount;
+    ribbon.#reconnectPenalty = snapshot.reconnectPenalty;
+
+    ribbon.#options = { ...snapshot.options };
+    ribbon.emitter.maxListeners = snapshot.emitter.maxListeners;
+    ribbon.emitter.verbose = snapshot.emitter.verbose;
+
+    return ribbon;
+  }
 }
 
-export type { RibbonOptions } from "./types";
+export * from "./types";

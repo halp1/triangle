@@ -78,7 +78,6 @@ export interface RibbonSnapshot {
   lastReconnect: number;
   reconnectCount: number;
   reconnectPenalty: number;
-  reconnectTimeout: NodeJS.Timeout | null;
 
   options: {
     logging: LoggingLevel;

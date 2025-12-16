@@ -212,6 +212,8 @@ export class Client {
               (e.stack ?? e.message)?.replace("Error: ", "")
           );
         });
+
+        ribbon.open();
       }
     );
 
