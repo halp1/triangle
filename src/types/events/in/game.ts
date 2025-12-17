@@ -161,38 +161,17 @@ export interface Game {
         gamemode: string;
         modename: string;
         rb: {
-          type: "elimination";
+          type: "elimination" | "mutli-round";
           options: {
             ft: number;
             wb: number;
             gp: number;
           };
-          leaderboard: {
-            id: string;
-            username: string;
-            active: boolean;
-            naturalorder: number;
-            shadows: any[];
-            shadowedBy: (null | any)[];
-            wins: number;
-            stats: {
-              apm: number | null;
-              pps: number | null;
-              vsscore: number | null;
-              garbagesent: number;
-              garbagereceived: number;
-              kills: number;
-              altitude: number;
-              rank: number;
-              targetingfactor: number;
-              targetinggrace: number;
-              btb: number;
-              revives: number;
-            };
-          }[];
-        };
+          leaderboard: GameTypes.Leaderboard[];
+        }[];
+
         rrb: {
-          type: string;
+          type: "elimination";
           options: Record<string, unknown>;
           scoreboard: {
             sb: {

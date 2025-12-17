@@ -623,17 +623,21 @@ export namespace Game {
   export type Mino = "s" | "z" | "j" | "l" | "i" | "t" | "o";
   export type BoardSquare = Mino | "gb" | null;
 
+  /** @deprecated */
   export namespace Client {
+    /** @deprecated */
     export type Event = Garbage | Frameset;
     /** @deprecated */
     export type Events = Event;
 
+    /** @deprecated */
     export interface Frameset {
       type: "frameset";
       provisioned: number;
       frames: Game.Replay.Frame[];
     }
 
+    /** @deprecated */
     export interface Garbage {
       type: "garbage";
       frame: number;

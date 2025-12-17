@@ -348,6 +348,7 @@ export class Client {
 
     this.on("client.dead", async () => {
       this.disconnected = true;
+			this.room?.destroy();
     });
   }
 

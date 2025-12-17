@@ -1,4 +1,5 @@
-import { Social } from ".";
+import { Social, type RelationshipSnapshot } from ".";
+import { deepCopy } from "../../engine";
 import type { Social as SocialTypes } from "../../types";
 import { Client } from "../client";
 
@@ -32,7 +33,8 @@ export class Relationship {
       avatar: number;
     },
     social: Social,
-    client: Client
+    client: Client,
+    lazyLoad = Relationship.lazyLoadDms
   ) {
     this.id = options.id;
     this.relationshipID = options.relationshipID;
@@ -44,7 +46,7 @@ export class Relationship {
 
     this.dms = [];
 
-    this.ready = Relationship.lazyLoadDms
+    this.ready = lazyLoad
       ? new Promise<never>(() => {})
       : new Promise<void>(async (resolve) => {
           await this.loadDms();
@@ -89,5 +91,44 @@ export class Relationship {
    */
   invite() {
     this.social.invite(this.id);
+  }
+
+  /**
+   * For internal use only. See `client.snapshot()`
+   */
+  snapshot(): RelationshipSnapshot {
+    return {
+      avatar: this.avatar,
+      dms: deepCopy(this.dms),
+      dmsLoaded: this.dmsLoaded,
+      id: this.id,
+      relationshipID: this.relationshipID,
+      username: this.username
+    };
+  }
+
+  /**
+   * For internal ues only. See `Client.fromSnapshot()`
+   */
+  static fromSnapshot(snapshot: RelationshipSnapshot, social: Social, client: Client) {
+    const relationship = new Relationship(
+      {
+        id: snapshot.id,
+        relationshipID: snapshot.relationshipID,
+        username: snapshot.username,
+        avatar: snapshot.avatar
+      },
+      social,
+      client,
+      false
+    );
+
+    // todo: i really don't know if we want this line
+    relationship.ready = new Promise<void>((r) => r());
+
+    relationship.dms = deepCopy(snapshot.dms);
+    relationship.dmsLoaded = snapshot.dmsLoaded;
+
+    return relationship;
   }
 }

@@ -1,7 +1,9 @@
+import { deepCopy } from "../../engine";
 import { Events, type Social as SocialTypes } from "../../types";
 import { APITypes } from "../../utils";
 import type { Client } from "../client";
 import { Relationship } from "./relationship";
+import type { SocialSnapshot } from "./types";
 
 import chalk from "chalk";
 import _ from "lodash";
@@ -50,40 +52,49 @@ export class Social {
   private constructor(
     client: Client,
     config: Partial<SocialTypes.Config>,
-    init: SocialInitData
+    init: SocialInitData | SocialSnapshot
   ) {
     this.client = client;
     this.config = _.merge(Social.defaultConfig, config);
 
     this.init();
     this.online = init.online;
-    this.friends = init.friends.map(
-      (r) =>
-        new Relationship(
-          {
-            id: r.user.id,
-            relationshipID: r._id,
-            username: r.user.username,
-            avatar: r.user.avatar
-          },
-          this,
-          this.client
-        )
-    );
-    this.other = init.other.map(
-      (r) =>
-        new Relationship(
-          {
-            id: r.user.id,
-            relationshipID: r._id,
-            username: r.user.username,
-            avatar: r.user.avatar
-          },
-          this,
+    if ("config" in init) {
+      this.friends = init.friends.map((snapshot) =>
+        Relationship.fromSnapshot(snapshot, this, client)
+      );
+      this.other = init.others.map((snapshot) =>
+        Relationship.fromSnapshot(snapshot, this, client)
+      );
+    } else {
+      this.friends = init.friends.map(
+        (r) =>
+          new Relationship(
+            {
+              id: r.user.id,
+              relationshipID: r._id,
+              username: r.user.username,
+              avatar: r.user.avatar
+            },
+            this,
+            this.client
+          )
+      );
+      this.other = init.other.map(
+        (r) =>
+          new Relationship(
+            {
+              id: r.user.id,
+              relationshipID: r._id,
+              username: r.user.username,
+              avatar: r.user.avatar
+            },
+            this,
 
-          this.client
-        )
-    );
+            this.client
+          )
+      );
+    }
     this.blocked = init.blocked;
     this.notifications = init.notifications;
   }
@@ -423,6 +434,27 @@ export class Social {
    */
   status(status: SocialTypes.Status, detail: SocialTypes.Detail | String = "") {
     this.client.emit("social.presence", { status, detail });
+  }
+
+  /**
+   * For internal use only. See `client.snapshot()`
+   */
+  snapshot(): SocialSnapshot {
+    return {
+      online: this.online,
+      friends: this.friends.map((r) => r.snapshot()),
+      others: this.other.map((r) => r.snapshot()),
+      blocked: this.blocked.map((r) => deepCopy(r)),
+      config: deepCopy(this.config),
+      notifications: deepCopy(this.notifications)
+    };
+  }
+
+  /**
+   * For internal use only. See `Client.fromSnapshot()`
+   */
+  static fromSnapshot(snapshot: SocialSnapshot, client: Client) {
+    return new Social(client, snapshot.config, snapshot);
   }
 }
 

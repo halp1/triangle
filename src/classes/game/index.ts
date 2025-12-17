@@ -628,3 +628,5 @@ export class Game {
     );
   }
 }
+
+export * from "./types";

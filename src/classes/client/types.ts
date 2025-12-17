@@ -1,5 +1,6 @@
 import type { Game, User, Social } from "../../types";
 import type { APIDefaults } from "../../utils";
+import type { GameSnapshot } from "../game";
 import type { RibbonOptions } from "../ribbon";
 import type { RibbonSnapshot } from "../ribbon/types";
 import type { SocialSnapshot } from "../social/types";
@@ -46,5 +47,7 @@ export interface ClientSnapshot {
   handling: Game.Handling;
   ribbon: RibbonSnapshot;
   social: SocialSnapshot;
+	// room: RoomSnapshot;
+	game: GameSnapshot;
   api: APIDefaults;
 }

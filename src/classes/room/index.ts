@@ -243,7 +243,10 @@ export class Room {
     return this.client.user.id === this.owner;
   }
 
-  private destroy() {
+	/**
+	 * For internal use only. Use `room.leave()` instead.
+	 */
+  destroy() {
     this.listeners.forEach((l) => this.client.off(l[0], l[1]));
     if (this.client.game) {
       this.client.game.destroy();
