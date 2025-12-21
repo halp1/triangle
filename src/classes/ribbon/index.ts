@@ -8,7 +8,8 @@ import type { RibbonEvents, RibbonSnapshot } from "./types";
 import { Buffer } from "buffer/";
 import chalk from "chalk";
 
-export type Codec = "json" | "amber";
+export const codecs = ["amber", "json"] as const;
+export type Codec = (typeof codecs)[number];
 
 export interface Spool {
   host: string;
@@ -126,6 +127,10 @@ export class Ribbon {
           encode: (msg, data) => Amber.Encode(msg, data),
           decode: (data) => Amber.Decode(data)
         };
+      default:
+        throw new Error(
+          `Invalid codec: ${codec}. Valid codecs are: ${codecs.join(", ")}. Recommended codec is "amber".`
+        );
     }
   }
 
@@ -202,7 +207,7 @@ export class Ribbon {
 
     const self = await api.users.me();
 
-    const loggingLevel = (logging ?? verbose) ? "all" : "error";
+    const loggingLevel = logging ?? (verbose ? "all" : "error");
 
     return new Ribbon({
       logging: loggingLevel,

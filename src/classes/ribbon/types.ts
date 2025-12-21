@@ -22,9 +22,9 @@ export interface RibbonParams {
 
 export interface RibbonOptions {
   /**
-   * The type of websocket encoder to use. `json`, `candor`, or `teto` is recommended.
+   * The type of websocket encoder to use. `amber` is recommended.
    * `json` only works if the JSON protocol is enabled on your account. You must request it to be enabled before use or your account will be banned when Triangle tries to connect.
-   * @default "teto"
+   * @default "amber"
    */
   codec: Codec;
   /**
