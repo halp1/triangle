@@ -1,14 +1,16 @@
+/* eslint-disable */
 // @ts-nocheck
-import { Bits } from "./utils/bits";
-import r from "./utils/msgpackr-943ed70";
+import msgpackr from "./msgpackr-943ed70";
 
 import { Buffer } from "buffer/";
 import { strictShallowEqual } from "fast-equals";
 
-const k = 11;
-const v = 19;
+const r = msgpackr();
 
-class M {
+const x = 11;
+const y = 19;
+
+class I {
   static BagList = [
     "total mayhem",
     "classic",
@@ -27,8 +29,8 @@ class M {
   ];
 }
 
-class oe {}
-oe.SpinRules = [
+class se {}
+se.SpinRules = [
   "none",
   "T-spins",
   "T-spins+",
@@ -41,15 +43,15 @@ oe.SpinRules = [
   "stupid"
 ];
 
-function x(e) {
+function b(e) {
   const t = Object.prototype.toString.call(e);
-  return x.cached[t]
-    ? x.cached[t]
-    : (x.cached[t] = t.substring(8, t.length - 1).toLowerCase());
+  return b.cached[t]
+    ? b.cached[t]
+    : (b.cached[t] = t.substring(8, t.length - 1).toLowerCase());
 }
-x.cached = {};
+b.cached = {};
 
-const L = {
+const w = {
   minotypes: ["z", "l", "o", "s", "i", "j", "t"],
   minocolors: ["z", "l", "o", "s", "i", "j", "t", "g", "d", "gb", "gbd"],
   tetrominoes: {
@@ -3047,9 +3049,9 @@ const L = {
         ],
         i: [
           [0, 0],
-          [0, -1],
-          [1, -1],
-          [1, 0]
+          [-1, 0],
+          [-1, -1],
+          [0, -1]
         ],
         j: [
           [0, 0],
@@ -3910,26 +3912,27 @@ const L = {
   ],
   majorShoutStyles: {
     globalbest: () => {
-      Sl.play("confetti", { gui: true, count: 30 });
+      Al.play("confetti", { gui: true, count: 30 });
     },
     personalbest: () => {
-      Sl.play("confetti", { gui: true, count: 15, hue: [30, 60] });
+      Al.play("confetti", { gui: true, count: 15, hue: [30, 60] });
     },
     lg_victory: () => {
       setTimeout(() => {
-        Sl.play("confetti", { gui: false, count: 15, hue: [30, 60] });
+        Al.play("confetti", { gui: false, count: 15, hue: [30, 60] });
       }, 1250);
     }
   },
   globalShoutStyles: {},
   gameModes: {
     "40l": {
-      version: v,
+      version: y,
       gameid: "X-PASSTHRU",
       seed_random: false,
       anchorseed: true,
       seed: "X-PASSTHRU",
       allow180: true,
+      spinbonuses: "all-mini+",
       g: 0.02,
       objective_type: "lines",
       objective_count: 40,
@@ -3957,7 +3960,7 @@ const L = {
       fromretry: "X-PASSTHRU"
     },
     blitz: {
-      version: v,
+      version: y,
       gameid: "X-PASSTHRU",
       seed_random: false,
       anchorseed: true,
@@ -4057,6 +4060,7 @@ const L = {
       expert: "Expert Mode",
       duo: "Duo",
       snowman: "Snowball Board",
+      snowman_reversed: "Permafrost Board",
       invisible_reversed: "The Exile",
       messy_reversed: "Loaded Dice",
       volatile_reversed: "Last Stand",
@@ -4077,6 +4081,7 @@ const L = {
       expert: "EX",
       duo: "2P",
       snowman: "SNOWBALL",
+      snowman_reversed: "SNOWBALL-R",
       invisible_reversed: "IN-R",
       messy_reversed: "MS-R",
       volatile_reversed: "VL-R",
@@ -4095,11 +4100,94 @@ const L = {
     "volatile",
     "doublehole",
     "invisible",
-    "allspin"
+    "allspin",
+    "snowman"
   ]
 };
 
-class be {
+class k {
+  constructor(e) {
+    this.self = e;
+  }
+  get S() {
+    return this.self.gsm;
+  }
+  get W() {
+    return this.S.setoptions.boardwidth;
+  }
+  get H() {
+    return this.S.setoptions.boardheight;
+  }
+  get B() {
+    return this.S.setoptions.boardbuffer;
+  }
+  get T() {
+    return this.B + this.H;
+  }
+  get Wh() {
+    return this.W / 2;
+  }
+  get Hh() {
+    return this.H / 2;
+  }
+  get sfx() {
+    return this.self.sfx;
+  }
+  get id() {
+    return this.S.setoptions.gameid;
+  }
+  get socket() {
+    return this.self.iom.socket;
+  }
+  get options() {
+    return this.S.setoptions;
+  }
+  OnClient(e) {
+    this.self.c.OnClient(e);
+  }
+  IsServer(...e) {
+    return this.self.c.IsServer(...e);
+  }
+  emit(...e) {
+    return this.self.elm.emit(...e);
+  }
+}
+
+class R extends k {
+  static init() {
+    ((this.ROTATION_LEFT = 1),
+      (this.ROTATION_RIGHT = 2),
+      (this.ROTATION_180 = 4),
+      (this.ROTATION_SPIN = 8),
+      (this.ROTATION_MINI = 16),
+      (this.ROTATION_SPIN_ALL = 32),
+      (this.ROTATION_ALL =
+        this.ROTATION_LEFT |
+        this.ROTATION_RIGHT |
+        this.ROTATION_180 |
+        this.ROTATION_SPIN |
+        this.ROTATION_MINI |
+        this.ROTATION_SPIN_ALL),
+      (this.STATE_WALL = 64),
+      (this.STATE_SLEEP = 128),
+      (this.STATE_FLOOR = 256),
+      (this.STATE_NODRAW = 512),
+      (this.STATE_ALL =
+        this.STATE_WALL |
+        this.STATE_SLEEP |
+        this.STATE_FLOOR |
+        this.STATE_NODRAW),
+      (this.ACTION_IHS = 1024),
+      (this.ACTION_FORCELOCK = 2048),
+      (this.ACTION_SOFTDROP = 4096),
+      (this.ACTION_MOVE = 8192),
+      (this.ACTION_ROTATE = 16384),
+      (this.FLAGS_COUNT = 15));
+  }
+}
+R.init();
+
+class me {
   static FloorDistance = [
     0,
     50,
@@ -4126,7 +4214,8 @@ class be {
     "allspin",
     "gravity",
     "expert",
-    "duo"
+    "duo",
+    "snowman"
   ];
   static TargetingGraceRevEx = [
     0, 1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1
@@ -4150,7 +4239,7 @@ class be {
   ];
 }
 
-class H {
+class O {
   static DisplayCounters = {
     timer: "time",
     stopwatch: "time",
@@ -4176,9 +4265,9 @@ class H {
   static DisplayCountersList = Object.keys(this.DisplayCounters);
 }
 
-class Ce {
+class ge {
   static OptionsList = {
-    version: { default: k, static: true },
+    version: { default: x, static: true },
     gameid: { default: 0, min: 0, max: 8192, strict: true },
     seed: { default: 0 },
     seed_random: { default: false },
@@ -4229,7 +4318,7 @@ class Ce {
     openerphase: { default: 0 },
     roundmode: { default: "down", allowed: ["down", "rng"] },
     garbagespecialbonus: { default: false },
-    spinbonuses: { default: "T-spins", allowed: oe.SpinRules },
+    spinbonuses: { default: "T-spins", allowed: se.SpinRules },
     combotable: {
       default: "multiplier",
       allowed: ["none", "multiplier", "classic guideline", "modern guideline"]
@@ -4238,7 +4327,7 @@ class Ce {
       default: "SRS+",
       possibles: ["none", "SRS", "SRS+", "TETRA-X", "NRS", "ARS", "ASC"]
     },
-    bagtype: { default: "7-bag", allowed: M.BagList },
+    bagtype: { default: "7-bag", allowed: I.BagList },
     messiness_change: { default: 1 },
     messiness_inner: { default: 0 },
     messiness_nosame: { default: false },
@@ -4299,11 +4388,11 @@ class Ce {
     pro_alert: { default: false },
     pro_retry: { default: false },
     can_retry: { default: false },
-    slot_counter1: { default: "", allowed: ["", ...H.DisplayCountersList] },
-    slot_counter2: { default: "", allowed: ["", ...H.DisplayCountersList] },
-    slot_counter3: { default: "", allowed: ["", ...H.DisplayCountersList] },
-    slot_counter4: { default: "", allowed: ["", ...H.DisplayCountersList] },
-    slot_counter5: { default: "", allowed: ["", ...H.DisplayCountersList] },
+    slot_counter1: { default: "", allowed: ["", ...O.DisplayCountersList] },
+    slot_counter2: { default: "", allowed: ["", ...O.DisplayCountersList] },
+    slot_counter3: { default: "", allowed: ["", ...O.DisplayCountersList] },
+    slot_counter4: { default: "", allowed: ["", ...O.DisplayCountersList] },
+    slot_counter5: { default: "", allowed: ["", ...O.DisplayCountersList] },
     slot_bar1: { default: "", allowed: ["", "impending", "progress"] },
     slot_bar2: { default: "", allowed: ["", "impending", "progress"] },
     absolute_lines: { default: false },
@@ -4387,7 +4476,7 @@ class Ce {
     zenith_messy: { default: false },
     zenith_allspin: { default: false },
     zenith_duo: { default: false },
-    zenith_mods: { default: [], allowed: be.Mods },
+    zenith_mods: { default: [], allowed: me.Mods },
     zenith_ally: { default: [] },
     zenith_allyexpert: { default: false },
     TEMP_zenith_rng: { default: false },
@@ -4403,64 +4492,63 @@ class Ce {
     this.OptionsTemplate = {};
     for (const [e, t] of Object.entries(this.OptionsList)) {
       this.OptionsTemplate[e] = t.default;
-      const n = x(t.default);
-      switch (n) {
+      const s = b(t.default);
+      switch (s) {
         case "boolean":
         case "number":
         case "array":
         case "object":
-          t.type = n;
+          t.type = s;
           break;
         case "string":
           t.type = t.allowed || t.possibles ? "table" : "string";
           break;
         default:
           throw new TypeError(
-            `Error while templating ${e}: typeof ${n} is not supported as default values`
+            `Error while templating ${e}: typeof ${s} is not supported as default values`
           );
       }
     }
   }
   static *ValidateOptions(e) {
-    const { OptionsList: n } = this;
-    let s = 0;
+    const { OptionsList: s } = this;
+    let n = 0;
     for (let [i, o] of Object.entries(e)) {
-      if (!(i in n)) {
-        if (Ce.DeprecatedOptions.includes(i)) continue;
+      if (!(i in s)) {
+        if (ge.DeprecatedOptions.includes(i)) continue;
         const e = `Unknown game option received | key: ${i} -> value: ${o} | Please report this message to the developers!`;
-        if ((s++, "production" === _.mode)) {
+        if ((n++, "production" === _.mode)) {
           console.warn(e);
           continue;
         }
         throw new ReferenceError(e);
       }
-      if (typeof o != typeof n[i].default)
+      if (typeof o != typeof s[i].default)
         throw new TypeError(
-          `Options "${i}" type mismatch | actual: ${typeof o} -> expected: ${typeof n[i].default} | Please report this message to the developers!`
+          `Options "${i}" type mismatch | actual: ${typeof o} -> expected: ${typeof s[i].default} | Please report this message to the developers!`
         );
-      const { integer: e, min: a, max: r, strict: l } = n[i];
+      const { integer: e, min: a, max: r, strict: l } = s[i];
       if (l && (o < a || o > r))
         throw new RangeError(
           `Options "${i}" out of range | actual: ${o} -> expected: ${a} .. ${r} | Please report this message to the developers!`
         );
       ((a || r) && (o = Math.min(r ?? 1 / 0, Math.max(a ?? -1 / 0, o))),
         e && (o = Math.floor(o)),
-        (n[i].static ||
-          (n[i].default !== o && !strictShallowEqual(n[i].default, o))) &&
+        (s[i].static ||
+          (s[i].default !== o && !strictShallowEqual(s[i].default, o))) &&
           (yield [i, o]));
     }
-    s > 0 &&
-      on({
-        msg: `this replay contains one or more unknown options ${s}`,
+    n > 0 &&
+      Zt({
+        msg: `this replay contains one or more unknown options ${n}`,
         color: "#FFD800",
         icon: "warning",
         timeout: 7500
       });
   }
 }
-Ce.init();
-
-const n = class Bits {
+ge.init();
+export class Bits {
   static MAX_BITS = Number.MAX_SAFE_INTEGER.toString(2).length;
 
   constructor(input) {
@@ -4478,7 +4566,6 @@ const n = class Bits {
     this._offset = 0;
   }
 
-  // ---------- Static factory methods ----------
   static alloc(size, fill, encoding) {
     return new Bits(Buffer.alloc(size, fill, encoding));
   }
@@ -4487,7 +4574,6 @@ const n = class Bits {
     return new Bits(Buffer.from(data, encoding, length));
   }
 
-  // ---------- Getters / Setters ----------
   get eof() {
     return this._offset === this._length;
   }
@@ -4515,7 +4601,6 @@ const n = class Bits {
     return this._length - this._offset;
   }
 
-  // ---------- Instance methods ----------
   clear(fill = 0) {
     this.buffer.fill(fill);
     this._offset = 0;
@@ -4651,15 +4736,16 @@ const n = class Bits {
     this._offset = this.insert(value, size, this._offset);
     return this;
   }
-};
+}
 
-// const n = Bits;
-const ke = {
+const n = Bits;
+ge.init();
+const Ce = {
   int64AsType: "number",
   bundleStrings: false,
   sequential: false
 };
-const Te = new (class {
+const ke = new (class {
   _commands = new Map();
   _codes = new Map();
   _PACK = null;
@@ -4671,56 +4757,48 @@ const Te = new (class {
     F_ID: 128
   };
   SetMsgpackr(e, t) {
-    {
-      this._PACK = e.pack.bind(e);
-      this._UNPACK = t.unpack.bind(t);
-    }
+    this._PACK = e.pack.bind(e);
+    this._UNPACK = t.unpack.bind(t);
   }
   GetHandlers() {
-    const je = [];
+    const It = [];
     for (const e of this._commands.values()) {
-      if (e.flags & this.FLAG.F_HOOK) je.push(e.name);
-    }
-    const Ve = this._commands.get("__pack__")?.table;
-    if (Ve) {
-      je.push.apply(je, Object.keys(Ve));
-    }
-    return je;
-  }
-  Add(t, n) {
-    this._commands.set(t, n);
-    this._codes.set(n.code, n);
-    n.name = t;
-    if (n.flags & this.FLAG.F_ALLOC) {
-      n.buffer = Buffer.from([n.code]);
-    }
-    if (n.table) {
-      {
-        n._kv = new Map();
-        n._vk = new Map();
-        n.getkv = (e) => n._kv.get(e);
-        n.getvk = (e) => n._vk.get(e);
-      }
-      for (const [e, t] of Object.entries(n.table)) {
-        {
-          n._kv.set(e, t);
-          n._vk.set(t, e);
-        }
+      if (e.flags & this.FLAG.F_HOOK) {
+        It.push(e.name);
       }
     }
+    const Ft = this._commands.get("__pack__")?.table;
+    if (Ft) {
+      It.push.apply(It, Object.keys(Ft));
+    }
+    return It;
   }
-  Encode(t, n, s = {}) {
+  Add(t, s) {
+    this._commands.set(t, s);
+    this._codes.set(s.code, s);
+    s.name = t;
+    if (s.flags & this.FLAG.F_ALLOC) {
+      s.buffer = Buffer.from([s.code]);
+    }
+    if (s.table) {
+      s._kv = new Map();
+      s._vk = new Map();
+      s.getkv = (e) => s._kv.get(e);
+      s.getvk = (e) => s._vk.get(e);
+      for (const [e, t] of Object.entries(s.table))
+        (s._kv.set(e, t), s._vk.set(t, e));
+    }
+  }
+  Encode(t, s, n = {}) {
     const i = this._commands.get(t) ?? this._commands.get("__pack__");
     let o = i.code,
       a = 1;
     if (i.flags & this.FLAG.F_ALLOC) return i.buffer;
-    if (!s.batched && (i.flags & this.FLAG.F_ID || s.id)) {
-      {
-        a += 3;
-        o |= this.FLAG.F_ID;
-      }
+    if (!n.batched && (i.flags & this.FLAG.F_ID || n.id)) {
+      a += 3;
+      o |= this.FLAG.F_ID;
     }
-    const r = i.encode(n, this._PACK, t),
+    const r = i.encode(s, this._PACK, t),
       l = Buffer.allocUnsafe(a + r.byteLength);
     l.writeUInt8(o, 0);
     l.set(r, a);
@@ -4739,111 +4817,101 @@ const Te = new (class {
         `received an unknown code [0x${s.toString(16).padStart(2, "0")}]`
       );
     if (i.flags & this.FLAG.F_ALLOC) return o;
-    {
-      if (e[0] & this.FLAG.F_ID) {
-        {
-          o.id = t.peek(24, 8);
-          a += 3;
-        }
-      }
-      e = e.subarray(a);
+    if (e[0] & this.FLAG.F_ID) {
+      o.id = t.peek(24, 8);
+      a += 3;
     }
+    e = e.subarray(a);
     try {
       o.data = i.decode(e, this._UNPACK);
     } catch (t) {
-      throw (
-        console.error(`Failed to decode command ${i.name}: ${e.toString()}`),
-        t
-      );
+      console.error(`Failed to decode command ${i.name}: ${e.toString()}`);
+      throw t;
     }
     if (this.SymCmd in o.data) {
-      {
-        o.command = o.data[this.SymCmd];
-        o.data = o.data.data;
-      }
+      o.command = o.data[this.SymCmd];
+      o.data = o.data.data;
     }
     return o;
   }
 })();
 {
-  const { F_ALLOC: t, F_HOOK: n, F_ID: s } = Te.FLAG;
-  Te.Add("new", {
-    code: 25,
-    flags: t
+  const { F_ALLOC: t, F_HOOK: s, F_ID: n } = ke.FLAG,
+    i = {
+      code: 25
+    };
+  i.flags = t;
+  ke.Add("new", i);
+  const o = {
+    code: 63
+  };
+  o.flags = t;
+  ke.Add("die", o);
+  const a = {
+    code: 19
+  };
+  a.flags = s | t;
+  ke.Add("rejected", a);
+  const r = {
+    code: 33
+  };
+  r.flags = s | t;
+  ke.Add("reload", r);
+  ke.Add("ping", {
+    code: 9,
+    flags: s,
+    encode({ recvid: t }) {
+      const s = Buffer.allocUnsafe(4);
+      s.writeUInt32BE(t, 0);
+      return s;
+    },
+    decode(e) {
+      return {
+        recvid: e.readUInt32BE(0)
+      };
+    }
   });
-  Te.Add("die", {
-    code: 63,
-    flags: t
+  ke.Add("session", {
+    code: 44,
+    encode({ ribbonid: t, tokenid: s }) {
+      const n = Buffer.allocUnsafe(16);
+      n.write(t, 0, 8, "hex");
+      n.write(s, 8, 8, "hex");
+      return n;
+    },
+    decode: (e) => ({
+      ribbonid: e.toString("hex", 0, 8),
+      tokenid: e.toString("hex", 8, 16)
+    })
   });
-  Te.Add("rejected", {
-    code: 19,
-    flags: n | t
-  });
-  {
-    Te.Add("reload", {
-      code: 33,
-      flags: n | t
-    });
-    Te.Add("ping", {
-      code: 9,
-      flags: n,
-      encode({ recvid: t }) {
-        const n = Buffer.allocUnsafe(4);
-        n.writeUInt32BE(t, 0);
-        return n;
-      },
-      decode(e) {
-        return {
-          recvid: e.readUInt32BE(0)
-        };
+  ke.Add("packets", {
+    code: 7,
+    encode({ packets: t }) {
+      const s = t.reduce((e, t) => e + t.length, 0),
+        n = Buffer.allocUnsafe(s + 4 * t.length);
+      for (let e = 0, s = 0; e < t.length; e++) {
+        const i = t[e];
+        n.writeUInt32BE(i.length, s);
+        n.set(i, s + 4);
+        s += i.length + 4;
       }
-    });
-    Te.Add("session", {
-      code: 44,
-      encode({ ribbonid: t, tokenid: n }) {
-        const s = Buffer.allocUnsafe(16);
-        s.write(t, 0, 8, "hex");
-        s.write(n, 8, 8, "hex");
-        return s;
-      },
-      decode: (e) => ({
-        ribbonid: e.toString("hex", 0, 8),
-        tokenid: e.toString("hex", 8, 16)
-      })
-    });
-    Te.Add("packets", {
-      code: 7,
-      encode({ packets: t }) {
-        const n = t.reduce((e, t) => e + t.length, 0),
-          s = Buffer.allocUnsafe(n + 4 * t.length);
-        for (let e = 0, n = 0; e < t.length; e++) {
-          const i = t[e];
-          {
-            s.writeUInt32BE(i.length, n);
-            s.set(i, n + 4);
-            n += i.length + 4;
-          }
-        }
-        return s;
-      },
-      decode(e) {
-        const t = [];
-        for (let n = 0; n < e.length; ) {
-          const s = e.readUInt32BE(n);
-          n += 4;
-          const i = e.subarray(n, n + s);
-          {
-            t.push(i);
-            n += s;
-          }
-        }
-        return {
-          packets: t
-        };
+      return n;
+    },
+    decode(e) {
+      const t = [];
+      for (let s = 0; s < e.length; ) {
+        const n = e.readUInt32BE(s);
+        s += 4;
+        const i = e.subarray(s, s + n);
+        t.push(i);
+        s += n;
       }
-    });
-  }
-  Te.Add("kick", {
+      return {
+        packets: t
+      };
+    }
+  });
+  ke.Add("kick", {
     table: {
       outdated: 1,
       kick: 2,
@@ -4853,29 +4921,29 @@ const Te = new (class {
       manual: 6,
       rename: 7
     },
-    flags: n,
+    flags: s,
     code: 4,
     encode({ reason: t }) {
-      let n = Buffer.allocUnsafe(1);
-      const s = this.getkv(t);
-      n.writeUInt8(s, 0);
-      if (!s) {
-        n = Buffer.concat([n, Buffer.from(t)]);
+      let s = Buffer.allocUnsafe(1);
+      const n = this.getkv(t);
+      s.writeUInt8(n, 0);
+      if (!n) {
+        s = Buffer.concat([s, Buffer.from(t)]);
       }
-      return n;
+      return s;
     },
     decode(e) {
       const t = e.readUInt8(0);
-      let n = this.getvk(t);
-      if (!n) {
-        n = e.toString("utf8", 1);
+      let s = this.getvk(t);
+      if (!s) {
+        s = e.toString("utf8", 1);
       }
       return {
-        reason: n
+        reason: s
       };
     }
   });
-  Te.Add("nope", {
+  ke.Add("nope", {
     table: {
       "protocol violation": 0,
       "ribbon expired": 1
@@ -4891,19 +4959,19 @@ const Te = new (class {
       };
     }
   });
-  Te.Add("pni", {
+  ke.Add("pni", {
     table: {
       background: 0,
       split: 1,
       load: 2
     },
     code: 51,
-    flags: n,
-    encode({ type: t, timeout: n }) {
-      const s = Buffer.allocUnsafe(3);
-      s.writeUInt8(this.getkv(t), 0);
-      s.writeUInt16BE(n, 1);
-      return s;
+    flags: s,
+    encode({ type: t, timeout: s }) {
+      const n = Buffer.allocUnsafe(3);
+      n.writeUInt8(this.getkv(t), 0);
+      n.writeUInt16BE(s, 1);
+      return n;
     },
     decode(e) {
       return {
@@ -4912,62 +4980,59 @@ const Te = new (class {
       };
     }
   });
-  const h = {
-    deny: 1,
-    warm: 2,
-    error: 4,
-    announce: 5
-  };
-  {
-    h.ok = 3;
-    Te.Add("notify", {
-      table: h,
-      code: 49,
-      flags: n | s,
-      encode(t, n) {
-        const s = this.getkv(t.type),
-          i = Buffer.from([s]);
-        switch (s) {
-          case 1: {
-            const n = Buffer.allocUnsafe(2 + t.msg.length);
-            n.writeUInt16BE(t.timeout);
-            n.write(t.msg, 2);
-            return Buffer.concat([i, n]);
-          }
-          case 2:
-          case 3:
-          case 4:
-          case 5:
-            return Buffer.concat([i, Buffer.from(t.msg)]);
-          default:
-            return Buffer.concat([i, n(t)]);
+  ke.Add("notify", {
+    table: {
+      deny: 1,
+      warm: 2,
+      ok: 3,
+      error: 4,
+      announce: 5
+    },
+    code: 49,
+    flags: s | n,
+    encode(t, s) {
+      const n = this.getkv(t.type),
+        i = Buffer.from([n]);
+      switch (n) {
+        case 1: {
+          const s = Buffer.allocUnsafe(2 + t.msg.length);
+          s.writeUInt16BE(t.timeout);
+          s.write(t.msg, 2);
+          return Buffer.concat([i, s]);
         }
-      },
-      decode(e, t) {
-        const n = e.readUInt8(0),
-          s = this.getvk(n);
-        switch (n) {
-          case 1:
-            return {
-              type: s,
-              timeout: e.readUInt16BE(1),
-              msg: e.toString("utf8", 3)
-            };
-          case 2:
-          case 3:
-          case 4:
-          case 5:
-            return {
-              type: s,
-              msg: e.toString("utf8", 1)
-            };
-          default:
-            return t(e.subarray(1));
-        }
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+          return Buffer.concat([i, Buffer.from(t.msg)]);
+        default:
+          return Buffer.concat([i, s(t)]);
       }
-    });
-  }
-  Te.Add("__pack__", {
+    },
+    decode(e, t) {
+      const s = e.readUInt8(0),
+        n = this.getvk(s);
+      switch (s) {
+        case 1:
+          return {
+            type: n,
+            timeout: e.readUInt16BE(1),
+            msg: e.toString("utf8", 3)
+          };
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+          return {
+            type: n,
+            msg: e.toString("utf8", 1)
+          };
+        default:
+          return t(e.subarray(1));
+      }
+    }
+  });
+  ke.Add("__pack__", {
     table: {
       "config.handling": 1,
       "channel.subscribe": 2,
@@ -5065,28 +5130,28 @@ const Te = new (class {
       "server.migrated": 212,
       "xrc.relog": 255
     },
-    flags: s,
+    flags: n,
     code: 43,
-    encode(t, n, s) {
-      const i = n(t),
+    encode(t, s, n) {
+      const i = s(t),
         o = Buffer.allocUnsafe(1 + i.length),
-        a = this.getkv(s);
+        a = this.getkv(n);
       o.writeUInt8(a, 0);
       o.set(i, 1);
       return o;
     },
     decode(e, t) {
-      const n = e.readUInt8(0),
-        s = this.getvk(n),
+      const s = e.readUInt8(0),
+        n = this.getvk(s),
         i = t(e.subarray(1));
       return {
-        [Te.SymCmd]: s,
+        [ke.SymCmd]: n,
         data: i
       };
     }
   });
 }
-class Ee {
+class Ie {
   static TYPES = {
     Table: 0,
     Array: 1,
@@ -5122,12 +5187,10 @@ class Ee {
   }
   static DInt = class {
     constructor({ min: e, max: t }) {
-      {
-        this._minBits = e;
-        this._maxBits = t;
-        this._minSize = Math.pow(2, e);
-        this._maxSize = Math.pow(2, t);
-      }
+      this._minBits = e;
+      this._maxBits = t;
+      this._minSize = Math.pow(2, e);
+      this._maxSize = Math.pow(2, t);
     }
     get minSize() {
       return this._minSize;
@@ -5167,37 +5230,32 @@ class Ee {
       Double: 4
     };
     encode(e, t) {
-      const { TYPES: n } = this;
+      const { TYPES: s } = this;
       if ("number" != typeof t)
         throw new TypeError(`Attempted to encode ${typeof t} as a number`);
-      if (Number.isNaN(t)) return e.writeUInt(n.NaN, 3);
+      if (Number.isNaN(t)) return e.writeUInt(s.NaN, 3);
       if (!Number.isFinite(t)) {
-        e.writeUInt(n.Infinity, 3);
+        e.writeUInt(s.Infinity, 3);
         return e.writeBoolean(t === Number.POSITIVE_INFINITY);
       }
       switch (t) {
         case t >>> 0: {
-          const s = Ee.GetIntSize(t);
-          {
-            e.writeUInt(n.UInt, 3);
-            e.writeUInt(s - 1, 3);
-            e.writeUInt(t, 4 * s);
-          }
+          const n = Ie.GetIntSize(t);
+          e.writeUInt(s.UInt, 3);
+          e.writeUInt(n - 1, 3);
+          e.writeUInt(t, 4 * n);
           break;
         }
         case t | 0: {
-          const s = Ee.GetIntSize(t);
-          {
-            e.writeUInt(n.Int, 3);
-            e.writeUInt(s - 1, 3);
-            e.writeInt(t, 4 * s);
-          }
+          const n = Ie.GetIntSize(t);
+          e.writeUInt(s.Int, 3);
+          e.writeUInt(n - 1, 3);
+          e.writeInt(t, 4 * n);
           break;
         }
-        default: {
-          e.writeUInt(n.Double, 3);
+        default:
+          e.writeUInt(s.Double, 3);
           e.writeDouble(t);
-        }
       }
     }
     decode(e) {
@@ -5223,21 +5281,13 @@ class Ee {
   })();
   static Table = class {
     constructor(e, t = "strict") {
-      {
-        this._kv = new Map();
-        this._vk = new Map();
-      }
-      for (const [t, n] of e.entries()) {
-        {
-          this._kv.set(n, t + 1);
-          this._vk.set(t + 1, n);
-        }
-      }
-      {
-        this._mode = t;
-        this._size = Math.floor(Math.log2(this._kv.size)) + 1;
-        this.has = this._kv.has.bind(this._kv);
-      }
+      this._kv = new Map();
+      this._vk = new Map();
+      for (const [t, s] of e.entries())
+        (this._kv.set(s, t + 1), this._vk.set(t + 1, s));
+      this._mode = t;
+      this._size = Math.floor(Math.log2(this._kv.size)) + 1;
+      this.has = this._kv.has.bind(this._kv);
     }
     get mode() {
       return this._mode;
@@ -5246,10 +5296,11 @@ class Ee {
       return this._size;
     }
     get struct() {
-      const G = {};
-      for (const [e, t] of this._kv.entries())
-        G[e] = "0x" + t.toString(16).padStart(2, "0");
-      return G;
+      const z = {};
+      for (const [e, t] of this._kv.entries()) {
+        z[e] = "0x" + t.toString(16).padStart(2, "0");
+      }
+      return z;
     }
     getkv(e) {
       return this._kv.get(e);
@@ -5259,24 +5310,22 @@ class Ee {
     }
   };
   static Array = class {
-    constructor(e = "default", { list: t, min: n, max: s } = {}) {
+    constructor(e = "default", { list: t, min: s, max: n } = {}) {
       this._mode = e;
       switch (e) {
         case "strict":
-          this._table = new Ee.Table(t);
+          this._table = new Ie.Table(t);
           break;
         case "flexible":
           throw new Error("Flexible mode is not implemented yet");
         case "default":
       }
-      {
-        n = n ?? 7;
-        s = s ?? 15;
-      }
-      this._prop = new Ee.DInt({
-        min: n,
-        max: s
-      });
+      s = s ?? 7;
+      n = n ?? 15;
+      const Re = {};
+      Re.min = s;
+      Re.max = n;
+      this._prop = new Ie.DInt(Re);
     }
     get mode() {
       return this._mode;
@@ -5285,40 +5334,36 @@ class Ee {
       e.writeDInt(t.length, this._prop);
       switch (this._mode) {
         case "strict":
-          for (const n of t) e.writeTable(n, this._table);
+          for (const s of t) e.writeTable(s, this._table);
           break;
         case "flexible":
           throw new Error("Flexible mode is not implemented yet");
         default:
-          for (const n of t) e.writeAny(n, this);
+          for (const s of t) e.writeAny(s, this);
       }
     }
     decode(e) {
       const t = e.readDInt(this._prop),
-        n = [];
+        s = [];
       if ("strict" === this._mode)
-        for (let s = 0; s < t; s++) n.push(e.readTable(this._table));
-      else for (let s = 0; s < t; s++) n.push(e.readAny(this));
-      return n;
+        for (let n = 0; n < t; n++) s.push(e.readTable(this._table));
+      else for (let n = 0; n < t; n++) s.push(e.readAny(this));
+      return s;
     }
   };
   static init() {
-    {
-      this.SUPPORTED_TYPES_TABLE = new this.Table(
-        Array.from(this.SUPPORTED_TYPES.keys())
-      );
-      this.DEFAULT_ARRAY = new this.Array();
-    }
+    this.SUPPORTED_TYPES_TABLE = new this.Table(
+      Array.from(this.SUPPORTED_TYPES.keys())
+    );
+    this.DEFAULT_ARRAY = new this.Array();
     this.DEFAULT_PROP = new this.DInt({
       min: 8,
       max: 32
     });
   }
   constructor() {
-    {
-      this.ref = new Map();
-      this.refid = 0;
-    }
+    this.ref = new Map();
+    this.refid = 0;
   }
   static Encoder = class t extends this {
     static TYPES = {
@@ -5328,13 +5373,11 @@ class Ee {
       HEX: 4
     };
     constructor(e = null, t = null) {
-      {
-        super();
-        this._buffer = [];
-        this._size = 0;
-        this._packr = e;
-        this._packBuffer = t;
-      }
+      super();
+      this._buffer = [];
+      this._size = 0;
+      this._packr = e;
+      this._packBuffer = t;
     }
     get buffer() {
       return this._buffer;
@@ -5348,30 +5391,30 @@ class Ee {
     realign() {
       return (this._size += (8 - (this._size % 8)) % 8);
     }
-    _insert(e, t, n = null) {
-      if (n) {
+    _insert(e, t, s = null) {
+      if (s) {
         this.realign();
       }
       this._size += t;
       return this._buffer.push({
         val: e,
         size: t,
-        type: n
+        type: s
       });
     }
     writeTable(e, t) {
       if ("strict" === t.mode) return this._insert(t.getkv(e), t.size);
-      const n = t.getkv(e);
-      return undefined === n
+      const s = t.getkv(e);
+      return undefined === s
         ? (this._insert(null, t.size), this.writeAny(e))
-        : this._insert(n, t.size);
+        : this._insert(s, t.size);
     }
-    writeArray(e, t = Ee.DEFAULT_ARRAY) {
+    writeArray(e, t = Ie.DEFAULT_ARRAY) {
       return "strict" === t.mode
         ? t.encode(this, e)
         : this.ref.has(e)
           ? (this._insert(true, 1),
-            this.writeDInt(this.ref.get(e), Ee.DEFAULT_PROP))
+            this.writeDInt(this.ref.get(e), Ie.DEFAULT_PROP))
           : (this._insert(false, 1),
             this.ref.set(e, this.refid++),
             t.encode(this, e));
@@ -5379,9 +5422,9 @@ class Ee {
     writeStruct(e, t) {
       return t.encode(this, e);
     }
-    writeString(n, s = true) {
-      n = Buffer.from(s ? `${n}\0` : n);
-      return this._insert(n, 8 * n.byteLength, t.TYPES.BUFFER);
+    writeString(s, n = true) {
+      s = Buffer.from(n ? `${s}\0` : s);
+      return this._insert(s, 8 * s.byteLength, t.TYPES.BUFFER);
     }
     writeBuffer(e) {
       return this._insert(e, 8 * e.byteLength, t.TYPES.BUFFER);
@@ -5399,34 +5442,34 @@ class Ee {
       return this._insert(e, 64, t.TYPES.QWORD);
     }
     writeDInt(e, t) {
-      const n = t.writeSize(e);
-      this._insert(n.bit, 1);
-      return this._insert(e, n.size);
+      const s = t.writeSize(e);
+      this._insert(s.bit, 1);
+      return this._insert(e, s.size);
     }
-    writeFloat(e, t, n) {
+    writeFloat(e, t, s) {
       this._insert(e < 0, 1);
-      return this._insert(Math.round(e * n), t);
+      return this._insert(Math.round(e * s), t);
     }
-    writeUFloat(e, t, n) {
-      return this._insert(Math.round(e * n), t);
+    writeUFloat(e, t, s) {
+      return this._insert(Math.round(e * s), t);
     }
     writeDouble(e) {
       return this._insert(e, 64, t.TYPES.DOUBLE);
     }
     writeNumber(e) {
-      return Ee.Number.encode(this, e);
+      return Ie.Number.encode(this, e);
     }
-    writeHex(e, n) {
-      return this._insert(e, n * 8, t.TYPES.HEX);
+    writeHex(e, s) {
+      return this._insert(e, s * 8, t.TYPES.HEX);
     }
     writeAny(e, t) {
-      const n = x(e);
-      if (!Ee.SUPPORTED_TYPES.has(n))
+      const s = b(e);
+      if (!Ie.SUPPORTED_TYPES.has(s))
         throw new TypeError(
-          `Type ${n} is not implemented for NetCodec.TYPES.Any`
+          `Type ${s} is not implemented for NetCodec.TYPES.Any`
         );
-      this.writeTable(n, Ee.SUPPORTED_TYPES_TABLE);
-      switch (n) {
+      this.writeTable(s, Ie.SUPPORTED_TYPES_TABLE);
+      switch (s) {
         case "boolean":
           this.writeBoolean(e);
           break;
@@ -5434,7 +5477,7 @@ class Ee {
         case "undefined":
           break;
         case "number":
-          Ee.Number.encode(this, e);
+          Ie.Number.encode(this, e);
           break;
         case "string":
           this.writeString(e);
@@ -5443,49 +5486,41 @@ class Ee {
           this.writeArray(e, t);
       }
     }
-    writeByType(e, t, ...n) {
-      return this[`write${Ee.TYPES_INDEX[e]}`](t, ...n);
+    writeByType(e, t, ...s) {
+      return this[`write${Ie.TYPES_INDEX[e]}`](t, ...s);
     }
     pack(e) {
       this._packr.useBuffer(this._packBuffer);
-      const n = this._packr.pack(e);
-      return this._insert(n, 8 * n.byteLength, t.TYPES.BUFFER);
+      const s = this._packr.pack(e);
+      return this._insert(s, 8 * s.byteLength, t.TYPES.BUFFER);
     }
     finalize(s = null) {
       const i = s ?? Buffer.allocUnsafe(this.byteLength),
         o = new n(i);
-      for (const { val: e, size: n, type: s } of this._buffer)
-        switch (s) {
+      for (const { val: e, size: s, type: n } of this._buffer)
+        switch (n) {
           case t.TYPES.BUFFER:
-            {
-              o.offset += (8 - (o.offset % 8)) % 8;
-              i.set(e, o.offset / 8);
-              o.seek(8 * e.byteLength, 2);
-            }
+            o.offset += (8 - (o.offset % 8)) % 8;
+            i.set(e, o.offset / 8);
+            o.seek(8 * e.byteLength, 2);
             break;
           case t.TYPES.DOUBLE:
-            {
-              o.offset += (8 - (o.offset % 8)) % 8;
-              i.writeDoubleBE(e, o.offset / 8);
-              o.seek(64, 2);
-            }
+            o.offset += (8 - (o.offset % 8)) % 8;
+            i.writeDoubleBE(e, o.offset / 8);
+            o.seek(64, 2);
             break;
           case t.TYPES.QWORD:
-            {
-              o.offset += (8 - (o.offset % 8)) % 8;
-              i.writeBigUInt64BE(e, o.offset / 8);
-              o.seek(64, 2);
-            }
+            o.offset += (8 - (o.offset % 8)) % 8;
+            i.writeBigUInt64BE(e, o.offset / 8);
+            o.seek(64, 2);
             break;
           case t.TYPES.HEX:
-            {
-              o.offset += (8 - (o.offset % 8)) % 8;
-              i.write(e, o.offset / 8, "hex");
-              o.seek(n, 2);
-            }
+            o.offset += (8 - (o.offset % 8)) % 8;
+            i.write(e, o.offset / 8, "hex");
+            o.seek(s, 2);
             break;
           default:
-            o.write(e, n);
+            o.write(e, s);
         }
       return i;
     }
@@ -5494,11 +5529,9 @@ class Ee {
     static _MAX_BITS = Math.log2(Number.MAX_SAFE_INTEGER);
     static _MAX_BITS_SIGNED = 32;
     constructor(e, t = null) {
-      {
-        super();
-        this._bits = new n(e);
-        this._unpack = t;
-      }
+      super();
+      this._bits = new n(e);
+      this._unpack = t;
     }
     get length() {
       return this._bits.length;
@@ -5519,8 +5552,8 @@ class Ee {
       this.offset = 8 * this.byteOffset;
     }
     _read_signed(t) {
-      const n = e._MAX_BITS_SIGNED - t;
-      return (this._read(t) << n) >> n;
+      const s = e._MAX_BITS_SIGNED - t;
+      return (this._read(t) << s) >> s;
     }
     _read(e) {
       return this._bits.read(e);
@@ -5531,9 +5564,9 @@ class Ee {
         ? e.getvk(this._read(t))
         : (this.seek(t, 2), this.readAny());
     }
-    readArray(e = Ee.DEFAULT_ARRAY) {
+    readArray(e = Ie.DEFAULT_ARRAY) {
       if ("strict" === e.mode) return e.decode(this);
-      if (this._read(1)) return this.ref.get(this.readDInt(Ee.DEFAULT_PROP));
+      if (this._read(1)) return this.ref.get(this.readDInt(Ie.DEFAULT_PROP));
       const t = [];
       this.ref.set(this.refid++, t);
       t.push.apply(t, e.decode(this));
@@ -5544,17 +5577,17 @@ class Ee {
     }
     readString(e) {
       const t = this.byteOffset;
-      let n;
+      let s;
       "number" == typeof e
-        ? ((n = t + e), this.seek(8 * n))
-        : ((n = this.buffer.indexOf(0, t)), this.seek(8 * (n + 1)));
-      return this.buffer.toString("utf8", t, n);
+        ? ((s = t + e), this.seek(8 * s))
+        : ((s = this.buffer.indexOf(0, t)), this.seek(8 * (s + 1)));
+      return this.buffer.toString("utf8", t, s);
     }
     readBuffer(e) {
       const t = this.byteOffset,
-        n = t + e;
-      this.seek(8 * n);
-      return this.buffer.subarray(t, n);
+        s = t + e;
+      this.seek(8 * s);
+      return this.buffer.subarray(t, s);
     }
     readBoolean() {
       return !!this._read(1);
@@ -5579,11 +5612,13 @@ class Ee {
       return this.buffer.readBigUInt64BE(e);
     }
     readDInt(e, t = false) {
-      const n = e.readSize(this._read(1));
-      return t ? this._read_signed(n) : this._read(n);
+      const s = e.readSize(this._read(1));
+      return t ? this._read_signed(s) : this._read(s);
     }
     readFloat(e, t) {
-      return this.peek(1) ? this._read_signed(e + 1) / t : this._read(e) / t;
+      return this.peek(1)
+        ? this._read_signed(e + 1) / t
+        : (this.seek(1, 2), this._read(e) / t);
     }
     readUFloat(e, t) {
       return this._read(e) / t;
@@ -5594,16 +5629,16 @@ class Ee {
       return this.buffer.readDoubleBE(e);
     }
     readNumber() {
-      return Ee.Number.decode(this);
+      return Ie.Number.decode(this);
     }
     readHex(e) {
       const t = this.byteOffset,
-        n = t + e;
-      this.seek(8 * n);
-      return this.buffer.toString("hex", t, n);
+        s = t + e;
+      this.seek(8 * s);
+      return this.buffer.toString("hex", t, s);
     }
     readAny(e) {
-      switch (this.readTable(Ee.SUPPORTED_TYPES_TABLE)) {
+      switch (this.readTable(Ie.SUPPORTED_TYPES_TABLE)) {
         case "boolean":
           return this.readBoolean();
         case "null":
@@ -5611,7 +5646,7 @@ class Ee {
         case "undefined":
           return;
         case "number":
-          return Ee.Number.decode(this);
+          return Ie.Number.decode(this);
         case "string":
           return this.readString();
         case "array":
@@ -5619,7 +5654,7 @@ class Ee {
       }
     }
     readByType(e, ...t) {
-      return this[`read${Ee.TYPES_INDEX[e]}`](...t);
+      return this[`read${Ie.TYPES_INDEX[e]}`](...t);
     }
     peek(e, t) {
       return this._bits.peek(e, t);
@@ -5639,102 +5674,97 @@ class Ee {
     }
   };
 }
-class De {
+class Fe {
   static _MAX_BUFFER = 65536;
   static BUFFER = Buffer.alloc(this._MAX_BUFFER);
   static _LIST = {};
   static get LIST() {
     return this._LIST;
   }
-  static AddExtension(t, n = {}) {
+  static AddExtension(t, s = {}) {
     this._LIST[t.name] = t;
-    if ("ownBuffer" in n) {
+    if ("ownBuffer" in s) {
       t.BUFFER = Buffer.alloc(this._MAX_BUFFER);
     }
   }
-  static AddTable(e, t, n) {
-    this["$$" + e] = new Ee.Table(t, n);
+  static AddTable(e, t, s) {
+    this["$$" + e] = new Ie.Table(t, s);
   }
   static AddProperty(e, t) {
-    this["$" + e] = new Ee.DInt(t);
+    this["$" + e] = new Ie.DInt(t);
   }
   static LoadExtensions(e) {
-    let S = 10;
-    function z(e) {
-      return e.encode.call(e, new Ee.Encoder(this, e.constructor.BUFFER));
+    let q = 10;
+    function j(e) {
+      return e.encode.call(e, new Ie.Encoder(this, e.constructor.BUFFER));
     }
-    function I(e, t, n, s) {
-      return e.decode(new Ee.Decoder(t, (e) => n(s + e)));
+    function K(e, t, s, n) {
+      return e.decode(new Ie.Decoder(t, (e) => s(n + e)));
     }
     for (const t of Object.values(this._LIST)) {
-      {
-        t.ext_code = S++;
-        e.addExtension({
-          Class: t,
-          type: t.ext_code,
-          pack: z,
-          unpack: I.bind(null, t)
-        });
-      }
+      t.ext_code = q++;
+      e.addExtension({
+        Class: t,
+        type: t.ext_code,
+        pack: j,
+        unpack: K.bind(null, t)
+      });
     }
   }
 }
-class We extends De {
+class Te extends Fe {
   static AddStructure(e) {
-    {
-      this._cstFields = new Map();
-      this._fixFields = new Map();
-      this._optFields = new Map();
-    }
-    for (const [t, { mode: n, type: s, size: i, value: o }] of Object.entries(
+    this._cstFields = new Map();
+    this._fixFields = new Map();
+    this._optFields = new Map();
+    for (const [t, { mode: s, type: n, size: i, value: o }] of Object.entries(
       e
-    ))
-      switch (n) {
+    )) {
+      switch (s) {
         case "static":
           this._cstFields.set(t, o);
           break;
         case "fixed":
           this._fixFields.set(t, {
-            type: s,
+            type: n,
             size: i
           });
           break;
         case "optional":
           this._optFields.set(t, {
-            type: s,
+            type: n,
             size: i
           });
       }
+    }
     super.AddTable("prop", Array.from(this._optFields.keys()));
   }
   static encode(e, t) {
-    for (const [n, { type: s, size: i }] of this._fixFields.entries())
-      e.writeByType(s, t[n], i);
-    for (const [n, { type: s, size: i }] of this._optFields.entries())
-      if (undefined !== t[n] && !(s === Ee.TYPES.DInt && null === t[n])) {
-        {
-          e.writeTable(n, this.$$prop);
-          e.writeByType(s, t[n], i);
-        }
+    for (const [s, { type: n, size: i }] of this._fixFields.entries())
+      e.writeByType(n, t[s], i);
+    for (const [s, { type: n, size: i }] of this._optFields.entries())
+      if (undefined !== t[s] && !(n === Ie.TYPES.DInt && null === t[s])) {
+        e.writeTable(s, this.$$prop);
+        e.writeByType(n, t[s], i);
       }
     e.writeUInt(null, this.$$prop.size);
   }
   static decode(e) {
     const t = {},
-      n = this.$$prop.size;
-    for (const [n, { type: s, size: i }] of this._fixFields.entries())
-      t[n] = e.readByType(s, i);
-    for (let s = e.peek(n); 0 !== s; s = e.peek(n)) {
-      const n = e.readTable(this.$$prop),
-        { type: s, size: i } = this._optFields.get(n),
-        o = e.readByType(s, i);
-      t[n] = o;
+      s = this.$$prop.size;
+    for (const [s, { type: n, size: i }] of this._fixFields.entries())
+      t[s] = e.readByType(n, i);
+    for (let n = e.peek(s); 0 !== n; n = e.peek(s)) {
+      const s = e.readTable(this.$$prop),
+        { type: n, size: i } = this._optFields.get(s),
+        o = e.readByType(n, i);
+      t[s] = o;
     }
-    for (const [e, n] of this._cstFields.entries()) t[e] = n;
+    for (const [e, s] of this._cstFields.entries()) t[e] = s;
     return t;
   }
 }
-class Oe extends De {
+class Ee extends Fe {
   static init() {
     super.AddExtension(this);
     super.AddProperty("prov", {
@@ -5745,24 +5775,22 @@ class Oe extends De {
   static decode(e) {
     return new this(e.readUInt(13), e.readDInt(this.$prov), e.unpack());
   }
-  constructor(e, t, n) {
-    {
-      super();
-      this.gameid = e;
-      this.provisioned = t;
-      this.frames = n.map((e) => new Re(e));
-    }
+  constructor(e, t, s) {
+    super();
+    this.gameid = e;
+    this.provisioned = t;
+    this.frames = s.map((e) => new Oe(e));
   }
   encode(e) {
     const t = this.constructor,
-      n = this.provisioned;
+      s = this.provisioned;
     e.writeUInt(this.gameid, 13);
-    e.writeDInt(n, t.$prov);
+    e.writeDInt(s, t.$prov);
     e.pack(this.frames);
     return e.finalize();
   }
 }
-class Pe extends De {
+class Me extends Fe {
   static init() {
     super.AddExtension(this);
     super.AddProperty("long", {
@@ -5772,129 +5800,116 @@ class Pe extends De {
   }
   static decode(e) {
     const t = [],
-      n = e.readUInt(13);
-    for (let s = 0; s < n; s++) {
-      const n = {
+      s = e.readUInt(13);
+    for (let n = 0; n < s; n++) {
+      const s = {
         board: {}
       };
-      {
-        n.gameid = e.readUInt(13);
-        n.board.f = e.readUInt(10);
-        n.board.g = e.readDInt(this.$long);
-        n.board.w = e.readUInt(Ge.MAX_WIDTH);
-        n.board.h = e.readUInt(Ge.MAX_HEIGHT);
-        n.board.b = e.readStruct(Ge);
-        t[s] = n;
-      }
+      s.gameid = e.readUInt(13);
+      s.board.f = e.readUInt(10);
+      s.board.g = e.readDInt(this.$long);
+      s.board.w = e.readUInt(We.MAX_WIDTH);
+      s.board.h = e.readUInt(We.MAX_HEIGHT);
+      s.board.b = e.readStruct(We);
+      t[n] = s;
     }
     return new this(t);
   }
   constructor(e) {
-    {
-      super();
-      this.boards = e;
-    }
+    super();
+    this.boards = e;
   }
   encode(e) {
     const t = this.constructor;
     e.writeUInt(this.boards.length, 13);
     for (const {
-      gameid: n,
-      board: { b: s, f: i, g: o, w: a, h: r }
-    } of this.boards) {
-      e.writeUInt(n, 13);
-      e.writeUInt(i, 10);
-      e.writeDInt(o, t.$long);
-      e.writeUInt(a, Ge.MAX_WIDTH);
-      e.writeUInt(r, Ge.MAX_HEIGHT);
-      e.writeStruct(s, Ge);
-    }
+      gameid: s,
+      board: { b: n, f: i, g: o, w: a, h: r }
+    } of this.boards)
+      (e.writeUInt(s, 13),
+        e.writeUInt(i, 10),
+        e.writeDInt(o, t.$long),
+        e.writeUInt(a, We.MAX_WIDTH),
+        e.writeUInt(r, We.MAX_HEIGHT),
+        e.writeStruct(n, We));
     return e.finalize();
   }
 }
-class He extends De {
+class De extends Fe {
   static init() {
-    {
-      super.AddExtension(this);
-      super.AddTable("extraStat", [
-        "none",
-        "revives",
-        "escapeartist",
-        "blockrationing_app",
-        "blockrationing_final",
-        "talentless"
-      ]);
-    }
+    super.AddExtension(this);
+    super.AddTable("extraStat", [
+      "none",
+      "revives",
+      "escapeartist",
+      "blockrationing_app",
+      "blockrationing_final",
+      "talentless"
+    ]);
   }
   static decode(e) {
     const t = [],
-      n = e.readUInt(13);
-    for (let s = 0; s < n; s++) {
-      const n = {
+      s = e.readUInt(13);
+    for (let n = 0; n < s; n++) {
+      const s = {
         stats: {},
         allies: []
       };
-      {
-        t[s] = n;
-        n.gameid = e.readUInt(13);
-        n.stats.rank = e.readUInt(6);
-        n.stats.altitude = e.readFloat(18, 10);
-        n.stats.btb = e.readUInt(13);
-        n.specCount = e.readUInt(10);
-        n.speedrun = e.readBoolean();
-        n.nearWR = e.readBoolean();
-      }
+      t[n] = s;
+      s.gameid = e.readUInt(13);
+      s.stats.rank = e.readUInt(6);
+      s.stats.altitude = e.readFloat(18, 10);
+      s.stats.btb = e.readUInt(13);
+      s.specCount = e.readUInt(10);
+      s.speedrun = e.readBoolean();
+      s.nearWR = e.readBoolean();
       const i = e.readUInt(3);
-      for (let t = 0; t < i; t++) n.allies.push(e.readUInt(13));
-      {
-        n.stats.revives = 0;
-        n.stats.escapeartist = 0;
-        n.stats.blockrationing_app = 0;
-        n.stats.blockrationing_final = 0;
-      }
+      for (let t = 0; t < i; t++) s.allies.push(e.readUInt(13));
+      s.stats.revives = 0;
+      s.stats.escapeartist = 0;
+      s.stats.blockrationing_app = 0;
+      s.stats.blockrationing_final = 0;
       switch (e.readTable(this.$$extraStat)) {
         case "none":
           break;
         case "revives":
-          n.stats.revives = e.readUInt(8);
+          s.stats.revives = e.readUInt(8);
           break;
         case "escapeartist":
-          n.stats.escapeartist = e.readUInt(9);
+          s.stats.escapeartist = e.readUInt(9);
           break;
         case "blockrationing_app":
-          n.stats.blockrationing_app = e.readFloat(10, 100);
+          s.stats.blockrationing_app = e.readFloat(10, 100);
           break;
         case "blockrationing_final":
-          n.stats.blockrationing_final = e.readUInt(11);
+          s.stats.blockrationing_final = e.readUInt(11);
           break;
         case "talentless":
-          n.talentless = true;
+          s.talentless = true;
       }
     }
     return new this(t);
   }
   constructor(e) {
-    {
-      super();
-      this.sb = e;
-    }
+    super();
+    this.sb = e;
   }
   encode(e) {
     const t = this.constructor;
     e.writeUInt(this.sb.length, 13);
     for (const {
-      gameid: n,
-      stats: s,
+      gameid: s,
+      stats: n,
       allies: i,
       specCount: o,
       speedrun: a,
       nearWR: r,
       talentless: l
     } of this.sb) {
-      e.writeUInt(n, 13);
-      e.writeUInt(Math.floor(s.rank), 6);
-      e.writeFloat(s.altitude.toFixed(2), 18, 10);
-      e.writeUInt(s.btb, 13);
+      e.writeUInt(s, 13);
+      e.writeUInt(Math.floor(n.rank), 6);
+      e.writeFloat(n.altitude.toFixed(2), 18, 10);
+      e.writeUInt(n.btb, 13);
       e.writeUInt(o, 10);
       e.writeBoolean(a);
       e.writeBoolean(r);
@@ -5903,16 +5918,16 @@ class He extends De {
         for (const t of i) e.writeUInt(t, 13);
       } else e.writeUInt(0, 3);
       let c = "none";
-      if (s.revives) {
+      if (n.revives) {
         c = "revives";
       }
-      if (s.escapeartist) {
+      if (n.escapeartist) {
         c = "escapeartist";
       }
-      if (s.blockrationing_app) {
+      if (n.blockrationing_app) {
         c = "blockrationing_app";
       }
-      if (s.blockrationing_final) {
+      if (n.blockrationing_final) {
         c = "blockrationing_final";
       }
       if (l) {
@@ -5924,56 +5939,54 @@ class He extends De {
         case "talentless":
           break;
         case "revives":
-          e.writeUInt(s.revives, 8);
+          e.writeUInt(n.revives, 8);
           break;
         case "escapeartist":
-          e.writeUInt(s.escapeartist, 9);
+          e.writeUInt(n.escapeartist, 9);
           break;
         case "blockrationing_app":
-          e.writeFloat(s.blockrationing_app.toFixed(3), 10, 100);
+          e.writeFloat(n.blockrationing_app.toFixed(3), 10, 100);
           break;
         case "blockrationing_final":
-          e.writeUInt(s.blockrationing_final, 11);
+          e.writeUInt(n.blockrationing_final, 11);
       }
     }
     return e.finalize();
   }
 }
-class Re extends De {
+class Oe extends Fe {
   static init() {
     super.AddExtension(this, {
       ownBuffer: true
     });
-    {
-      super.AddProperty("frame", {
-        min: 18,
-        max: 26
-      });
-      super.AddTable("type", [
-        "keydown",
-        "keyup",
-        "start",
-        "full",
-        "end",
-        "ige",
-        "strategy",
-        "manual_target"
-      ]);
-      super.AddTable("key", [
-        "moveLeft",
-        "moveRight",
-        "rotate180",
-        "rotateCCW",
-        "rotateCW",
-        "softDrop",
-        "hardDrop",
-        "undo",
-        "redo",
-        "hold",
-        "retry",
-        "exit"
-      ]);
-    }
+    super.AddProperty("frame", {
+      min: 18,
+      max: 26
+    });
+    super.AddTable("type", [
+      "keydown",
+      "keyup",
+      "start",
+      "full",
+      "end",
+      "ige",
+      "strategy",
+      "manual_target"
+    ]);
+    super.AddTable("key", [
+      "moveLeft",
+      "moveRight",
+      "rotate180",
+      "rotateCCW",
+      "rotateCW",
+      "softDrop",
+      "hardDrop",
+      "undo",
+      "redo",
+      "hold",
+      "retry",
+      "exit"
+    ]);
   }
   static decode(e) {
     const t = {};
@@ -5982,31 +5995,29 @@ class Re extends De {
     switch (t.type) {
       case "keydown":
       case "keyup": {
-        const n = e.readTable(this.$$key),
-          s = e.readBoolean(),
+        const s = e.readTable(this.$$key),
+          n = e.readBoolean(),
           i = {
-            key: n,
+            key: s,
             subframe: e.readFloat(4, 10)
           };
-        {
-          if (s) {
-            i.hoisted = true;
-          }
-          t.data = i;
+        if (n) {
+          i.hoisted = true;
         }
+        t.data = i;
         break;
       }
       case "start":
         t.data = {};
         break;
       case "full":
-        t.data = e.readStruct($e);
+        t.data = e.readStruct(Re);
         break;
       case "end":
-        t.data = e.readStruct(nt);
+        t.data = e.readStruct(et);
         break;
       case "ige":
-        t.data = e.readStruct(je);
+        t.data = e.readStruct(Ue);
         break;
       case "strategy":
         t.data = e.readUInt(3);
@@ -6020,12 +6031,10 @@ class Re extends De {
     return new this(t);
   }
   constructor(e) {
-    {
-      super();
-      this.type = e.type;
-      this.frame = e.frame;
-      this.data = e.data;
-    }
+    super();
+    this.type = e.type;
+    this.frame = e.frame;
+    this.data = e.data;
   }
   encode(e) {
     const t = this.constructor;
@@ -6034,25 +6043,25 @@ class Re extends De {
     switch (this.type) {
       case "keydown":
       case "keyup": {
-        const n = this.data.hoisted,
-          s = this.data.subframe;
+        const s = this.data.hoisted,
+          n = this.data.subframe;
         e.writeTable(this.data.key, t.$$key);
-        e.writeBoolean(n);
-        e.writeFloat(s, 4, 10);
+        e.writeBoolean(s);
+        e.writeFloat(n, 4, 10);
         return e.finalize();
       }
       case "start":
         return e.finalize();
       case "full": {
-        e.writeStruct(this.data, $e);
+        e.writeStruct(this.data, Re);
         return e.finalize();
       }
       case "end": {
-        e.writeStruct(this.data, nt);
+        e.writeStruct(this.data, et);
         return e.finalize();
       }
       case "ige": {
-        e.writeStruct(this.data, je);
+        e.writeStruct(this.data, Ue);
         return e.finalize();
       }
       case "strategy": {
@@ -6073,102 +6082,89 @@ class Re extends De {
     }
   }
 }
-class Ne extends De {
+class He extends Fe {
   static init() {
     super.AddExtension(this);
   }
   static decode(e) {
     const t = [],
-      n = e.readUInt(13);
-    for (let s = 0; s < n; s++) {
-      const n = {};
-      {
-        n.userid = e.readHex(12);
-        n.gameid = e.readUInt(13);
-        n.alive = e.readBoolean();
-        n.naturalorder = e.readUInt(13);
-        n.options = e.readStruct(et);
-        t.push(n);
-      }
+      s = e.readUInt(13);
+    for (let n = 0; n < s; n++) {
+      const s = {};
+      s.userid = e.readHex(12);
+      s.gameid = e.readUInt(13);
+      s.alive = e.readBoolean();
+      s.naturalorder = e.readUInt(13);
+      s.options = e.readStruct(Ze);
+      t.push(s);
     }
     return t;
   }
   constructor(e) {
-    {
-      super();
-      this.players = e;
-    }
+    super();
+    this.players = e;
   }
   encode(e) {
     e.writeUInt(this.players.length, 13);
     for (const {
       gameid: t,
-      userid: n,
-      alive: s,
+      userid: s,
+      alive: n,
       naturalorder: i,
       options: o
-    } of this.players) {
-      e.writeHex(n, 12);
-      e.writeUInt(t, 13);
-      e.writeBoolean(s);
-      e.writeUInt(i, 13);
-      e.writeStruct(o, et);
-    }
+    } of this.players)
+      (e.writeHex(s, 12),
+        e.writeUInt(t, 13),
+        e.writeBoolean(n),
+        e.writeUInt(i, 13),
+        e.writeStruct(o, Ze));
     return e.finalize();
   }
 }
-class $e extends De {
+class Re extends Fe {
   static init() {
-    {
-      super.AddTable(
-        "piece",
-        [null, ...Object.keys(L.tetrominoes)],
-        "flexible"
-      );
-      super.AddTable("ixs", ["off", "hold", "tap"]);
-    }
+    super.AddTable("piece", [null, ...Object.keys(w.tetrominoes)], "flexible");
+    super.AddTable("ixs", ["off", "hold", "tap"]);
   }
   static encode(e, t) {
-    const n = t.game.board,
-      s = t.game.bag,
+    const s = t.game.board,
+      n = t.game.bag,
       i = t.game.hold,
       o = t.game.g,
       a = t.game.controlling,
       r = t.game.falling,
       l = t.game.handling;
-    e.writeUInt(s.length, 12);
-    for (const t of s) e.writeTable(t, this.$$piece);
-    {
-      e.writeStruct(n, Ge);
-      e.writeBoolean(i.locked);
-      e.writeTable(i.piece, this.$$piece);
-      e.writeDouble(o);
-      e.writeBoolean(a.inputSoftdrop);
-      e.writeBoolean(-1 === a.lastshift);
-      e.writeBoolean(a.lShift.held);
-      e.writeBoolean(a.rShift.held);
-      e.writeUInt(t.diyusi, 4);
-      e.writeDouble(a.lShift.arr);
-      e.writeDouble(a.rShift.arr);
-      e.writeDouble(a.lShift.das);
-      e.writeDouble(a.rShift.das);
-      e.writeStruct(r, Ue);
-      e.writeFloat(l.arr, 6, 10);
-      e.writeUInt(l.sdf, 6);
-      e.writeBoolean(l.safelock);
-      e.writeBoolean(l.cancel);
-      e.writeBoolean(l.may20g);
-      e.writeBoolean(t.game.playing);
-      e.writeFloat(l.das, 8, 10);
-      e.writeFloat(l.dcd, 8, 10);
-      e.writeTable(l.irs, this.$$ixs);
-      e.writeTable(l.ihs, this.$$ixs);
-      e.writeStruct(t.stats, Xe);
-    }
+    e.writeUInt(n.length, 12);
+    for (const t of n) e.writeTable(t, this.$$piece);
+    e.writeStruct(s, We);
+    e.writeBoolean(i.locked);
+    e.writeTable(i.piece, this.$$piece);
+    e.writeDouble(o);
+    e.writeBoolean(a.inputSoftdrop);
+    e.writeBoolean(-1 === a.lastshift);
+    e.writeBoolean(a.lShift.held);
+    e.writeBoolean(a.rShift.held);
+    e.writeUInt(t.diyusi, 4);
+    e.writeDouble(a.lShift.arr);
+    e.writeDouble(a.rShift.arr);
+    e.writeDouble(a.lShift.das);
+    e.writeDouble(a.rShift.das);
+    e.writeStruct(r, Ne);
+    e.writeFloat(l.arr, 6, 10);
+    e.writeUInt(l.sdf, 6);
+    e.writeBoolean(l.safelock);
+    e.writeBoolean(l.cancel);
+    e.writeBoolean(l.may20g);
+    e.writeBoolean(t.game.playing);
+    e.writeFloat(l.das, 8, 10);
+    e.writeFloat(l.dcd, 8, 10);
+    e.writeTable(l.irs, this.$$ixs);
+    e.writeTable(l.ihs, this.$$ixs);
+    e.writeStruct(t.stats, $e);
   }
   static decode(e) {
     const t = {},
-      n = {
+      s = {
         bag: [],
         controlling: {
           lShift: {
@@ -6180,196 +6176,184 @@ class $e extends De {
         },
         handling: {}
       },
-      s = n.controlling,
-      i = n.handling,
+      n = s.controlling,
+      i = s.handling,
       o = e.readUInt(12);
-    for (let t = 0; t < o; t++) n.bag.push(e.readTable(this.$$piece));
-    n.board = e.readStruct(Ge);
-    n.hold = {
+    for (let t = 0; t < o; t++) s.bag.push(e.readTable(this.$$piece));
+    s.board = e.readStruct(We);
+    s.hold = {
       locked: e.readBoolean(),
       piece: e.readTable(this.$$piece)
     };
-    n.g = e.readDouble();
-    s.inputSoftdrop = e.readBoolean();
-    s.lastshift = e.readBoolean() ? -1 : 1;
-    s.lShift.held = e.readBoolean();
-    s.rShift.held = e.readBoolean();
+    s.g = e.readDouble();
+    n.inputSoftdrop = e.readBoolean();
+    n.lastshift = e.readBoolean() ? -1 : 1;
+    n.lShift.held = e.readBoolean();
+    n.rShift.held = e.readBoolean();
     t.diyusi = e.readUInt(4);
-    s.lShift.arr = e.readDouble();
-    s.rShift.arr = e.readDouble();
-    s.lShift.das = e.readDouble();
-    s.rShift.das = e.readDouble();
-    n.falling = e.readStruct(Ue);
+    n.lShift.arr = e.readDouble();
+    n.rShift.arr = e.readDouble();
+    n.lShift.das = e.readDouble();
+    n.rShift.das = e.readDouble();
+    s.falling = e.readStruct(Ne);
     i.arr = e.readFloat(6, 10);
     i.sdf = e.readUInt(6);
     i.safelock = e.readBoolean();
     i.cancel = e.readBoolean();
     i.may20g = e.readBoolean();
-    n.playing = e.readBoolean();
+    s.playing = e.readBoolean();
     i.das = e.readFloat(8, 10);
     i.dcd = e.readFloat(8, 10);
     i.irs = e.readTable(this.$$ixs);
     i.ihs = e.readTable(this.$$ixs);
-    t.stats = e.readStruct(Xe);
-    t.game = n;
+    t.stats = e.readStruct($e);
+    t.game = s;
     return t;
   }
 }
-class Ge extends De {
+class We extends Fe {
   static MAX_WIDTH = Math.log2(512);
   static MAX_HEIGHT = Math.log2(512);
   static init() {
-    super.AddTable("blk", [false, null, ...L.minocolors]);
+    super.AddTable("blk", [false, null, ...w.minocolors]);
   }
   static encode(e, t) {
-    const n = t[0]?.length ?? 0,
-      s = t.length;
-    if (!n) return e.writeUInt(0, this.MAX_WIDTH);
-    {
-      e.writeUInt(n, this.MAX_WIDTH);
-      e.writeUInt(s, this.MAX_HEIGHT);
-    }
-    for (const n of t)
-      if (n.some((e) => null !== e))
-        for (const t of n) e.writeTable(t, this.$$blk);
+    const s = t[0]?.length ?? 0,
+      n = t.length;
+    if (!s) return e.writeUInt(0, this.MAX_WIDTH);
+    e.writeUInt(s, this.MAX_WIDTH);
+    e.writeUInt(n, this.MAX_HEIGHT);
+    for (const s of t)
+      if (s.some((e) => null !== e))
+        for (const t of s) e.writeTable(t, this.$$blk);
       else e.writeTable(false, this.$$blk);
   }
   static decode(e) {
     const t = [],
-      n = e.readUInt(this.MAX_WIDTH);
-    if (!n) return t;
-    const s = e.readUInt(this.MAX_HEIGHT);
-    for (let i = 0; i < s; i++)
+      s = e.readUInt(this.MAX_WIDTH);
+    if (!s) return t;
+    const n = e.readUInt(this.MAX_HEIGHT);
+    for (let i = 0; i < n; i++)
       if (false !== e.peekTable(this.$$blk)) {
         t[i] = [];
-        for (let s = 0; s < n; s++) t[i][s] = e.readTable(this.$$blk);
-      } else {
-        e.seek(4, 2);
-        t[i] = new Array(n).fill(null);
-      }
+        for (let n = 0; n < s; n++) t[i][n] = e.readTable(this.$$blk);
+      } else (e.seek(4, 2), (t[i] = new Array(s).fill(null)));
     return t;
   }
 }
-class Ue extends De {
+class Ne extends Fe {
   static init() {
-    super.AddTable("piece", [null, ...Object.keys(L.tetrominoes)], "flexible");
+    super.AddTable("piece", [null, ...Object.keys(w.tetrominoes)], "flexible");
   }
   static encode(e, t) {
     e.writeTable(t.type, this.$$piece);
-    e.writeInt(t.x, Ge.MAX_WIDTH);
+    e.writeInt(t.x, We.MAX_WIDTH);
     e.writeUInt(t.r, 2);
-    e.writeUInt(t.hy, Ge.MAX_HEIGHT);
+    e.writeUInt(t.hy, We.MAX_HEIGHT);
     e.writeUInt(t.irs, 2);
     e.writeUInt(t.kick, 5);
     e.writeUInt(t.keys, 16);
-    e.writeUInt(t.flags, 15);
+    e.writeUInt(t.flags, R.FLAGS_COUNT);
     e.writeUInt(t.safelock, 3);
     e.writeUInt(t.lockresets, 5);
     e.writeUInt(t.rotresets, 6);
     e.writeBoolean(t.skip.length);
     if (t.skip.length) {
-      for (const n of t.skip) e.writeUInt(n + 1, 7);
+      for (const s of t.skip) e.writeUInt(s + 1, 7);
       e.writeUInt(0, 7);
     }
-    {
-      e.writeDouble(t.y);
-      e.writeDouble(t.locking);
-    }
+    e.writeDouble(t.y);
+    e.writeDouble(t.locking);
   }
   static decode(e) {
-    const t = {};
+    const t = {
+      skip: []
+    };
     t.type = e.readTable(this.$$piece);
-    t.x = e.readInt(Ge.MAX_WIDTH);
+    t.x = e.readInt(We.MAX_WIDTH);
     t.r = e.readUInt(2);
-    t.hy = e.readUInt(Ge.MAX_HEIGHT);
+    t.hy = e.readUInt(We.MAX_HEIGHT);
     t.irs = e.readUInt(2);
     t.kick = e.readUInt(5);
     t.keys = e.readUInt(16);
-    t.flags = e.readUInt(15);
+    t.flags = e.readUInt(R.FLAGS_COUNT);
     t.safelock = e.readUInt(3);
     t.lockresets = e.readUInt(5);
     t.rotresets = e.readUInt(6);
-    t.skip = [];
     if (e.readBoolean()) {
-      const n = 7;
-      for (let s = e.peek(n); 0 !== s; s = e.peek(n))
-        t.skip.push(e.readUInt(n) - 1);
-      e.seek(n, 2);
+      const s = 7;
+      for (let n = e.peek(s); 0 !== n; n = e.peek(s))
+        t.skip.push(e.readUInt(s) - 1);
+      e.seek(s, 2);
     }
     t.y = e.readDouble();
     t.locking = e.readDouble();
     return t;
   }
 }
-class Xe extends De {
+class $e extends Fe {
   static init() {
-    super.AddTable("piece", [...Object.keys(L.tetrominoes)], "flexible");
+    super.AddTable("piece", [...Object.keys(w.tetrominoes)], "flexible");
     super.AddProperty("short", {
       min: 8,
       max: 16
     });
-    {
-      super.AddProperty("long", {
-        min: 16,
-        max: 32
-      });
-      this._clears = [
-        "singles",
-        "doubles",
-        "triples",
-        "quads",
-        "pentas",
-        "realtspins",
-        "minitspins",
-        "minitspinsingles",
-        "tspinsingles",
-        "minitspindoubles",
-        "tspindoubles",
-        "minitspintriples",
-        "tspintriples",
-        "minitspinquads",
-        "tspinquads",
-        "tspinpentas",
-        "allclear"
-      ];
-    }
+    super.AddProperty("long", {
+      min: 16,
+      max: 32
+    });
+    this._clears = [
+      "singles",
+      "doubles",
+      "triples",
+      "quads",
+      "pentas",
+      "realtspins",
+      "minitspins",
+      "minitspinsingles",
+      "tspinsingles",
+      "minitspindoubles",
+      "tspindoubles",
+      "minitspintriples",
+      "tspintriples",
+      "minitspinquads",
+      "tspinquads",
+      "tspinpentas",
+      "allclear"
+    ];
   }
   static encode(e, t) {
-    const n = t.garbage,
-      s = t.clears,
+    const s = t.garbage,
+      n = t.clears,
       i = t.finesse;
-    {
-      e.writeDInt(t.lines, this.$short);
-      e.writeDInt(t.level_lines, this.$short);
-      e.writeDInt(t.level_lines_needed, this.$short);
-      e.writeDInt(t.inputs, this.$long);
-      e.writeDInt(t.holds, this.$long);
-      e.writeDInt(t.score, this.$long);
-      e.writeUInt(t.level, 8);
-      e.writeDInt(t.combo, this.$long);
-      e.writeDInt(t.topcombo, this.$long);
-      e.writeUInt(t.combopower, 3);
-      e.writeDInt(t.btb, this.$short);
-      e.writeDInt(t.topbtb, this.$short);
-      e.writeUInt(t.btbpower, 8);
-      e.writeDInt(t.tspins, this.$long);
-      e.writeDInt(t.piecesplaced, this.$long);
-    }
-    for (const t of this._clears) e.writeDInt(s[t], this.$short);
-    {
-      e.writeDInt(n.sent, this.$long);
-      e.writeDInt(n.sent_nomult, this.$long);
-      e.writeDInt(n.maxspike, this.$long);
-      e.writeDInt(n.maxspike_nomult, this.$long);
-      e.writeDInt(n.received, this.$long);
-      e.writeDInt(n.attack, this.$long);
-      e.writeDInt(n.cleared, this.$long);
-      e.writeDInt(t.kills, this.$short);
-      e.writeDInt(i.combo, this.$long);
-      e.writeDInt(i.faults, this.$long);
-      e.writeDInt(i.perfectpieces, this.$long);
-      e.writeStruct(t.zenith, qe);
-    }
+    e.writeDInt(t.lines, this.$short);
+    e.writeDInt(t.level_lines, this.$short);
+    e.writeDInt(t.level_lines_needed, this.$short);
+    e.writeDInt(t.inputs, this.$long);
+    e.writeDInt(t.holds, this.$long);
+    e.writeDInt(t.score, this.$long);
+    e.writeUInt(t.level, 8);
+    e.writeDInt(t.combo, this.$long);
+    e.writeDInt(t.topcombo, this.$long);
+    e.writeUInt(t.combopower, 3);
+    e.writeDInt(t.btb, this.$short);
+    e.writeDInt(t.topbtb, this.$short);
+    e.writeUInt(t.btbpower, 8);
+    e.writeDInt(t.tspins, this.$long);
+    e.writeDInt(t.piecesplaced, this.$long);
+    for (const t of this._clears) e.writeDInt(n[t], this.$short);
+    e.writeDInt(s.sent, this.$long);
+    e.writeDInt(s.sent_nomult, this.$long);
+    e.writeDInt(s.maxspike, this.$long);
+    e.writeDInt(s.maxspike_nomult, this.$long);
+    e.writeDInt(s.received, this.$long);
+    e.writeDInt(s.attack, this.$long);
+    e.writeDInt(s.cleared, this.$long);
+    e.writeDInt(t.kills, this.$short);
+    e.writeDInt(i.combo, this.$long);
+    e.writeDInt(i.faults, this.$long);
+    e.writeDInt(i.perfectpieces, this.$long);
+    e.writeStruct(t.zenith, Ge);
   }
   static decode(e) {
     const t = {
@@ -6379,24 +6363,22 @@ class Xe extends De {
       garbage: {},
       finesse: {}
     };
-    {
-      t.lines = e.readDInt(this.$short);
-      t.level_lines = e.readDInt(this.$short);
-      t.level_lines_needed = e.readDInt(this.$short);
-      t.inputs = e.readDInt(this.$long);
-      t.holds = e.readDInt(this.$long);
-      t.score = e.readDInt(this.$long);
-      t.level = e.readUInt(8);
-      t.combo = e.readDInt(this.$long);
-      t.topcombo = e.readDInt(this.$long);
-      t.combopower = e.readUInt(3);
-      t.btb = e.readDInt(this.$short);
-      t.topbtb = e.readDInt(this.$short);
-      t.btbpower = e.readUInt(8);
-      t.tspins = e.readDInt(this.$long);
-      t.piecesplaced = e.readDInt(this.$long);
-    }
-    for (const n of this._clears) t.clears[n] = e.readDInt(this.$short);
+    t.lines = e.readDInt(this.$short);
+    t.level_lines = e.readDInt(this.$short);
+    t.level_lines_needed = e.readDInt(this.$short);
+    t.inputs = e.readDInt(this.$long);
+    t.holds = e.readDInt(this.$long);
+    t.score = e.readDInt(this.$long);
+    t.level = e.readUInt(8);
+    t.combo = e.readDInt(this.$long);
+    t.topcombo = e.readDInt(this.$long);
+    t.combopower = e.readUInt(3);
+    t.btb = e.readDInt(this.$short);
+    t.topbtb = e.readDInt(this.$short);
+    t.btbpower = e.readUInt(8);
+    t.tspins = e.readDInt(this.$long);
+    t.piecesplaced = e.readDInt(this.$long);
+    for (const s of this._clears) t.clears[s] = e.readDInt(this.$short);
     t.garbage.sent = e.readDInt(this.$long);
     t.garbage.sent_nomult = e.readDInt(this.$long);
     t.garbage.maxspike = e.readDInt(this.$long);
@@ -6408,11 +6390,11 @@ class Xe extends De {
     t.finesse.combo = e.readDInt(this.$long);
     t.finesse.faults = e.readDInt(this.$long);
     t.finesse.perfectpieces = e.readDInt(this.$long);
-    t.zenith = e.readStruct(qe);
+    t.zenith = e.readStruct(Ge);
     return t;
   }
 }
-class qe extends De {
+class Ge extends Fe {
   static init() {
     super.AddProperty("long", {
       min: 16,
@@ -6420,84 +6402,79 @@ class qe extends De {
     });
   }
   static encode(e, t) {
-    {
-      e.writeDouble(t.altitude);
-      e.writeDouble(t.rank);
-      e.writeDouble(t.peakrank);
-      e.writeDouble(t.avgrankpts);
-      e.writeDouble(t.totalbonus);
-      e.writeFloat(t.targetingfactor, 16, 100);
-      e.writeFloat(t.targetinggrace, 16, 100);
-      e.writeUInt(t.floor, 4);
-      e.writeUInt(t.revives, 8);
-      e.writeUInt(t.revivesTotal, 8);
-      e.writeBoolean(t.speedrun);
-      e.writeBoolean(t.speedrun_seen);
-    }
-    for (let n = 0; n < 9; n++) e.writeDInt(t.splits[n], this.$long);
+    e.writeDouble(t.altitude);
+    e.writeDouble(t.rank);
+    e.writeDouble(t.peakrank);
+    e.writeDouble(t.avgrankpts);
+    e.writeDouble(t.totalbonus);
+    e.writeFloat(t.targetingfactor, 16, 100);
+    e.writeFloat(t.targetinggrace, 16, 100);
+    e.writeUInt(t.floor, 4);
+    e.writeUInt(t.revives, 8);
+    e.writeUInt(t.revivesTotal, 8);
+    e.writeBoolean(t.speedrun);
+    e.writeBoolean(t.speedrun_seen);
+    for (let s = 0; s < 9; s++) e.writeDInt(t.splits[s], this.$long);
   }
   static decode(e) {
-    const t = {};
-    {
-      t.altitude = e.readDouble();
-      t.rank = e.readDouble();
-      t.peakrank = e.readDouble();
-      t.avgrankpts = e.readDouble();
-      t.totalbonus = e.readDouble();
-      t.targetingfactor = e.readFloat(16, 100);
-      t.targetinggrace = e.readFloat(16, 100);
-      t.floor = e.readUInt(4);
-      t.revives = e.readUInt(8);
-      t.revivesTotal = e.readUInt(8);
-      t.revivesMaxOfBoth = Math.max(t.revives, t.revivesTotal - t.revives);
-      t.speedrun = e.readBoolean();
-      t.speedrun_seen = e.readBoolean();
-      t.splits = [];
-    }
-    for (let n = 0; n < 9; n++) t.splits[n] = e.readDInt(this.$long);
+    const t = {
+      splits: []
+    };
+    t.altitude = e.readDouble();
+    t.rank = e.readDouble();
+    t.peakrank = e.readDouble();
+    t.avgrankpts = e.readDouble();
+    t.totalbonus = e.readDouble();
+    t.targetingfactor = e.readFloat(16, 100);
+    t.targetinggrace = e.readFloat(16, 100);
+    t.floor = e.readUInt(4);
+    t.revives = e.readUInt(8);
+    t.revivesTotal = e.readUInt(8);
+    t.revivesMaxOfBoth = Math.max(t.revives, t.revivesTotal - t.revives);
+    t.speedrun = e.readBoolean();
+    t.speedrun_seen = e.readBoolean();
+    for (let s = 0; s < 9; s++) t.splits[s] = e.readDInt(this.$long);
     return t;
   }
 }
-class je extends De {
+class Ue extends Fe {
   static init() {
-    {
-      super.AddProperty("byte", {
-        min: 8,
-        max: 24
-      });
-      super.AddTable("type", [
-        "interaction",
-        "interaction_confirm",
-        "target",
-        "targeted",
-        "allow_targeting",
-        "kev",
-        "custom"
-      ]);
-      super.AddTable("int_type", [
-        "garbage",
-        "zenith.climb_pts",
-        "zenith.bonus",
-        "zenith.incapacitated",
-        "zenith.revive"
-      ]);
-    }
+    super.AddProperty("byte", {
+      min: 8,
+      max: 24
+    });
+    super.AddTable("type", [
+      "interaction",
+      "interaction_confirm",
+      "target",
+      "targeted",
+      "allow_targeting",
+      "kev",
+      "custom"
+    ]);
+    super.AddTable("int_type", [
+      "garbage",
+      "zenith.climb_pts",
+      "zenith.bonus",
+      "zenith.incapacitated",
+      "zenith.revive"
+    ]);
   }
   static encode(e, t) {
-    const n = t.frame,
-      s = t.type,
+    const s = t.frame,
+      n = t.type,
       i = t.data;
     e.writeDInt(t.id, this.$byte);
-    e.writeDInt(n, this.$byte);
-    e.writeTable(s, this.$$type);
-    switch (s) {
+    e.writeDInt(s, this.$byte);
+    e.writeTable(n, this.$$type);
+    switch (n) {
       case "interaction":
-        return e.writeStruct(i, Ve);
+        return e.writeStruct(i, qe);
       case "interaction_confirm": {
         e.writeTable(i.type, this.$$int_type);
         switch (i.type) {
           case "garbage":
-            return e.writeStruct(i, Ve);
+            return e.writeStruct(i, qe);
           case "zenith.climb_pts":
           case "zenith.bonus": {
             e.writeUInt(i.gameid, 13);
@@ -6518,48 +6495,43 @@ class je extends De {
         for (const t of i.targets) e.writeUInt(t, 13);
         break;
       case "targeted":
-        {
-          e.writeBoolean(i.value);
-          e.writeUInt(i.gameid, 13);
-          e.writeDInt(i.frame, this.$byte);
-        }
+        e.writeBoolean(i.value);
+        e.writeUInt(i.gameid, 13);
+        e.writeDInt(i.frame, this.$byte);
         break;
       case "allow_targeting":
         e.writeBoolean(i.value);
         break;
       case "kev":
-        {
-          e.writeUInt(i.victim.gameid, 13);
-          e.writeUInt(i.killer.gameid, 13);
-          e.writeDInt(i.frame, this.$byte);
-          e.writeUInt(i.fire, 10);
-        }
+        e.writeUInt(i.victim.gameid, 13);
+        e.writeUInt(i.killer.gameid, 13);
+        e.writeDInt(i.frame, this.$byte);
+        e.writeUInt(i.fire, 10);
+        e.writeBoolean(i.wasSnowball);
         break;
       case "custom":
-        return e.writeStruct(i, Qe);
+        return e.writeStruct(i, Ke);
     }
   }
   static decode(e) {
     const t = {};
-    {
-      t.id = e.readDInt(this.$byte);
-      t.frame = e.readDInt(this.$byte);
-      t.type = e.readTable(this.$$type);
-    }
+    t.id = e.readDInt(this.$byte);
+    t.frame = e.readDInt(this.$byte);
+    t.type = e.readTable(this.$$type);
     e: switch (t.type) {
       case "interaction":
-        t.data = e.readStruct(Ve);
+        t.data = e.readStruct(qe);
         break;
       case "interaction_confirm": {
-        const n = e.readTable(this.$$int_type);
-        switch (n) {
+        const s = e.readTable(this.$$int_type);
+        switch (s) {
           case "garbage":
-            t.data = e.readStruct(Ve);
+            t.data = e.readStruct(qe);
             break e;
           case "zenith.climb_pts":
           case "zenith.bonus":
             t.data = {
-              type: n,
+              type: s,
               gameid: e.readUInt(13),
               frame: e.readDInt(this.$byte),
               amt: e.readDouble()
@@ -6568,7 +6540,7 @@ class je extends De {
           case "zenith.incapacitated":
           case "zenith.revive":
             t.data = {
-              type: n,
+              type: s,
               gameid: e.readUInt(13),
               frame: e.readDInt(this.$byte)
             };
@@ -6577,11 +6549,11 @@ class je extends De {
         break;
       }
       case "target": {
-        const n = [],
-          s = e.readUInt(13);
-        for (let t = 0; t < s; t++) n.push(e.readUInt(13));
+        const s = [],
+          n = e.readUInt(13);
+        for (let t = 0; t < n; t++) s.push(e.readUInt(13));
         t.data = {
-          targets: n
+          targets: s
         };
         break;
       }
@@ -6606,296 +6578,261 @@ class je extends De {
             gameid: e.readUInt(13)
           },
           frame: e.readDInt(this.$byte),
-          fire: e.readUInt(10)
+          fire: e.readUInt(10),
+          wasSnowball: e.readBoolean()
         };
         break;
       case "custom":
-        t.data = e.readStruct(Qe);
+        t.data = e.readStruct(Ke);
     }
     return t;
   }
 }
-class Ve extends We {
+class qe extends Te {
   static init() {
-    const Nc = "3|4|5|2|0|1".split("|");
-    let $c = 0;
-    while (true) {
-      switch (Nc[$c++]) {
-        case "0":
-          super.AddTable("position", [
-            "aboveStack",
-            "aboveUnclearable",
-            "abovePerma",
-            "bottom"
-          ]);
-          continue;
-        case "1":
-          const M = {
-            type: {
-              mode: "fixed",
-              type: Ee.TYPES.Table,
-              size: this.$$type
-            },
-            amt: {
-              mode: "fixed",
-              type: Ee.TYPES.DInt,
-              size: this.$byte
-            },
-            username: {
-              mode: "optional",
-              type: Ee.TYPES.String,
-              size: true
-            },
-            gameid: {
-              mode: "optional",
-              type: Ee.TYPES.UInt,
-              size: 13
-            },
-            position: {
-              mode: "optional",
-              type: Ee.TYPES.Table,
-              size: this.$$position
-            },
-            frame: {
-              mode: "optional",
-              type: Ee.TYPES.DInt,
-              size: this.$byte
-            },
-            cid: {
-              mode: "optional",
-              type: Ee.TYPES.DInt,
-              size: this.$byte
-            },
-            iid: {
-              mode: "optional",
-              type: Ee.TYPES.DInt,
-              size: this.$byte
-            },
-            ackiid: {
-              mode: "optional",
-              type: Ee.TYPES.DInt,
-              size: this.$byte
-            },
-            pos: {
-              mode: "optional",
-              type: Ee.TYPES.Table,
-              size: this.$$blk
-            },
-            neg: {
-              mode: "optional",
-              type: Ee.TYPES.Table,
-              size: this.$$blk
-            },
-            color: {
-              mode: "optional",
-              type: Ee.TYPES.UInt,
-              size: 24
-            },
-            column: {
-              mode: "optional",
-              type: Ee.TYPES.UInt,
-              size: Ge.MAX_WIDTH
-            },
-            delay: {
-              mode: "optional",
-              type: Ee.TYPES.UInt,
-              size: 16
-            },
-            queued: {
-              mode: "optional",
-              type: Ee.TYPES.Boolean
-            },
-            hardened: {
-              mode: "optional",
-              type: Ee.TYPES.Boolean
-            },
-            size: {
-              mode: "optional",
-              type: Ee.TYPES.UInt,
-              size: Ge.MAX_WIDTH
-            },
-            zthalt: {
-              mode: "optional",
-              type: Ee.TYPES.Double
-            },
-            actor_neg: {
-              mode: "optional",
-              type: Ee.TYPES.String
-            },
-            actor_pos: {
-              mode: "optional",
-              type: Ee.TYPES.String
-            },
-            anchor: {
-              mode: "optional",
-              type: Ee.TYPES.String
-            },
-            actor_neg_data_type: {
-              mode: "optional",
-              type: Ee.TYPES.Table,
-              size: this.$$actorType
-            },
-            actor_neg_data_amt: {
-              mode: "optional",
-              type: Ee.TYPES.Any
-            },
-            actor_pos_data_type: {
-              mode: "optional",
-              type: Ee.TYPES.Table,
-              size: this.$$actorType
-            },
-            actor_pos_data_amt: {
-              mode: "optional",
-              type: Ee.TYPES.Any
-            }
-          };
-          {
-            M.x = {
-              mode: "optional",
-              type: Ee.TYPES.Int,
-              size: Ge.MAX_WIDTH
-            };
-            M.y = {
-              mode: "optional",
-              type: Ee.TYPES.UInt,
-              size: Ge.MAX_HEIGHT
-            };
-            super.AddStructure(M);
-          }
-          continue;
-        case "2":
-          super.AddTable("blk", [null, ...L.minocolors]);
-          continue;
-        case "3":
-          super.AddProperty("byte", {
-            min: 8,
-            max: 24
-          });
-          continue;
-        case "4":
-          super.AddTable("type", ["garbage", "corruption"]);
-          continue;
-        case "5":
-          super.AddTable("actorType", ["none", "clears", "time", "line"]);
-          continue;
+    super.AddProperty("byte", {
+      min: 8,
+      max: 24
+    });
+    super.AddTable("type", ["garbage", "corruption"]);
+    super.AddTable("actorType", ["none", "clears", "time", "line"]);
+    super.AddTable("blk", [null, ...w.minocolors]);
+    super.AddTable("position", [
+      "aboveStack",
+      "aboveUnclearable",
+      "abovePerma",
+      "bottom"
+    ]);
+    super.AddStructure({
+      type: {
+        mode: "fixed",
+        type: Ie.TYPES.Table,
+        size: this.$$type
+      },
+      amt: {
+        mode: "fixed",
+        type: Ie.TYPES.DInt,
+        size: this.$byte
+      },
+      username: {
+        mode: "optional",
+        type: Ie.TYPES.String,
+        size: true
+      },
+      gameid: {
+        mode: "optional",
+        type: Ie.TYPES.UInt,
+        size: 13
+      },
+      position: {
+        mode: "optional",
+        type: Ie.TYPES.Table,
+        size: this.$$position
+      },
+      frame: {
+        mode: "optional",
+        type: Ie.TYPES.DInt,
+        size: this.$byte
+      },
+      cid: {
+        mode: "optional",
+        type: Ie.TYPES.DInt,
+        size: this.$byte
+      },
+      iid: {
+        mode: "optional",
+        type: Ie.TYPES.DInt,
+        size: this.$byte
+      },
+      ackiid: {
+        mode: "optional",
+        type: Ie.TYPES.DInt,
+        size: this.$byte
+      },
+      x: {
+        mode: "optional",
+        type: Ie.TYPES.Int,
+        size: We.MAX_WIDTH
+      },
+      y: {
+        mode: "optional",
+        type: Ie.TYPES.UInt,
+        size: We.MAX_HEIGHT
+      },
+      pos: {
+        mode: "optional",
+        type: Ie.TYPES.Table,
+        size: this.$$blk
+      },
+      neg: {
+        mode: "optional",
+        type: Ie.TYPES.Table,
+        size: this.$$blk
+      },
+      color: {
+        mode: "optional",
+        type: Ie.TYPES.UInt,
+        size: 24
+      },
+      column: {
+        mode: "optional",
+        type: Ie.TYPES.UInt,
+        size: We.MAX_WIDTH
+      },
+      delay: {
+        mode: "optional",
+        type: Ie.TYPES.UInt,
+        size: 16
+      },
+      queued: {
+        mode: "optional",
+        type: Ie.TYPES.Boolean
+      },
+      hardened: {
+        mode: "optional",
+        type: Ie.TYPES.Boolean
+      },
+      size: {
+        mode: "optional",
+        type: Ie.TYPES.UInt,
+        size: We.MAX_WIDTH
+      },
+      zthalt: {
+        mode: "optional",
+        type: Ie.TYPES.Double
+      },
+      boardsize: {
+        mode: "optional",
+        type: Ie.TYPES.DInt,
+        size: this.$byte
+      },
+      actor_neg: {
+        mode: "optional",
+        type: Ie.TYPES.String
+      },
+      actor_pos: {
+        mode: "optional",
+        type: Ie.TYPES.String
+      },
+      anchor: {
+        mode: "optional",
+        type: Ie.TYPES.String
+      },
+      actor_neg_data_type: {
+        mode: "optional",
+        type: Ie.TYPES.Table,
+        size: this.$$actorType
+      },
+      actor_neg_data_amt: {
+        mode: "optional",
+        type: Ie.TYPES.Any
+      },
+      actor_pos_data_type: {
+        mode: "optional",
+        type: Ie.TYPES.Table,
+        size: this.$$actorType
+      },
+      actor_pos_data_amt: {
+        mode: "optional",
+        type: Ie.TYPES.Any
       }
-      break;
-    }
+    });
   }
 }
-class Ye extends We {
+class Ve extends Te {
   static init() {
-    const sa = "1|3|4|0|2|5".split("|");
-    let ia = 0;
-    while (true) {
-      switch (sa[ia++]) {
-        case "0":
-          super.AddTable("blk", [null, ...L.minocolors]);
-          continue;
-        case "1":
-          super.AddTable("action", ["add", "remove"]);
-          continue;
-        case "2":
-          super.AddProperty("byte", {
-            min: 8,
-            max: 32
-          });
-          continue;
-        case "3":
-          super.AddTable("position", [
-            "aboveStack",
-            "aboveUnclearable",
-            "abovePerma",
-            "bottom"
-          ]);
-          continue;
-        case "4":
-          super.AddTable("actorType", ["none", "clears", "time", "line"]);
-          continue;
-        case "5":
-          super.AddStructure({
-            action: {
-              mode: "fixed",
-              type: Ee.TYPES.Table,
-              size: this.$$action
-            },
-            amt: {
-              mode: "fixed",
-              type: Ee.TYPES.DInt,
-              size: this.$byte
-            },
-            size: {
-              mode: "fixed",
-              type: Ee.TYPES.UInt,
-              size: Ge.MAX_WIDTH
-            },
-            pos: {
-              mode: "optional",
-              type: Ee.TYPES.Table,
-              size: this.$$blk
-            },
-            neg: {
-              mode: "optional",
-              type: Ee.TYPES.Table,
-              size: this.$$blk
-            },
-            position: {
-              mode: "optional",
-              type: Ee.TYPES.Table,
-              size: this.$$position
-            },
-            column: {
-              mode: "optional",
-              type: Ee.TYPES.UInt,
-              size: Ge.MAX_WIDTH
-            },
-            slow: {
-              mode: "optional",
-              type: Ee.TYPES.UInt,
-              size: 16
-            },
-            effect: {
-              mode: "optional",
-              type: Ee.TYPES.String
-            },
-            actor_neg: {
-              mode: "optional",
-              type: Ee.TYPES.String
-            },
-            actor_pos: {
-              mode: "optional",
-              type: Ee.TYPES.String
-            },
-            anchor: {
-              mode: "optional",
-              type: Ee.TYPES.String
-            },
-            actor_neg_data_type: {
-              mode: "optional",
-              type: Ee.TYPES.Table,
-              size: this.$$actorType
-            },
-            actor_neg_data_amt: {
-              mode: "optional",
-              type: Ee.TYPES.Any
-            },
-            actor_pos_data_type: {
-              mode: "optional",
-              type: Ee.TYPES.Table,
-              size: this.$$actorType
-            },
-            actor_pos_data_amt: {
-              mode: "optional",
-              type: Ee.TYPES.Any
-            }
-          });
-          continue;
+    super.AddTable("action", ["add", "remove"]);
+    super.AddTable("position", [
+      "aboveStack",
+      "aboveUnclearable",
+      "abovePerma",
+      "bottom"
+    ]);
+    super.AddTable("actorType", ["none", "clears", "time", "line"]);
+    super.AddTable("blk", [null, ...w.minocolors]);
+    super.AddProperty("byte", {
+      min: 8,
+      max: 32
+    });
+    super.AddStructure({
+      action: {
+        mode: "fixed",
+        type: Ie.TYPES.Table,
+        size: this.$$action
+      },
+      amt: {
+        mode: "fixed",
+        type: Ie.TYPES.DInt,
+        size: this.$byte
+      },
+      size: {
+        mode: "fixed",
+        type: Ie.TYPES.UInt,
+        size: We.MAX_WIDTH
+      },
+      pos: {
+        mode: "optional",
+        type: Ie.TYPES.Table,
+        size: this.$$blk
+      },
+      neg: {
+        mode: "optional",
+        type: Ie.TYPES.Table,
+        size: this.$$blk
+      },
+      position: {
+        mode: "optional",
+        type: Ie.TYPES.Table,
+        size: this.$$position
+      },
+      column: {
+        mode: "optional",
+        type: Ie.TYPES.UInt,
+        size: We.MAX_WIDTH
+      },
+      slow: {
+        mode: "optional",
+        type: Ie.TYPES.UInt,
+        size: 16
+      },
+      effect: {
+        mode: "optional",
+        type: Ie.TYPES.String
+      },
+      actor_neg: {
+        mode: "optional",
+        type: Ie.TYPES.String
+      },
+      actor_pos: {
+        mode: "optional",
+        type: Ie.TYPES.String
+      },
+      anchor: {
+        mode: "optional",
+        type: Ie.TYPES.String
+      },
+      actor_neg_data_type: {
+        mode: "optional",
+        type: Ie.TYPES.Table,
+        size: this.$$actorType
+      },
+      actor_neg_data_amt: {
+        mode: "optional",
+        type: Ie.TYPES.Any
+      },
+      actor_pos_data_type: {
+        mode: "optional",
+        type: Ie.TYPES.Table,
+        size: this.$$actorType
+      },
+      actor_pos_data_amt: {
+        mode: "optional",
+        type: Ie.TYPES.Any
       }
-      break;
-    }
+    });
   }
 }
-class Qe extends De {
+class Ke extends Fe {
   static init() {
     super.AddTable("type", [
       "garbage",
@@ -6911,86 +6848,81 @@ class Qe extends De {
       "tetrominoes"
     ]);
   }
-  static encode(e, { type: t, data: n }) {
+  static encode(e, { type: t, data: s }) {
     e.writeTable(t, this.$$type);
     switch (t) {
       case "garbage":
-        return e.writeStruct(n, Ve);
+        return e.writeStruct(s, qe);
       case "map": {
-        e.writeStruct(n.map, Ze);
-        e.writeUInt(n.w, Ge.MAX_WIDTH);
-        return e.writeUInt(n.h, Ge.MAX_HEIGHT);
+        e.writeStruct(s.map, Ye);
+        e.writeUInt(s.w, We.MAX_WIDTH);
+        return e.writeUInt(s.h, We.MAX_HEIGHT);
       }
       case "queue": {
-        e.writeBoolean(n.start);
-        return e.writeString(n.queue.toString());
+        e.writeBoolean(s.start);
+        return e.writeString(s.queue.toString());
       }
       case "piece":
-        return e.writeString(n.piece);
+        return e.writeString(s.piece);
       case "lines":
-        return e.writeStruct(n, Ye);
+        return e.writeStruct(s, Ve);
       case "boardsize":
       case "boardresize": {
-        e.writeUInt(n.w, Ge.MAX_WIDTH);
-        return e.writeUInt(n.h, Ge.MAX_HEIGHT);
+        e.writeUInt(s.w, We.MAX_WIDTH);
+        return e.writeUInt(s.h, We.MAX_HEIGHT);
       }
       case "holderstate":
       case "constants":
-        return e.pack(n);
+        return e.pack(s);
       case "setoptions":
-        return e.writeStruct(n.options, et);
+        return e.writeStruct(s.options, Ze);
       case "tetrominoes":
-        return e.writeStruct(n, Je);
+        return e.writeStruct(s, Qe);
     }
   }
   static decode(e) {
-    const t = {};
+    const t = {
+      data: {}
+    };
     t.type = e.readTable(this.$$type);
-    t.data = {};
     switch (t.type) {
       case "garbage":
-        t.data = e.readStruct(Ve);
+        t.data = e.readStruct(qe);
         break;
       case "map":
-        {
-          t.data.map = e.readStruct(Ze);
-          t.data.w = e.readUInt(Ge.MAX_WIDTH);
-          t.data.h = e.readUInt(Ge.MAX_HEIGHT);
-        }
+        t.data.map = e.readStruct(Ye);
+        t.data.w = e.readUInt(We.MAX_WIDTH);
+        t.data.h = e.readUInt(We.MAX_HEIGHT);
         break;
       case "queue":
-        {
-          t.data.start = e.readBoolean();
-          t.data.queue = e.readString().split(",");
-        }
+        t.data.start = e.readBoolean();
+        t.data.queue = e.readString().split(",");
         break;
       case "piece":
         t.data.piece = e.readString();
         break;
       case "lines":
-        t.data = e.readStruct(Ye);
+        t.data = e.readStruct(Ve);
         break;
       case "boardsize":
       case "boardresize":
-        {
-          t.data.w = e.readUInt(Ge.MAX_WIDTH);
-          t.data.h = e.readUInt(Ge.MAX_HEIGHT);
-        }
+        t.data.w = e.readUInt(We.MAX_WIDTH);
+        t.data.h = e.readUInt(We.MAX_HEIGHT);
         break;
       case "holderstate":
       case "constants":
         t.data = e.unpack();
         break;
       case "setoptions":
-        t.data.options = e.readStruct(et);
+        t.data.options = e.readStruct(Ze);
         break;
       case "tetrominoes":
-        t.data = e.readStruct(Je);
+        t.data = e.readStruct(Qe);
     }
     return t;
   }
 }
-class Ze extends De {
+class Ye extends Fe {
   static init() {
     super.AddTable(
       "letters",
@@ -7003,185 +6935,146 @@ class Ze extends De {
     });
   }
   static encode(e, t) {
-    const n = t.split("");
-    e.writeDInt(n.length, this.$word);
-    for (const t of n) e.writeTable(t, this.$$letters);
+    const s = t.split("");
+    e.writeDInt(s.length, this.$word);
+    for (const t of s) e.writeTable(t, this.$$letters);
   }
   static decode(e) {
     let t = "";
-    const n = e.readDInt(this.$word);
-    for (let s = 0; s < n; s++) {
+    const s = e.readDInt(this.$word);
+    for (let n = 0; n < s; n++) {
       t += e.readTable(this.$$letters);
     }
     return t;
   }
 }
-class Je extends De {
+class Qe extends Fe {
   static init() {
-    const at = "3|1|4|2|0".split("|");
-    let rt = 0;
-    while (true) {
-      switch (at[rt++]) {
-        case "0":
-          super.AddTable("special", ["i", "i2", "i3", "l3", "i5", "oo"]);
-          continue;
-        case "1":
-          super.AddTable(
-            "spinbonus",
-            [...Object.keys(L.spinbonuses_rules)],
-            "flexible"
-          );
-          continue;
-        case "2":
-          super.AddTable("kicksets", [...Object.keys(L.kicksets)], "flexible");
-          continue;
-        case "3":
-          super.AddProperty("tiny", {
-            min: 3,
-            max: 7
-          });
-          continue;
-        case "4":
-          super.AddTable("colors", [...L.minocolors]);
-          continue;
-      }
-      break;
-    }
+    super.AddProperty("tiny", {
+      min: 3,
+      max: 7
+    });
+    super.AddTable(
+      "spinbonus",
+      [...Object.keys(w.spinbonuses_rules)],
+      "flexible"
+    );
+    super.AddTable("colors", [...w.minocolors]);
+    super.AddTable("kicksets", [...Object.keys(w.kicksets)], "flexible");
+    super.AddTable("special", ["i", "i2", "i3", "l3", "i5", "oo"]);
   }
   static encode(e, t) {
-    const n = t.tetrominoes,
-      s = t.minotypes,
+    const s = t.tetrominoes,
+      n = t.minotypes,
       i = t.tetrominoes_color,
-      o = Object.keys(n);
+      o = Object.keys(s);
     e.writeUInt(o.length, 8);
     for (const t of o) e.writeString(t);
-    for (const [t, o] of Object.entries(n)) {
-      const { matrix: n, preview: a } = o;
-      {
-        e.writeDInt(n.w, this.$tiny);
-        e.writeDInt(n.h, this.$tiny);
-        e.writeUInt(n.dx, 5);
-        e.writeUInt(n.dy, 5);
-        e.writeDInt(n.data[0].length, this.$tiny);
+    for (const [t, o] of Object.entries(s)) {
+      const { matrix: s, preview: a } = o;
+      e.writeDInt(s.w, this.$tiny);
+      e.writeDInt(s.h, this.$tiny);
+      e.writeUInt(s.dx, 5);
+      e.writeUInt(s.dy, 5);
+      e.writeDInt(s.data[0].length, this.$tiny);
+      const [r, l] = [Ie.cla32(s.w - 1), Ie.cla32(s.h - 1)];
+      for (const t of s.data)
+        for (const [s, n] of t) (e.writeUInt(s, r), e.writeUInt(n, l));
+      e.writeDInt(a.w, this.$tiny);
+      e.writeDInt(a.h, this.$tiny);
+      for (const [t, s] of a.data) (e.writeUInt(t, r), e.writeUInt(s, l));
+      e.writeBoolean(undefined !== o.weight);
+      e.writeBoolean(o.spinbonus_override);
+      e.writeBoolean(o.kickset_override);
+      e.writeBoolean(o.kickset_special);
+      e.writeBoolean(n.includes(t));
+      e.writeTable(i[t], this.$$colors);
+      if (undefined !== o.weight) {
+        e.writeDInt(o.weight, this.$tiny);
       }
-      const [r, l] = [Ee.cla32(n.w - 1), Ee.cla32(n.h - 1)];
-      for (const t of n.data)
-        for (const [n, s] of t) {
-          e.writeUInt(n, r);
-          e.writeUInt(s, l);
-        }
-      {
-        e.writeDInt(a.w, this.$tiny);
-        e.writeDInt(a.h, this.$tiny);
+      if (o.spinbonus_override) {
+        e.writeTable(o.spinbonus_override.rule, this.$$spinbonus);
+        e.writeBoolean(o.spinbonus_override.mini);
       }
-      for (const [t, n] of a.data) {
-        e.writeUInt(t, r);
-        e.writeUInt(n, l);
+      if (o.kickset_override) {
+        e.writeTable(o.kickset_override, this.$$kicksets);
       }
-      {
-        e.writeBoolean(undefined !== o.weight);
-        e.writeBoolean(o.spinbonus_override);
-        e.writeBoolean(o.kickset_override);
-        e.writeBoolean(o.kickset_special);
-        e.writeBoolean(s.includes(t));
-        e.writeTable(i[t], this.$$colors);
-        if (undefined !== o.weight) {
-          e.writeDInt(o.weight, this.$tiny);
-        }
-        if (o.spinbonus_override) {
-          {
-            e.writeTable(o.spinbonus_override.rule, this.$$spinbonus);
-            e.writeBoolean(o.spinbonus_override.mini);
-          }
-        }
-        if (o.kickset_override) {
-          e.writeTable(o.kickset_override, this.$$kicksets);
-        }
-        if (o.kickset_special) {
-          e.writeTable(o.kickset_special, this.$$special);
-        }
+      if (o.kickset_special) {
+        e.writeTable(o.kickset_special, this.$$special);
       }
     }
   }
   static decode(e) {
     const t = {},
-      n = [],
-      s = {},
+      s = [],
+      n = {},
       i = e.readUInt(8),
       o = [];
-    for (let n = 0; n < i; n++) {
-      const n = e.readString();
-      {
-        t[n] = {
-          matrix: {},
-          preview: {}
-        };
-        o.push(n);
-      }
+    for (let s = 0; s < i; s++) {
+      const s = e.readString();
+      t[s] = {
+        matrix: {},
+        preview: {}
+      };
+      o.push(s);
     }
     for (const i of o) {
       const o = t[i],
         { matrix: a, preview: r } = o;
-      {
-        a.w = e.readDInt(this.$tiny);
-        a.h = e.readDInt(this.$tiny);
-        a.dx = e.readUInt(5);
-        a.dy = e.readUInt(5);
-      }
+      a.w = e.readDInt(this.$tiny);
+      a.h = e.readDInt(this.$tiny);
+      a.dx = e.readUInt(5);
+      a.dy = e.readUInt(5);
       const l = e.readDInt(this.$tiny),
-        [c, p] = [Ee.cla32(a.w - 1), Ee.cla32(a.h - 1)];
+        [c, p] = [Ie.cla32(a.w - 1), Ie.cla32(a.h - 1)];
       a.data = [];
       for (let t = 0; t < 4; t++) {
         a.data[t] = [];
-        for (let n = 0; n < l; n++) {
-          const [s, i] = [e.readUInt(c), e.readUInt(p)];
-          a.data[t][n] = [s, i];
+        for (let s = 0; s < l; s++) {
+          const [n, i] = [e.readUInt(c), e.readUInt(p)];
+          a.data[t][s] = [n, i];
         }
       }
-      {
-        r.w = e.readDInt(this.$tiny);
-        r.h = e.readDInt(this.$tiny);
-        r.data = [];
-      }
+      r.w = e.readDInt(this.$tiny);
+      r.h = e.readDInt(this.$tiny);
+      r.data = [];
       for (let t = 0; t < l; t++) {
-        const [n, s] = [e.readUInt(c), e.readUInt(p)];
-        r.data[t] = [n, s];
+        const [s, n] = [e.readUInt(c), e.readUInt(p)];
+        r.data[t] = [s, n];
       }
       const h = e.readBoolean(),
         d = e.readBoolean(),
         u = e.readBoolean(),
         _ = e.readBoolean(),
         m = e.readBoolean();
-      {
-        s[i] = e.readTable(this.$$colors);
-        if (h) {
-          o.weight = e.readDInt(this.$tiny);
-        }
-        if (d) {
-          o.spinbonus_override = {
-            rule: e.readTable(this.$$spinbonus),
-            mini: e.readBoolean()
-          };
-        }
-        if (u) {
-          o.kickset_override = e.readTable(this.$$kicksets);
-        }
-        if (_) {
-          o.kickset_special = e.readTable(this.$$special);
-        }
-        if (m) {
-          n.push(i);
-        }
+      n[i] = e.readTable(this.$$colors);
+      if (h) {
+        o.weight = e.readDInt(this.$tiny);
+      }
+      if (d) {
+        o.spinbonus_override = {
+          rule: e.readTable(this.$$spinbonus),
+          mini: e.readBoolean()
+        };
+      }
+      if (u) {
+        o.kickset_override = e.readTable(this.$$kicksets);
+      }
+      if (_) {
+        o.kickset_special = e.readTable(this.$$special);
+      }
+      if (m) {
+        s.push(i);
       }
     }
     return {
-      minotypes: n,
+      minotypes: s,
       tetrominoes: t,
-      tetrominoes_color: s
+      tetrominoes_color: n
     };
   }
 }
-class et extends De {
+class Ze extends Fe {
   static TypeOrders = [
     "boolean",
     "number",
@@ -7190,81 +7083,72 @@ class et extends De {
     "array",
     "string"
   ];
-  static OptsBook = Ce.OptionsList;
+  static OptsBook = ge.OptionsList;
   static init() {
-    {
-      super.AddTable("options", Object.keys(this.OptsBook));
-      super.AddTable(
-        "minoskin",
-        ["i", "j", "l", "o", "s", "t", "z", "ghost", "other"],
-        "flexible"
-      );
-      super.AddTable(
-        "skins",
-        ["tetrio", "_bombs", "connected_test"],
-        "flexible"
-      );
-      super.AddTable("ixs", ["off", "hold", "tap"]);
-    }
-    for (const [e, t] of Object.entries(this.OptsBook)) {
+    super.AddTable("options", Object.keys(this.OptsBook));
+    super.AddTable(
+      "minoskin",
+      ["i", "j", "l", "o", "s", "t", "z", "ghost", "other"],
+      "flexible"
+    );
+    super.AddTable("skins", ["tetrio", "_bombs", "connected_test"], "flexible");
+    super.AddTable("ixs", ["off", "hold", "tap"]);
+    for (const [e, t] of Object.entries(this.OptsBook))
       if (t.allowed) super.AddTable("_" + e, t.allowed);
       else if (t.possibles) {
         super.AddTable("_" + e, t.possibles, "flexible");
       }
-    }
   }
   static *ParseOptions(e) {
-    const { TypeOrders: t, OptsBook: n } = this,
-      s = Object.keys(e);
+    const { TypeOrders: t, OptsBook: s } = this,
+      n = Object.keys(e);
     for (const i of t)
-      for (const t of s) {
-        const s = n[t];
-        if (s.type !== i) continue;
+      for (const t of n) {
+        const n = s[t];
+        if (n.type !== i) continue;
         const o = e[t];
-        yield [t, o, s];
+        yield [t, o, n];
       }
   }
   static encode(e, t) {
-    for (const [n, s, i] of this.ParseOptions(t)) {
-      e.writeTable(n, this.$$options);
+    for (const [s, n, i] of this.ParseOptions(t)) {
+      e.writeTable(s, this.$$options);
       switch (i.type) {
         case "object":
-          if ("handling" === n) {
-            e.writeFloat(s.arr, 6, 10);
-            e.writeUInt(s.sdf, 6);
-            e.writeBoolean(s.safelock);
-            e.writeBoolean(s.cancel);
-            e.writeBoolean(s.may20g);
-            e.writeFloat(s.das, 8, 10);
-            e.writeFloat(s.dcd, 8, 10);
-            e.writeTable(s.irs, this.$$ixs);
-            e.writeTable(s.ihs, this.$$ixs);
-          } else if ("minoskin" === n) {
-            e.writeUInt(Object.keys(s).length, 8);
-            for (const [t, n] of Object.entries(s)) {
-              e.writeTable(t, this.$$minoskin);
-              e.writeTable(n, this.$$skins);
-            }
+          if ("handling" === s)
+            (e.writeFloat(n.arr, 6, 10),
+              e.writeUInt(n.sdf, 6),
+              e.writeBoolean(n.safelock),
+              e.writeBoolean(n.cancel),
+              e.writeBoolean(n.may20g),
+              e.writeFloat(n.das, 8, 10),
+              e.writeFloat(n.dcd, 8, 10),
+              e.writeTable(n.irs, this.$$ixs),
+              e.writeTable(n.ihs, this.$$ixs));
+          else if ("minoskin" === s) {
+            e.writeUInt(Object.keys(n).length, 8);
+            for (const [t, s] of Object.entries(n))
+              (e.writeTable(t, this.$$minoskin), e.writeTable(s, this.$$skins));
           }
           break;
         case "array":
-          e.writeArray(s);
+          e.writeArray(n);
           break;
         case "boolean":
-          e.writeBoolean(s);
+          e.writeBoolean(n);
           break;
         case "table":
-          e.writeTable(s, this[`$$_${n}`], i.mode);
+          e.writeTable(n, this[`$$_${s}`], i.mode);
           break;
         case "number":
-          e.writeNumber(s);
+          e.writeNumber(n);
           break;
         case "string":
-          e.writeString(s);
+          e.writeString(n);
           break;
         default:
           throw new TypeError(
-            `Unknown type for key: ${n} value: ${s} | got -> ${i.type}`
+            `Unknown type for key: ${s} value: ${n} | got -> ${i.type}`
           );
       }
     }
@@ -7272,132 +7156,123 @@ class et extends De {
   }
   static decode(e) {
     const t = this.$$options.size,
-      n = this.OptsBook,
-      s = {};
+      s = this.OptsBook,
+      n = {};
     let i = null,
       o = null;
     for (let a = e.peek(t); 0 !== a; a = e.peek(t)) {
       const t = e.readTable(this.$$options),
-        a = n[t]?.type;
+        a = s[t]?.type;
       switch (a) {
         case "object":
           if ("handling" === t) {
-            const n = {};
-            {
-              n.arr = e.readFloat(6, 10);
-              n.sdf = e.readUInt(6);
-              n.safelock = e.readBoolean();
-              n.cancel = e.readBoolean();
-              n.may20g = e.readBoolean();
-              n.das = e.readFloat(8, 10);
-              n.dcd = e.readFloat(8, 10);
-              n.irs = e.readTable(this.$$ixs);
-              n.ihs = e.readTable(this.$$ixs);
-              s[t] = n;
-            }
+            const s = {};
+            s.arr = e.readFloat(6, 10);
+            s.sdf = e.readUInt(6);
+            s.safelock = e.readBoolean();
+            s.cancel = e.readBoolean();
+            s.may20g = e.readBoolean();
+            s.das = e.readFloat(8, 10);
+            s.dcd = e.readFloat(8, 10);
+            s.irs = e.readTable(this.$$ixs);
+            s.ihs = e.readTable(this.$$ixs);
+            n[t] = s;
           } else if ("minoskin" === t) {
-            const n = {},
+            const s = {},
               i = e.readUInt(8);
-            s[t] = n;
+            n[t] = s;
             for (let t = 0; t < i; t++) {
               const t = e.readTable(this.$$minoskin),
-                s = e.readTable(this.$$skins);
-              n[t] = s;
+                n = e.readTable(this.$$skins);
+              s[t] = n;
             }
           }
           break;
         case "array":
-          s[t] = e.readArray();
+          n[t] = e.readArray();
           break;
         case "boolean":
-          s[t] = e.readBoolean();
+          n[t] = e.readBoolean();
           break;
         case "table":
-          s[t] = e.readTable(this[`$$_${t}`]);
+          n[t] = e.readTable(this[`$$_${t}`]);
           break;
         case "number":
-          s[t] = e.readNumber();
+          n[t] = e.readNumber();
           break;
         case "string":
-          s[t] = e.readString();
+          n[t] = e.readString();
           break;
-        default:
-          throw (
-            console.error("Options dump: ", s),
-            new TypeError(
-              `Unknown type for key: ${t} | got -> ${a}\nLast Key: ${i}\nLast Value: ${o}\n`
-            )
+        default: {
+          console.error("Options dump: ", n);
+          throw new TypeError(
+            `Unknown type for key: ${t} | got -> ${a}\nLast Key: ${i}\nLast Value: ${o}\n`
           );
+        }
       }
-      {
-        i = t;
-        o = s[t];
-      }
+      i = t;
+      o = n[t];
     }
     e.seek(t, 2);
-    return s;
+    return n;
   }
 }
-class tt extends et {
+class Je extends Ze {
   static *ParseOptions(e) {
-    for (const [n, s, i] of super.ParseOptions(e))
+    for (const [s, n, i] of super.ParseOptions(e))
       if (
-        i.default !== s &&
-        !("object" === i.type && strictShallowEqual(i.default, s))
+        i.default !== n &&
+        !("object" === i.type && strictShallowEqual(i.default, n))
       ) {
-        yield [n, s, i];
+        yield [s, n, i];
       }
   }
 }
-class nt extends De {
+class et extends Fe {
   static init() {
-    {
-      super.AddExtension(this, {
-        ownBuffer: true
-      });
-      super.AddTable("gor", [
-        null,
-        "topout",
-        "garbagesmash",
-        "zenith",
-        "clear",
-        "topout_clear",
-        "winner",
-        "forfeit",
-        "retry",
-        "drop",
-        "dropnow",
-        "disconnect"
-      ]);
-    }
+    super.AddExtension(this, {
+      ownBuffer: true
+    });
+    super.AddTable("gor", [
+      null,
+      "topout",
+      "garbagesmash",
+      "zenith",
+      "clear",
+      "topout_clear",
+      "winner",
+      "forfeit",
+      "retry",
+      "drop",
+      "dropnow",
+      "disconnect"
+    ]);
   }
   static encode(e, t) {
-    const n = t.successful,
-      s = t.gameoverreason,
+    const s = t.successful,
+      n = t.gameoverreason,
       i = t.killer.gameid,
       o = "spark" === t.killer.type,
       a = t.killer.username ?? "",
       { apm: r, pps: l, vsscore: c } = t.aggregatestats,
       { game: p, stats: h, diyusi: d } = t;
-    {
-      e.writeBoolean(n);
-      e.writeTable(s, this.$$gor);
-      e.writeUInt(i, 13);
-      e.writeBoolean(o, 1);
-      e.writeString(a);
-      e.writeStruct(t.options, tt);
-      e.writeDouble(r);
-      e.writeDouble(l);
-      e.writeDouble(c);
-      e.writeStruct(
-        {
-          game: p,
-          stats: h,
-          diyusi: d
-        },
-        $e
-      );
-    }
+    e.writeBoolean(s);
+    e.writeTable(n, this.$$gor);
+    e.writeUInt(i, 13);
+    e.writeBoolean(o, 1);
+    e.writeString(a);
+    e.writeStruct(t.options, Je);
+    e.writeDouble(r);
+    e.writeDouble(l);
+    e.writeDouble(c);
+    e.writeStruct(
+      {
+        game: p,
+        stats: h,
+        diyusi: d
+      },
+      Re
+    );
   }
   static decode(e) {
     const t = {
@@ -7409,33 +7284,33 @@ class nt extends De {
     t.killer.gameid = e.readUInt(13);
     t.killer.type = e.readBoolean() ? "spark" : "sizzle";
     t.killer.username = e.readString();
-    t.options = e.readStruct(tt);
+    t.options = e.readStruct(Je);
     t.aggregatestats.apm = e.readDouble();
     t.aggregatestats.pps = e.readDouble();
     t.aggregatestats.vsscore = e.readDouble();
-    Object.assign(t, e.readStruct($e));
+    Object.assign(t, e.readStruct(Re));
     return t;
   }
 }
+Ie.init();
 Ee.init();
+Me.init();
+De.init();
 Oe.init();
-Pe.init();
 He.init();
 Re.init();
+We.init();
 Ne.init();
 $e.init();
 Ge.init();
 Ue.init();
-Xe.init();
 qe.init();
-je.init();
 Ve.init();
-Ye.init();
+Ke.init();
 Qe.init();
-Je.init();
+Ye.init();
 Ze.init();
 et.init();
-nt.init();
-De.LoadExtensions(r);
-Te.SetMsgpackr(new r.Packr(ke), new r.Unpackr(ke));
-export { Te as Codec };
+Fe.LoadExtensions(r);
+ke.SetMsgpackr(new r.Packr(Ce), new r.Unpackr(Ce));
+export { ke as Codec };
