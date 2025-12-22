@@ -229,7 +229,9 @@ export class Social {
 
           user = this.get({ id: target })!;
           if (this.config.autoLoadDMs) await user.loadDms();
-        } catch {}
+        } catch {
+          /* empty */
+        }
       }
 
       if (!user) {
@@ -406,25 +408,28 @@ export class Social {
   }
 
   /**
-   * Invite a user to your room
+   * Invite a user to your room.
+   * Note: the TETR.IO api doesn't send a response for a successful invite.
+   * Instead, Triangle.js waits 100 milliseconds for an error, and resolves/returns if there is no error.
    * @example
    * await client.social.invite(await client.social.resolve('halp'));
    */
-  invite(userID: string) {
-    return new Promise<void>(async (resolve, reject) => {
-      let r = false;
-      this.client.emit("social.invite", userID);
-      const l = (e: string) => {
-        if (r) return;
-        r = true;
-        reject(e);
-      };
-      this.client.once("client.error", l);
-      await new Promise((r) => setTimeout(r, 100));
-      this.client.off("client.error", l);
-      r = true;
-      resolve();
-    });
+  invite(userID: string): Promise<void> {
+    this.client.emit("social.invite", userID);
+
+    return Promise.race([
+      new Promise<never>((_, reject) => {
+        const onError = (e: string) => {
+          this.client.off("client.error", onError);
+          reject(e);
+        };
+        this.client.once("client.error", onError);
+      }),
+
+      new Promise<void>((resolve) => {
+        setTimeout(resolve, 100);
+      })
+    ]);
   }
 
   /**
@@ -432,6 +437,7 @@ export class Social {
    * @example
    * client.social.status('online', 'lobby:X-QP');
    */
+  // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
   status(status: SocialTypes.Status, detail: SocialTypes.Detail | String = "") {
     this.client.emit("social.presence", { status, detail });
   }

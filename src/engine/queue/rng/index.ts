@@ -1,12 +1,12 @@
-import { Mino } from "../types";
-import { bag7 } from "./bag7";
-import { bag7_1 } from "./bag7-1";
-import { bag7_2 } from "./bag7-2";
-import { bag7_X } from "./bag7-x";
-import { bag14 } from "./bag14";
-import { classic } from "./classic";
-import { pairs } from "./pairs";
-import { random } from "./random";
+import { Bag7 } from "./bag7";
+import { Bag7Plus1 } from "./bag7-1";
+import { Bag7Plus2 } from "./bag7-2";
+import { Bag7PlusX } from "./bag7-x";
+import { Bag14 } from "./bag14";
+import { Classic } from "./classic";
+import type { Bag } from "./core";
+import { Pairs } from "./pairs";
+import { Random } from "./random";
 
 export type BagType =
   | "7-bag"
@@ -17,19 +17,19 @@ export type BagType =
   | "7+1-bag"
   | "7+2-bag"
   | "7+x-bag";
-export type RngInnerFunction = () => Mino[];
-export type RngFunction = (seed: number) => RngInnerFunction;
 
-export const rngMap: { [k in BagType]: RngFunction } = {
-  "7-bag": bag7,
-  "14-bag": bag14,
-  classic: classic,
-  pairs: pairs,
-  "total mayhem": random,
-  "7+1-bag": bag7_1,
-  "7+2-bag": bag7_2,
-  "7+x-bag": bag7_X
+export const rngMap: { [k in BagType]: new (seed: number) => Bag } = {
+  "7-bag": Bag7,
+  "14-bag": Bag14,
+  classic: Classic,
+  pairs: Pairs,
+  "total mayhem": Random,
+  "7+1-bag": Bag7Plus1,
+  "7+2-bag": Bag7Plus2,
+  "7+x-bag": Bag7PlusX
 };
+
+export * from "./core";
 
 export * from "./bag7";
 export * from "./bag14";

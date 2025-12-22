@@ -36,22 +36,20 @@ export class IGEHandler {
 
   /**
    * Sends a message to a player.
+   * Adds the player to the players list if it does not exist.
    * @param options - info on sending player
    * @param options.playerID - The ID of the player to send the message to.
    * @param options.amount - The amount of the message.
-   * @throws {Error} If the player is not found.
    */
   send({ playerID, amount }: { playerID: number; amount: number }) {
     if (amount === 0) return;
-    const player = this.players.get(playerID);
+    let player = this.players.get(playerID);
     const iid = ++this.iid;
 
-    if (!player)
-      throw new Error(
-        `player not found: player with id ${playerID} not in ${[
-          ...(this.players.keys() as any)
-        ].join(", ")}`
-      );
+    if (!player) {
+      player = { incoming: 0, outgoing: [] };
+      this.players.set(playerID, player);
+    }
 
     this.players.set(playerID, {
       incoming: player.incoming,
@@ -69,13 +67,13 @@ export class IGEHandler {
 
   /**
    * Receives a garbage from a player and processes it.
+   * Adds the player to the players list if it does not exist.
    * @param garbage - garbage object of data
    * @param garbage.playerID - The ID of the player sending the garbage.
    * @param garbage.ackiid - The IID of the last acknowledged item.
    * @param garbage.iid - The IID of the incoming item.
    * @param garbage.amount - The amount of the incoming item.
    * @returns The remaining amount after processing the message.
-   * @throws {Error} If the player is not found.
    */
   receive({
     playerID,
@@ -88,13 +86,11 @@ export class IGEHandler {
     iid: number;
     amount: number;
   }) {
-    const player = this.players.get(playerID);
-    if (!player)
-      throw new Error(
-        `player not found: player with id ${playerID} not in ${[
-          ...(this.players.keys() as any)
-        ].join(", ")}`
-      );
+    let player = this.players.get(playerID);
+    if (!player) {
+      player = { incoming: 0, outgoing: [] };
+      this.players.set(playerID, player);
+    }
 
     const incomingIID = Math.max(iid, player.incoming ?? 0);
 

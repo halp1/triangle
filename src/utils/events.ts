@@ -1,5 +1,5 @@
 export class EventEmitter<T extends Record<string, any>> {
-  #listeners: [keyof T, Function, boolean][];
+  #listeners: [keyof T, (data: any) => void, boolean][];
   #maxListeners: number = 10;
 
   /** Enables more debugging logs for memory leaks */

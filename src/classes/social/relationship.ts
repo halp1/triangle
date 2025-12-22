@@ -48,10 +48,7 @@ export class Relationship {
 
     this.ready = lazyLoad
       ? new Promise<never>(() => {})
-      : new Promise<void>(async (resolve) => {
-          await this.loadDms();
-          resolve();
-        });
+      : this.loadDms().then(() => {});
   }
 
   /**
@@ -110,7 +107,11 @@ export class Relationship {
   /**
    * For internal ues only. See `Client.fromSnapshot()`
    */
-  static fromSnapshot(snapshot: RelationshipSnapshot, social: Social, client: Client) {
+  static fromSnapshot(
+    snapshot: RelationshipSnapshot,
+    social: Social,
+    client: Client
+  ) {
     const relationship = new Relationship(
       {
         id: snapshot.id,

@@ -122,7 +122,7 @@ export class Ribbon {
             JSON.stringify(data ? { command: msg, data } : { command: msg }),
           decode: (data) => JSON.parse(data.toString("utf-8"))
         };
-      case "teto":
+      case "teto": {
         let pack: Awaited<ReturnType<typeof tetoPack>>;
         tetoPack(userAgent, { global: true }).then((p) => {
           pack = p;
@@ -132,6 +132,7 @@ export class Ribbon {
           encode: (msg, data) => pack.encode(msg, data),
           decode: (data) => pack.decode(data)
         };
+      }
       case "candor":
         return {
           method: codec,
@@ -533,7 +534,7 @@ export class Ribbon {
               return value;
             },
             2
-          )?.replace(/"Buffer<(\d+)>"/g, "Buffer<$1>")
+          )?.replaceAll(/"Buffer<(\d+)>"/g, "Buffer<$1>")
       );
       if (this.#socket && this.#socket.readyState === WebSocket.OPEN) {
         this.#socket.send(packet);
@@ -650,10 +651,10 @@ export class Ribbon {
       );
     }
 
-    let msg = message as RibbonEvents.Raw<Events.in.all>;
+    const msg = message as RibbonEvents.Raw<Events.in.all>;
 
     switch (msg.command) {
-      case "session":
+      case "session": {
         const { ribbonid, tokenid } = message.data;
 
         this.#flags &= ~Ribbon.FLAGS.CONNECTING;
@@ -675,7 +676,8 @@ export class Ribbon {
 
         this.#session.tokenID = tokenid;
         break;
-      case "ping":
+      }
+      case "ping": {
         const id = msg.data?.recvid;
 
         this.#pinger.time = Date.now() - this.#pinger.last;
@@ -684,7 +686,8 @@ export class Ribbon {
         }
 
         break;
-      case "kick":
+      }
+      case "kick": {
         const { reason } = msg.data;
 
         this.lastDisconnectReason = "server closed ribbon";
@@ -693,7 +696,8 @@ export class Ribbon {
 
         this.#close();
         break;
-      case "nope":
+      }
+      case "nope": {
         const { reason: nopeReason } = msg.data;
         this.lastDisconnectReason = nopeReason as any;
         this.log(`nope: ${nopeReason}`, { force: true, level: "error" });
@@ -701,6 +705,7 @@ export class Ribbon {
         this.#close();
 
         break;
+      }
       case "packets":
         for (const packet of msg.data.packets) {
           const message = this.#processPacket(packet);
@@ -734,11 +739,12 @@ export class Ribbon {
           this.emitter.emit("client.error", "Failure to authorize ribbon");
         }
         break;
-      case "server.migrate":
+      case "server.migrate": {
         const { endpoint } = msg.data;
         this.log(`Migrating to worker ${endpoint}`);
         this.#switch(endpoint.replace("/ribbon/", ""));
         break;
+      }
       case "server.migrated":
         break;
     }

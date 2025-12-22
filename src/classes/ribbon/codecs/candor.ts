@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 // @ts-nocheck
 import { Bits as n } from "./utils/bits";
 import r from "./utils/msgpackr-943ed70";

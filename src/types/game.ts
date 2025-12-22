@@ -1,4 +1,9 @@
-import { type BagType, Engine, type KickTable } from "../engine";
+import {
+  type BagType,
+  Engine,
+  type KickTable,
+  Mino as EngineMino
+} from "../engine";
 
 export namespace Game {
   /** Handling config interface (test on TETR.IO for limits) */
@@ -338,6 +343,231 @@ export namespace Game {
     isNew: boolean;
   }
 
+  export interface State {
+    actors: Record<string, unknown>;
+    bag: Mino[];
+    bagex: Mino[];
+    bagid: number;
+    /** Note: `board` is reversed compared to triangle */
+    board: BoardSquare[][];
+    /** 0 to 255 */
+    boardedges: number[][];
+    cancelstreak: number;
+    cheesespawned: number;
+    clutchCount: number;
+    countdown_started: number;
+    destroyed: boolean;
+    diyusi: number;
+    endqueued: boolean;
+    enemies: number[];
+    esc: boolean;
+    escAllowed: boolean;
+    esciter: number;
+    falling: {
+      flags: number;
+      hy: number;
+      irs: number;
+      keys: number;
+      kick: number;
+      locking: number;
+      lockresets: number;
+      r: number;
+      rotresets: number;
+      safelock: number;
+      skip: unknown[];
+      type: Mino;
+      x: number;
+      y: number;
+    };
+    fire: number;
+    fireAppr: number;
+    fireGrace: number;
+    firstInputTime: number;
+    g: number;
+    gameoverreason: null | GameOverReason;
+    garbageacknowledgements: {
+      outgoing: Record<number, { iid: number; amt: number }[]>;
+      incoming: Record<number, number>;
+    };
+    garbageareentries: unknown[];
+    garbagearelockeduntil: number;
+    garbagebonus: number;
+    garbageid: number;
+    garbagereceived: number;
+    glock: number;
+    handling: Handling;
+    haschangedcolumn: boolean;
+    hesitatedattacks: unknown[];
+    hold: Mino;
+    holdlocked: boolean;
+    hyperForfeitAllowed: boolean;
+    hyperRetryAllowed: boolean;
+    impendingdamage: {
+      id: number;
+      cid: number | null;
+      iid: number | null;
+      ackiid: number | null;
+      gameid: number | null;
+      username: string | null;
+      type: unknown;
+      active: boolean;
+      status: "caution" | "spawn" | "sleeping";
+      hardened: boolean;
+      shielded: boolean;
+      delay: number;
+      queued: boolean;
+      amt: number;
+      x: number;
+      y: number;
+      pos: unknown;
+      neg: unknown;
+      size: number;
+      column: number | undefined;
+      position: unknown;
+      color: unknown;
+      actor_pos: string;
+      actor_neg: string;
+    }[];
+    inputHold: boolean;
+    inputRotate180: boolean;
+    inputRotateCCW: boolean;
+    inputRotateCW: boolean;
+    inputSoftdrop: boolean;
+    interactionid: number;
+    killer: { gameid: number; type: "sizzle"; username: null | string };
+    lShift: { held: boolean; arr: number; das: number; dir: -1 };
+    lastGenerated: null | number;
+    lastatktime: number;
+    lastcolumn: number;
+    lastdoublepiece: null | unknown;
+    lastoffensive: {
+      x: number;
+      y: number;
+      offence: number;
+      defense: number;
+      surge: number;
+    };
+    lastpiecetime: number;
+    lastreceivedcount: number;
+    lastshift: 1 | -1;
+    laststrategychange: number;
+    lasttanktime: number;
+    lastwasattack: boolean;
+    lastwasclear: boolean;
+    nextwilltank: boolean;
+    notyetreceivedattacks: number;
+    otherstates: {
+      lastpiece: null | unknown;
+      undo: unknown[];
+      redo: unknown[];
+    };
+    pause: boolean;
+    placement: number;
+    playing: boolean;
+    quadcolumns: number[];
+    rShift: { held: boolean; arr: number; das: number; dir: 1 };
+    retry: boolean;
+    retryAllowed: boolean;
+    retryiter: number;
+    rng: number;
+    rngex: number;
+    setoptions: ReadyOptions;
+    spike: {
+      count: number;
+      count_nomult: number;
+      timer: number;
+    };
+    started: boolean;
+    stats: Stats;
+    stock: number;
+    subframe: number;
+    successful: boolean;
+    targets: number[];
+    time: {
+      start: number;
+      zero: boolean;
+      locked: boolean;
+      prev: number;
+      frameoffset: number;
+    };
+    totalRotations: number;
+    tutorial: {
+      stage: number;
+      progress: number;
+      reqs: number;
+      freeze: number;
+      finished: number;
+    };
+    unsafewaitingframes: unknown[];
+    waitingframes: {target: number, type: string, data: any}[];
+    windupwaituntil: number;
+    zenith: {
+      allyincapacitated: boolean;
+      blighted: boolean;
+
+      blockrationing: number;
+      blockrationing_app: number;
+      blockrationing_final: number;
+
+      bonusfromally: number;
+      bonusremaining: number;
+      climb_pts: number;
+
+      columnsicknessbuckets_i: unknown[];
+      columnsicknessbuckets_lj: unknown[];
+      columnsicknessbuckets_sz: unknown[];
+
+      escapeartist: number;
+
+      garbageahead: unknown[];
+      garbagerowcount: number;
+      garbageside: number;
+
+      gracestillmessy: boolean;
+      hasseenI5: boolean;
+
+      highestrevive: number;
+      incapacitated: boolean;
+      isDanger: boolean;
+
+      last_rank_change_was_promote: boolean;
+
+      lastcancel: number;
+      lastclearcount: null | unknown;
+      lastclearpiece: null | unknown;
+      lastclearspin: null | unknown;
+      lastclearwasdupe: boolean;
+
+      lastfloorchange: number;
+      maxmessy: boolean;
+      nogarbagesince: null | unknown;
+
+      promotion_fatigue: number;
+      promptstarttime: number;
+
+      quadbuckets: unknown[];
+
+      rank_locked_until: number;
+
+      revivelevel: number;
+      reviveprompts: unknown[];
+
+      spinbuckets: unknown[];
+
+      stalepieces: number;
+      staletime: number;
+
+      szsickness: unknown[];
+
+      talentless: boolean;
+      top3rowsince: null | unknown;
+
+      was180Used: boolean;
+      wasCCWUsed: boolean;
+      wasCWUsed: boolean;
+    };
+  }
+
   export namespace IGEs {
     export type all = Target | AllowTargeting | Interaction | KEV;
 
@@ -440,6 +670,76 @@ export namespace Game {
     lifetime: number;
   }
 
+  export interface Stats {
+    lines: number;
+    level_lines: number;
+    level_lines_needed: number;
+    inputs: number;
+    holds: number;
+    score: number;
+    zenlevel: number;
+    zenprogress: number;
+    level: number;
+    combo: number;
+    topcombo: number;
+    combopower: number;
+    btb: number;
+    topbtb: number;
+    btbpower: number;
+    tspins: number;
+    piecesplaced: number;
+    clears: {
+      singles: number;
+      doubles: number;
+      triples: number;
+      quads: number;
+      pentas: number;
+      realtspins: number;
+      minitspins: number;
+      minitspinsingles: number;
+      tspinsingles: number;
+      minitspindoubles: number;
+      tspindoubles: number;
+      minitspintriples: number;
+      tspintriples: number;
+      minitspinquads: number;
+      tspinquads: number;
+      tspinpentas: number;
+      allclear: number;
+    };
+    garbage: {
+      sent: number;
+      sent_nomult: number;
+      maxspike: number;
+      maxspike_nomult: number;
+      received: number;
+      attack: number;
+      cleared: number;
+    };
+    kills: number;
+    finesse: {
+      combo: number;
+      faults: number;
+      perfectpieces: number;
+    };
+    zenith: {
+      altitude: number;
+      rank: number;
+      peakrank: number;
+      avgrankpts: number;
+      floor: number;
+      targetingfactor: number;
+      targetinggrace: number;
+      totalbonus: number;
+      revives: number;
+      revivesTotal: number;
+      revivesMaxOfBoth: number;
+      speedrun: boolean;
+      speedrun_seen: boolean;
+      splits: number[];
+    };
+  }
+
   export type Key =
     | "moveLeft"
     | "moveRight"
@@ -462,7 +762,7 @@ export namespace Game {
 
       export interface Start {
         type: "start";
-        data: {};
+        data: Record<string, never>;
       }
 
       export interface Full {
@@ -512,75 +812,7 @@ export namespace Game {
             playing: boolean;
           };
 
-          stats: {
-            lines: number;
-            level_lines: number;
-            level_lines_needed: number;
-            inputs: number;
-            holds: number;
-            score: number;
-            zenlevel: number;
-            zenprogress: number;
-            level: number;
-            combo: number;
-            topcombo: number;
-            combopower: number;
-            btb: number;
-            topbtb: number;
-            btbpower: number;
-            tspins: number;
-            piecesplaced: number;
-            clears: {
-              singles: number;
-              doubles: number;
-              triples: number;
-              quads: number;
-              pentas: number;
-              realtspins: number;
-              minitspins: number;
-              minitspinsingles: number;
-              tspinsingles: number;
-              minitspindoubles: number;
-              tspindoubles: number;
-              minitspintriples: number;
-              tspintriples: number;
-              minitspinquads: number;
-              tspinquads: number;
-              tspinpentas: number;
-              allclear: number;
-            };
-            garbage: {
-              sent: number;
-              sent_nomult: number;
-              maxspike: number;
-              maxspike_nomult: number;
-              received: number;
-              attack: number;
-              cleared: number;
-            };
-            kills: number;
-            finesse: {
-              combo: number;
-              faults: number;
-              perfectpieces: number;
-            };
-            zenith: {
-              altitude: number;
-              rank: number;
-              peakrank: number;
-              avgrankpts: number;
-              floor: number;
-              targetingfactor: number;
-              targetinggrace: number;
-              totalbonus: number;
-              revives: number;
-              revivesTotal: number;
-              revivesMaxOfBoth: number;
-              speedrun: boolean;
-              speedrun_seen: boolean;
-              splits: number[];
-            };
-          };
+          stats: Stats;
 
           diyusi: number;
         };
@@ -620,8 +852,8 @@ export namespace Game {
     export type Frame = Frames.all & { frame: number };
   }
 
-  export type Mino = "s" | "z" | "j" | "l" | "i" | "t" | "o";
-  export type BoardSquare = Mino | "gb" | null;
+  export type Mino = EngineMino;
+  export type BoardSquare = Mino | null;
 
   /** @deprecated */
   export namespace Client {

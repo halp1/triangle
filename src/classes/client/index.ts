@@ -32,7 +32,7 @@ export class Client {
   public api: API;
 
   public rooms: {
-    list(): ReturnType<API["rooms"]>;
+    list(): ReturnType<API["rooms"]['rooms']>;
     join(id: string): Promise<Room>;
     create(type?: "public" | "private"): Promise<Room>;
   };
@@ -94,7 +94,7 @@ export class Client {
     this.api = new API({ token: this.token, userAgent });
 
     this.rooms = {
-      list: () => this.api.rooms(),
+      list: () => this.api.rooms.rooms(),
       join: async (id: string) => {
         return await this.wrap(
           "room.join",
@@ -278,7 +278,7 @@ export class Client {
 
       const rj = (error: string) => {
         disband();
-        reject(error);
+        reject(new Error(error));
       };
 
       this.on(listen, rs);
@@ -348,7 +348,7 @@ export class Client {
 
     this.on("client.dead", async () => {
       this.disconnected = true;
-			this.room?.destroy();
+      this.room?.destroy();
     });
   }
 
@@ -404,7 +404,9 @@ export class Client {
     if (this.room) {
       try {
         await this.room.leave();
-      } catch (e) {}
+      } catch {
+        /* empty */
+      }
     }
     this.ribbon.destroy();
     if (this.room) delete this.room;

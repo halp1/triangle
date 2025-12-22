@@ -1,15 +1,13 @@
-import { RNG } from "../../utils";
 import { Mino } from "../types";
+import { Bag } from "./core";
 
-export const bag7_X = (seed: number): (() => Mino[]) => {
-  const gen = new RNG(seed);
-  const extraPieceCount = [3, 2, 1, 1];
-  let bagid = 0;
-  let extraBag: Mino[] = [];
-  return () => {
-    const extra = extraPieceCount[bagid++] ?? 0;
-    if (extraBag.length < extra)
-      extraBag = gen.shuffleArray([
+export class Bag7PlusX extends Bag {
+  static #extraPieceCount = [3, 2, 1, 1];
+
+  next() {
+    const extra = Bag7PlusX.#extraPieceCount[this.id++] ?? 0;
+    if (this.extra.length < extra)
+      this.extra = this.rng.shuffleArray([
         Mino.Z,
         Mino.L,
         Mino.O,
@@ -18,7 +16,7 @@ export const bag7_X = (seed: number): (() => Mino[]) => {
         Mino.J,
         Mino.T
       ] as const);
-    return gen.shuffleArray([
+    return this.rng.shuffleArray([
       Mino.Z,
       Mino.L,
       Mino.O,
@@ -26,7 +24,7 @@ export const bag7_X = (seed: number): (() => Mino[]) => {
       Mino.I,
       Mino.J,
       Mino.T,
-      ...extraBag.splice(0, extra)
+      ...this.extra.splice(0, extra)
     ] as const);
-  };
-};
+  }
+}

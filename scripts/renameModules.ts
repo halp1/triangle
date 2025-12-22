@@ -40,7 +40,9 @@ async function rewriteImports(dir: string) {
           try {
             fsSync.accessSync(filePath);
             return `from "${importPath}.mjs"`;
-          } catch {}
+          } catch {
+            /* empty */
+          }
 
           // Try folder/index.mjs
           const indexPath = path.join(baseDir, importPath, "index.mjs");
@@ -48,7 +50,9 @@ async function rewriteImports(dir: string) {
           try {
             fsSync.accessSync(indexPath);
             return `from "${importPath}/index.mjs"`;
-          } catch {}
+          } catch {
+            /* empty */
+          }
 
           return match; // Leave as-is if neither exist
         }

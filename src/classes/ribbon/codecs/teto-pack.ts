@@ -232,7 +232,7 @@ const extractPacker = (text: string) => {
     `return ${className}})();`
   );
 };
-export const tetoPack = (
+export const tetoPack = async (
   userAgent: string,
   options: {
     global: boolean;
@@ -241,75 +241,73 @@ export const tetoPack = (
   encode: (msg: string, data?: any) => Buffer;
   decode: (data: Buffer) => any;
 }> => {
-  if (Amadeus && options.global) return Promise.resolve(Amadeus);
+  if (Amadeus && options.global) return Amadeus;
 
-  return new Promise(async (resolve) => {
-    const serverVersion = await core({
-      userAgent,
-      token: "",
-      turnstile: null
-    }).get<Server.Environment>({
-      uri: "server/environment"
-    });
-    if (serverVersion.success === false) {
-      throw new Error(serverVersion.error.msg);
-    }
-
-    const triangleDir = path.join(homedir(), ".trianglejs");
-    const fileName = `tetrio-${version}-${serverVersion.signature.client.build.id}.js`;
-
-    let tetrioOverride: string;
-    try {
-      tetrioOverride = await fs.readFile(
-        path.join(triangleDir, fileName),
-        "utf-8"
-      );
-    } catch {
-      log("TETR.IO update found. Extracting new packer...", {
-        level: "warning"
-      });
-      if (!fsSync.existsSync(triangleDir)) {
-        await fs.mkdir(triangleDir, { recursive: true });
-      }
-
-      // empty triangle folder
-      const files = await fs.readdir(triangleDir);
-      for (const file of files) {
-        await fs.rm(path.join(triangleDir, file), {
-          recursive: true,
-          force: true
-        });
-      }
-
-      const response = await fetch("https://tetr.io/js/tetrio.js");
-      const buffer = Buffer.from(await response.arrayBuffer());
-      tetrioOverride = buffer.toString();
-
-      tetrioOverride = extractPacker(tetrioOverride);
-      await fs.writeFile(path.join(triangleDir, fileName), tetrioOverride);
-
-      log(
-        `tetrio.js @${serverVersion.signature.version}-${serverVersion.signature.client.build.id} patched`
-      );
-    }
-
-    const tetrio = (0, eval)(tetrioOverride);
-
-    Amadeus = {
-      encode: (msg: string, data?: any) => {
-        const encoded: number[] = tetrio.Encode(msg, data).toJSON().data;
-        return Buffer.from([...encoded]);
-      },
-      decode: (data: Buffer) => {
-        const decoded = tetrio.Decode(data);
-        if (decoded.command === "packets") {
-          decoded.data.packets = decoded.data.packets.map((packet: any) =>
-            Buffer.from([...packet])
-          );
-        }
-        return decoded;
-      }
-    };
-    resolve(Amadeus);
+  const serverVersion = await core({
+    userAgent,
+    token: "",
+    turnstile: null
+  }).get<Server.Environment>({
+    uri: "server/environment"
   });
+  if (serverVersion.success === false) {
+    throw new Error(serverVersion.error.msg);
+  }
+
+  const triangleDir = path.join(homedir(), ".trianglejs");
+  const fileName = `tetrio-${version}-${serverVersion.signature.client.build.id}.js`;
+
+  let tetrioOverride: string;
+  try {
+    tetrioOverride = await fs.readFile(
+      path.join(triangleDir, fileName),
+      "utf-8"
+    );
+  } catch {
+    log("TETR.IO update found. Extracting new packer...", {
+      level: "warning"
+    });
+    if (!fsSync.existsSync(triangleDir)) {
+      await fs.mkdir(triangleDir, { recursive: true });
+    }
+
+    // empty triangle folder
+    const files = await fs.readdir(triangleDir);
+    for (const file of files) {
+      await fs.rm(path.join(triangleDir, file), {
+        recursive: true,
+        force: true
+      });
+    }
+
+    const response = await fetch("https://tetr.io/js/tetrio.js");
+    const buffer = Buffer.from(await response.arrayBuffer());
+    tetrioOverride = buffer.toString();
+
+    tetrioOverride = extractPacker(tetrioOverride);
+    await fs.writeFile(path.join(triangleDir, fileName), tetrioOverride);
+
+    log(
+      `tetrio.js @${serverVersion.signature.version}-${serverVersion.signature.client.build.id} patched`
+    );
+  }
+
+  const tetrio = (0, eval)(tetrioOverride);
+
+  Amadeus = {
+    encode: (msg: string, data?: any) => {
+      const encoded: number[] = tetrio.Encode(msg, data).toJSON().data;
+      return Buffer.from([...encoded]);
+    },
+    decode: (data: Buffer) => {
+      const decoded = tetrio.Decode(data);
+      if (decoded.command === "packets") {
+        decoded.data.packets = decoded.data.packets.map((packet: any) =>
+          Buffer.from([...packet])
+        );
+      }
+      return decoded;
+    }
+  };
+  return Amadeus;
 };

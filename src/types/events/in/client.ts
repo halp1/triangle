@@ -53,11 +53,7 @@ export interface Client {
   };
 
   /** Fires when a round starts (this includes 1-round games) */
-  "client.game.round.start": [
-    (cb: Game.Tick.Func) => void,
-    Engine,
-    { name: string; gameid: number; engine: Engine }[]
-  ];
+  "client.game.round.start": [(cb: Game.Tick.Func) => void, Engine];
   /** Fires when the client's game ends (topout). Finish = game.replay.end, abort = game.abort, end = game.end or game.advance or game.score */
   "client.game.over":
     | {

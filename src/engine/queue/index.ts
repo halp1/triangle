@@ -1,4 +1,5 @@
-import { type BagType, type RngInnerFunction, rngMap } from "./rng";
+import { type BagType, rngMap } from "./rng";
+import type { Bag, BagSnapshot } from "./rng";
 import { Mino } from "./types";
 
 export interface QueueInitializeParams {
@@ -7,28 +8,28 @@ export interface QueueInitializeParams {
   minLength: number;
 }
 
-export class Queue {
+export interface QueueSnapshot {
+  value: Mino[];
+  bag: BagSnapshot;
+}
+
+export class Queue extends Array<Mino> {
   seed: number;
   type: BagType;
-  genFunction!: RngInnerFunction;
-  value: Mino[];
+  bag!: Bag;
   _minLength!: number;
-  index: number;
   repopulateListener: ((pieces: Mino[]) => void) | null = null;
   constructor(options: QueueInitializeParams) {
+    super();
     this.seed = options.seed;
     this.type = options.type;
     this.reset();
-    this.value = [];
     this.minLength = options.minLength;
-
-    this.index = 0;
   }
 
   reset(index = 0) {
-    this.genFunction = rngMap[this.type](this.seed);
-    this.value = [];
-    this.index = 0;
+    this.bag = new rngMap[this.type](this.seed);
+    this.splice(0, this.length);
     this.repopulate();
     for (let i = 0; i < index; i++) {
       this.shift();
@@ -49,31 +50,38 @@ export class Queue {
   }
 
   get next() {
-    return this.value[0];
+    return this[0];
   }
 
-  at(index: number) {
-    return this.value.at(index);
-  }
-
-  shift() {
-    const val = this.value.shift();
-    this.index++;
+  override shift() {
+    const val = super.shift();
     this.repopulate();
     return val;
   }
 
   private repopulate() {
     const added: Mino[] = [];
-    while (this.value.length < this.minLength) {
-      const newValues = this.genFunction();
-      this.value.push(...newValues);
+    while (this.length < this.minLength) {
+      const newValues = this.bag.next();
+      this.push(...newValues);
       added.push(...newValues);
     }
 
     if (this.repopulateListener && added.length) {
       this.repopulateListener(added);
     }
+  }
+
+	snapshot(): QueueSnapshot {
+		return {
+			value: Array.from(this),
+			bag: this.bag.snapshot()
+		};
+	}
+
+  fromSnapshot(snapshot: QueueSnapshot) {
+    this.bag.fromSnapshot(snapshot.bag);
+    this.splice(0, this.length, ...snapshot.value);
   }
 }
 export * from "./rng";

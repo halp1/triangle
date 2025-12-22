@@ -98,10 +98,7 @@ export class Engine {
   private _kickTable!: KickTableName;
   board!: Board;
   connectedBoard!: ConnectedBoard;
-  lastSpin!: {
-    piece: Mino;
-    type: SpinType;
-  } | null;
+  lastSpin!: SpinType | null;
   lastWasClear!: boolean;
   stats!: {
     garbage: {
@@ -175,7 +172,10 @@ export class Engine {
   state!: number;
   stock!: number;
 
-  currentSpike!: number;
+  spike!: {
+    count: number;
+    timer: number;
+  };
 
   events = new EventEmitter<Events>();
 
@@ -302,7 +302,10 @@ export class Engine {
 
     this.state = 0;
 
-    this.currentSpike = 0;
+    this.spike = {
+      count: 0,
+      timer: 0
+    };
 
     this.flushRes();
 
@@ -361,7 +364,7 @@ export class Engine {
       holdLocked: this.holdLocked,
       lastSpin: deepCopy(this.lastSpin),
       lastWasClear: this.lastWasClear,
-      queue: this.queue.index,
+      queue: this.queue.snapshot(),
       input: deepCopy(this.input),
       subframe: this.subframe,
       targets: this.multiplayer?.targets,
@@ -370,7 +373,7 @@ export class Engine {
       stock: this.stock,
       ige: this.igeHandler.snapshot(),
       state: this.state,
-      currentSpike: this.currentSpike,
+      spike: deepCopy(this.spike),
       resCache: deepCopy(this.resCache)
     };
   }
@@ -403,7 +406,7 @@ export class Engine {
     this.lastSpin = deepCopy(snapshot.lastSpin);
     this.lastWasClear = snapshot.lastWasClear;
     this.queue = new Queue(options.queue);
-    for (let i = 0; i < snapshot.queue; i++) this.queue.shift();
+    this.queue.fromSnapshot(snapshot.queue);
 
     this.queue.onRepopulate(this.#onQueueRepopulate.bind(this));
 
@@ -438,7 +441,7 @@ export class Engine {
     this.glock = snapshot.glock;
     this.stock = snapshot.stock;
     this.state = snapshot.state;
-    this.currentSpike = snapshot.currentSpike;
+    this.spike = deepCopy(snapshot.spike);
     this.igeHandler.fromSnapshot(snapshot.ige);
 
     this.resCache = deepCopy(snapshot.resCache);
@@ -485,6 +488,7 @@ export class Engine {
   }
 
   // @ts-expect-error unused
+  // eslint-disable-next-line no-unused-private-class-members
   #hasRotated() {
     return !!(
       this.state &
@@ -492,17 +496,20 @@ export class Engine {
     );
   }
 
-  // @ts-expect-error unused
+  // @ts-expect-error
+  // eslint-disable-next-line no-unused-private-class-members
   #hasRotated180() {
     return !!(this.state & constants.flags.ROTATION_180);
   }
 
   // @ts-expect-error unused
+  // eslint-disable-next-line no-unused-private-class-members
   #isSpin() {
     return !!(this.state & constants.flags.ROTATION_SPIN);
   }
 
   // @ts-expect-error unused
+  // eslint-disable-next-line no-unused-private-class-members
   #isSpinMini() {
     return !(
       ~this.state &
@@ -511,6 +518,7 @@ export class Engine {
   }
 
   // @ts-expect-error unused
+  // eslint-disable-next-line no-unused-private-class-members
   #isSpinAll() {
     return !!(this.state & constants.flags.ROTATION_SPIN_ALL);
   }
@@ -525,16 +533,19 @@ export class Engine {
   }
 
   // @ts-expect-error unused
+  // eslint-disable-next-line no-unused-private-class-members
   #isFloored() {
     return !!(this.state & constants.flags.STATE_FLOOR);
   }
 
   // @ts-expect-error unused
+  // eslint-disable-next-line no-unused-private-class-members
   #isVisible() {
     return !(this.state & constants.flags.STATE_NODRAW);
   }
 
   // @ts-expect-error unused
+  // eslint-disable-next-line no-unused-private-class-members
   #isSoftDropped() {
     return !!(this.state & constants.flags.ACTION_SOFTDROP);
   }
@@ -613,6 +624,7 @@ export class Engine {
   }
 
   // @ts-expect-error unused
+  // eslint-disable-next-line no-unused-private-class-members
   #__internal_lockout() {
     // TODO: implement
     // if (this.options.nolockout) return;
@@ -739,10 +751,7 @@ export class Engine {
     // Check for T-Spin
     const spin = this.#detectSpin(this.#isTSpinKick(kick));
 
-    this.lastSpin = {
-      piece: this.falling.symbol,
-      type: spin
-    };
+    this.lastSpin = spin;
 
     if (spin) {
       this.state |= constants.flags.ROTATION_SPIN;
@@ -823,7 +832,8 @@ export class Engine {
 
   // TODO: finish
   // @ts-expect-error wip
-  #loseStockOrGameOver(reason: "topout" | "topout_clear" | "garbagesmash") {
+  // eslint-disable-next-line no-unused-private-class-members
+  #loseStockOrGameOver(_reason: "topout" | "topout_clear" | "garbagesmash") {
     if (this.stock <= 0) {
       // TODO: game over or something idk
     } else {
@@ -962,7 +972,9 @@ export class Engine {
   }
 
   #slamToFloor() {
-    while (this.#__internal_fall(1)) {}
+    while (this.#__internal_fall(1)) {
+      /* empty */
+    }
   }
 
   get toppedOut() {
@@ -1204,7 +1216,7 @@ export class Engine {
     if (lines > 0) {
       this.stats.combo++;
       if (
-        ((this.lastSpin && this.lastSpin.type !== "none") || lines >= 4) &&
+        ((this.lastSpin && this.lastSpin !== "none") || lines >= 4) &&
         !(pc && this.pc && this.pc.b2b)
       ) {
         this.stats.b2b++;
@@ -1226,7 +1238,7 @@ export class Engine {
     const gSpecialBonus =
       this.garbageQueue.options.specialBonus &&
       garbageCleared > 0 &&
-      ((this.lastSpin && this.lastSpin.type !== "none") || lines >= 4)
+      ((this.lastSpin && this.lastSpin !== "none") || lines >= 4)
         ? 1
         : 0;
 
@@ -1237,7 +1249,7 @@ export class Engine {
         enemies: 0,
         lines,
         piece: this.falling.symbol,
-        spin: this.lastSpin ? this.lastSpin.type : "none"
+        spin: this.lastSpin ? this.lastSpin : "none"
       },
       {
         ...this.gameOptions,
@@ -1258,7 +1270,7 @@ export class Engine {
     let surged = 0;
 
     if (brokeB2B !== false) {
-      let btb = brokeB2B;
+      const btb = brokeB2B;
       if (this.b2b.charging !== false && btb + 1 > this.b2b.charging.at) {
         surged = Math.floor(
           (btb - this.b2b.charging.at + this.b2b.charging.base + 1) *
@@ -1286,7 +1298,7 @@ export class Engine {
       mino: this.falling.symbol,
       garbageCleared,
       lines,
-      spin: this.lastSpin ? this.lastSpin.type : "none",
+      spin: this.lastSpin ? this.lastSpin : "none",
       garbage: gEvents.filter((g) => g > 0),
       rawGarbage: gEvents.filter((g) => g > 0),
       surge: surged,
@@ -1401,8 +1413,10 @@ export class Engine {
     const sent = res.garbage.reduce((a, b) => a + b, 0);
     this.stats.garbage.sent += sent;
 
-    if (this.stats.combo >= 0) this.currentSpike += sent;
-    else this.currentSpike = 0;
+    if (sent > 0) {
+      this.spike.count += sent;
+      this.spike.timer = 60;
+    }
 
     this.resCache.pieces++;
     this.resCache.garbage.sent.push(...res.garbage);
@@ -1646,6 +1660,15 @@ export class Engine {
       this.#processShift(shift, subFrameDiff);
   }
 
+	#tickSpike() {
+		if (this.spike.timer > 0) {
+			this.spike.timer --;
+			if (this.spike.timer === 0) 
+				this.spike.count = 0;
+			
+		}
+	}
+
   #run(...frames: Game.Replay.Frame[]) {
     frames.forEach((frame) => {
       switch (frame.type) {
@@ -1716,6 +1739,9 @@ export class Engine {
     this.#fall();
     // TODO: execute waiting frames
     // TODO: process garbage are
+		
+		this.#tickSpike();
+
     Object.keys(this.dynamic).forEach((key) =>
       this.dynamic[key as keyof typeof this.dynamic].tick()
     );
@@ -1772,6 +1798,10 @@ export class Engine {
     console.log(
       `${chalk.redBright("[Triangle.js]")} Engine.onQueuePieces is deprecated and no longer functional. Switch to Engine.events.on("queue.add", (pieces) => {}) instead.`
     );
+  }
+
+  get currentSpike() {
+    return this.spike.count;
   }
 
   private static colorMap = {

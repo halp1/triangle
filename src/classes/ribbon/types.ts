@@ -10,8 +10,6 @@ export namespace RibbonEvents {
       ? { command: P }
       : { command: P; data: T[P] };
   }[keyof T];
-
-  export interface Send {}
 }
 
 export interface RibbonParams {

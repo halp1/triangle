@@ -242,7 +242,7 @@ export class Tetromino {
 
   dasRight(board: BoardSquare[][]) {
     if (this.moveRight(board)) {
-      while (this.moveRight(board)) {}
+      while (this.moveRight(board)) { /* empty */ }
       return true;
     }
     return false;
@@ -250,7 +250,7 @@ export class Tetromino {
 
   dasLeft(board: BoardSquare[][]) {
     if (this.moveLeft(board)) {
-      while (this.moveLeft(board)) {}
+      while (this.moveLeft(board)) { /* empty */ }
       return true;
     }
     return false;

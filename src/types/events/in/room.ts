@@ -22,8 +22,8 @@ export interface Room {
     owner: string;
     creator: string;
     state: RoomTypes.State;
-    topic: {};
-    info: {};
+    topic: Record<string, unknown>;
+    info: Record<string, unknown>;
     auto: RoomTypes.Autostart;
     options: GameTypes.Options;
     match: RoomTypes.Match;

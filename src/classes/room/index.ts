@@ -3,6 +3,7 @@ import { Client } from "../client";
 import { Game } from "../game";
 import { roomConfigPresets } from "./presets";
 import { ReplayManager } from "./replayManager";
+import type { SpectateData } from "./types";
 
 export class Room {
   private client: Client;
@@ -10,8 +11,6 @@ export class Room {
 
   /** the ID of the room */
   public id!: string;
-  /** Whether or not the room is public */
-  public public!: boolean;
   /** The type of the room (public | private) */
   public type!: RoomTypes.Type;
   /** Name of the room */
@@ -56,7 +55,6 @@ export class Room {
     this.autostart = data.auto;
 
     [
-      "public",
       "type",
       "name",
       "name_safe",
@@ -92,6 +90,7 @@ export class Room {
     let abortTimeout: NodeJS.Timeout | null = null;
     this.listen("room.update.host", (data) => {
       this.owner = data;
+			emitPlayers();
     });
 
     this.listen("room.update.bracket", (data) => {
@@ -118,7 +117,7 @@ export class Room {
 
     this.listen("game.ready", (data) => {
       try {
-        this.client.game = new Game(this.client, data);
+        this.client.game = new Game(this.client, data.players);
       } catch {
         return; // not in room, don't do anything
       }
@@ -146,8 +145,8 @@ export class Room {
 
     this.listen("game.replay.end", async ({ gameid, data }) => {
       this.replay?.die({ gameid, data, game: this.client.game });
-      if (!this.client.game || this.client.game.gameid !== gameid) return;
-      this.client.game.stop();
+      if (!this.client.game || this.client.game.self?.gameid !== gameid) return;
+      this.client.game.self?.destroy();
       this.client.emit("client.game.over", { reason: "finish", data });
     });
 
@@ -243,9 +242,9 @@ export class Room {
     return this.client.user.id === this.owner;
   }
 
-	/**
-	 * For internal use only. Use `room.leave()` instead.
-	 */
+  /**
+   * For internal use only. Use `room.leave()` instead.
+   */
   destroy() {
     this.listeners.forEach((l) => this.client.off(l[0], l[1]));
     if (this.client.game) {
@@ -382,6 +381,40 @@ export class Room {
    */
   async abort() {
     return await this.client.wrap("room.abort", undefined, "game.abort");
+  }
+
+  /**
+   * Start spectating a game.
+   * @returns {Promise<SpectateData>} The current state of the game being spectated.
+   *
+   * @example
+   * const data = await client.room!.spectate();
+   */
+  async spectate(): Promise<SpectateData> {
+    if (this.client.game) {
+      // todo: do something here!
+    }
+
+    const spectateData = await this.client.wrap(
+      "game.spectate",
+      undefined,
+      "game.spectate"
+    );
+
+    this.client.game = new Game(this.client, spectateData.players);
+
+    return {
+      match: spectateData.match.rb.options,
+      players: spectateData.match.rb.leaderboard.map(
+        (p): SpectateData["players"][number] => ({
+          active: p.active,
+          naturalorder: p.naturalorder,
+          userID: p.id,
+          username: p.username,
+          wins: p.wins
+        })
+      )
+    };
   }
 
   /**
