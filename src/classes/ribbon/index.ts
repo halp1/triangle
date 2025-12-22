@@ -1,16 +1,15 @@
 import { deepCopy } from "../../engine";
 import type { Events, Game } from "../../types";
 import { API, type APITypes, docLink, EventEmitter } from "../../utils";
-import { Codec as Amber } from "./codecs/amber";
-import { CandorCodec as Candor } from "./codecs/candor";
-import { tetoPack } from "./codecs/teto-pack";
-import { Bits } from "./codecs/utils/bits";
+import { Codec as Amber } from "./amber";
+import { Bits } from "./amber";
 import type { RibbonEvents, RibbonSnapshot } from "./types";
 
 import { Buffer } from "buffer/";
 import chalk from "chalk";
 
-export type Codec = "json" | "teto" | "candor" | "amber";
+export const codecs = ["amber", "json"] as const;
+export type Codec = (typeof codecs)[number];
 
 export interface Spool {
   host: string;
@@ -113,7 +112,7 @@ export class Ribbon {
 
   emitter = new EventEmitter<Events.in.all>();
 
-  static #getCodec(codec: Codec, userAgent: string): CodecHandler {
+  static #getCodec(codec: Codec): CodecHandler {
     switch (codec) {
       case "json":
         return {
@@ -122,29 +121,16 @@ export class Ribbon {
             JSON.stringify(data ? { command: msg, data } : { command: msg }),
           decode: (data) => JSON.parse(data.toString("utf-8"))
         };
-      case "teto": {
-        let pack: Awaited<ReturnType<typeof tetoPack>>;
-        tetoPack(userAgent, { global: true }).then((p) => {
-          pack = p;
-        });
-        return {
-          method: codec,
-          encode: (msg, data) => pack.encode(msg, data),
-          decode: (data) => pack.decode(data)
-        };
-      }
-      case "candor":
-        return {
-          method: codec,
-          encode: (msg, data) => Candor.Encode(msg, data),
-          decode: (data) => Candor.Decode(data)
-        };
       case "amber":
         return {
           method: codec,
           encode: (msg, data) => Amber.Encode(msg, data),
           decode: (data) => Amber.Decode(data)
         };
+      default:
+        throw new Error(
+          `Invalid codec: ${codec}. Valid codecs are: ${codecs.join(", ")}. Recommended codec is "amber".`
+        );
     }
   }
 
@@ -176,7 +162,7 @@ export class Ribbon {
 
     this.#spool = spool;
 
-    this.#codec = Ribbon.#getCodec(codec, userAgent);
+    this.#codec = Ribbon.#getCodec(codec);
 
     this.#api = api;
 
@@ -198,7 +184,7 @@ export class Ribbon {
     token,
     handling,
     userAgent,
-    codec = "candor",
+    codec = "amber",
     spooling = true
   }: {
     /** @deprecated - use `logging` instead */
@@ -221,7 +207,7 @@ export class Ribbon {
 
     const self = await api.users.me();
 
-    const loggingLevel = (logging ?? verbose) ? "all" : "error";
+    const loggingLevel = logging ?? (verbose ? "all" : "error");
 
     return new Ribbon({
       logging: loggingLevel,
@@ -285,14 +271,6 @@ export class Ribbon {
       console.log("-----");
       console.error(e);
 
-      if (this.#codec.method === "amber") {
-        try {
-          const alt = Candor.Decode(packet);
-          console.log("TARGET:", JSON.stringify(alt, null, 2));
-        } catch {
-          console.log("failed to decode with candor too");
-        }
-      }
       throw new Error(`failed to unpack packet with command ${command}`);
     }
   }
