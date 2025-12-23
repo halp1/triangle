@@ -5,7 +5,7 @@ import type { Client } from "../client";
 import { Relationship } from "./relationship";
 import type { SocialSnapshot } from "./types";
 
-import chalk from "chalk";
+// import chalk from "chalk";
 import _ from "lodash";
 
 interface SocialInitData {
@@ -190,53 +190,28 @@ export class Social {
         this.markNotificationsAsRead();
       }
     });
-
-    this.client.on("social.dm", async (raw) => {
-      const dm: SocialTypes.DM = { ...raw, ts: new Date(raw.ts) };
-
-      let target = dm.data.user;
-
-      if (dm.data.user === this.client.user.id) {
-        const userID = dm.stream
-          .split(":")
-          .filter((id) => id !== this.client.user.id)[0];
-
-        // failsafe
-        if (!userID) return;
-
-        target = userID;
-      }
-
-      let user = this.get({ id: target });
+    this.client.on("social.dm", async (dm) => {
+      let user = this.get({ id: dm.data.user });
       if (user) {
         if (!user.dmsLoaded && this.config.autoLoadDMs) await user.loadDms();
-        else user.dms.push(dm);
+        else user.dms.push({ ...dm, ts: new Date(dm.ts) });
       } else {
-        try {
-          const u = await this.who(target);
-          this.other.push(
-            new Relationship(
-              {
-                id: u._id,
-                username: u.username,
-                avatar: u.avatar_revision,
-                relationshipID: ""
-              },
-              this,
-              this.client
-            )
-          );
-
-          user = this.get({ id: target })!;
-          if (this.config.autoLoadDMs) await user.loadDms();
-        } catch {}
-      }
-
-      if (!user) {
-        console.warn(
-          `${chalk.yellowBright("[Triangle.js]")}: Failed to load user data for ${target}. 'client.dm' event discareded.`
+        const u = await this.who(dm.data.user);
+        this.other.push(
+          new Relationship(
+            {
+              id: u._id,
+              username: u.username,
+              avatar: u.avatar_revision,
+              relationshipID: ""
+            },
+            this,
+            this.client
+          )
         );
-        return;
+
+        user = this.get({ id: dm.data.user })!;
+        if (this.config.autoLoadDMs) await user.loadDms();
       }
 
       this.client.emit("client.dm", {
