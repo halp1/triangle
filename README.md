@@ -72,7 +72,7 @@ bun i buffer
 Add the following to the top of your root file:
 
 ```ts
-import { Buffer } from "buffer/";
+import { Buffer } from "buffer/index.js";
 
 globalThis.Buffer = Buffer;
 ``` -->

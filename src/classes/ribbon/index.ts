@@ -5,7 +5,7 @@ import { Codec as Amber } from "./amber";
 import { Bits } from "./amber";
 import type { RibbonEvents, RibbonSnapshot } from "./types";
 
-import { Buffer } from "buffer/";
+import { Buffer } from "buffer/index.js";
 import chalk from "chalk";
 
 export const codecs = ["amber", "json"] as const;
