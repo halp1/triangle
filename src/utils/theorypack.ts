@@ -1,25 +1,27 @@
-import { Packr, Unpackr, addExtension } from "./ts-wrap";
+import m from "./msgpackr";
+
+const msgpackr = m();
 
 // require theorypack extensions
-addExtension({
+msgpackr.addExtension({
   Class: undefined!,
   type: 1,
   read: (e) => (null === e ? { success: true } : { success: true, ...e })
 });
 
-addExtension({
+msgpackr.addExtension({
   Class: undefined!,
   type: 2,
   read: (e) => (null === e ? { success: false } : { success: false, error: e })
 });
 
-const unpacker = new Unpackr({
+const unpacker = new msgpackr.Unpackr({
   int64AsType: "number",
   bundleStrings: true,
   sequential: false
 });
 
-const packer = new Packr({
+const packer = new msgpackr.Packr({
   int64AsType: "number",
   bundleStrings: true,
   sequential: false

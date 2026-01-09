@@ -14,7 +14,6 @@ export class Self {
   #timeout: NodeJS.Timeout | null = null;
   #messageQueue: GameTypes.Client.Events[] = [];
   #target: GameTypes.Target = { strategy: "even" };
-  #tick?: GameTypes.Tick.Func;
   #pauseIGEs = false;
   #forcePauseIGEs = false;
   #igeQueue: GameTypes.IGE[] = [];
@@ -25,27 +24,29 @@ export class Self {
   #isPractice = false;
 
   /** The client's engine */
-  public engine!: Engine;
+  engine!: Engine;
   /** The client's `gameid` set by the server */
-  public gameid: number;
+  gameid: number;
   /** The raw game config sent by TETR.IO */
-  public options: GameTypes.ReadyOptions;
+  options: GameTypes.ReadyOptions;
   /** The targets set by the server */
-  public serverTargets: number[] = [];
+  serverTargets: number[] = [];
   /** The gameids of the users targeting the client */
-  public enemies: number[] = [];
+  enemies: number[] = [];
   /** The keys the client has queued to press (allows for pressing keys in the future) */
-  public keyQueue: NonNullable<GameTypes.Tick.Out["keys"]> = [];
+  keyQueue: NonNullable<GameTypes.Tick.Out["keys"]> = [];
   /** Whether or not targeting is allowed (changed by server). Setting target while this is `false` will throw an error. */
-  public canTarget = true;
+  canTarget = true;
   /** Whether or not the client's game is over (topped out), and no longer ticking. */
-  public over = false;
+  over = false;
   /** The BotWrapper in use. When a BotWrapper is set, `tick` will not be called. */
-  public botWrapper?: BotWrapper;
+  botWrapper?: BotWrapper;
   /** The performance.now() timestamp when the gameplay started */
-  public startTime: number | null = null;
+  startTime: number | null = null;
   /** The last time IGEs were flushed */
-  public lastIGEFlush: number = performance.now();
+  lastIGEFlush: number = performance.now();
+  /** The tick function called every game tick */
+  tick?: GameTypes.Tick.Func;
 
   /** The maximum amount of time before all IGEs are force-flushed */
   static maxIGETimeout = 30000;
@@ -99,7 +100,6 @@ export class Self {
 
     this.engine.events.removeAllListeners();
     this.over = true;
-    this.#client.ribbon.fasterPing = false;
   }
 
   /** Initialize the client's game. You don't need to call this manually. */
@@ -145,7 +145,7 @@ export class Self {
 
     this.#client.emit("client.game.round.start", [
       (f) => {
-        this.#tick = f;
+        this.tick = f;
       },
       this.engine
     ]);
@@ -188,9 +188,9 @@ export class Self {
   async #tickGame(): Promise<void> {
     if (this.over) return;
     const runAfter: GameTypes.Tick.Out["runAfter"] = [];
-    if (this.#tick) {
+    if (this.tick) {
       try {
-        const res = await this.#tick({
+        const res = await this.tick({
           gameid: this.gameid,
           frame: this.engine.frame,
           events: this.#messageQueue.splice(0, this.#messageQueue.length),
@@ -380,27 +380,27 @@ export class Self {
   }
 
   /** Pauses accepting IGEs (garbage events) when the `keyQueue` has items, when `pauseIGEs` is set to true. */
-  public get pauseIGEs() {
+  get pauseIGEs() {
     return this.#pauseIGEs;
   }
 
-  public set pauseIGEs(value: boolean) {
+  set pauseIGEs(value: boolean) {
     this.#pauseIGEs = value;
     this.#flushIGEs();
   }
 
   /** Force stops the processing of all IGEs (garbage, etc). If left `true` for too long (~30s), IGEs will be automatically flushed to avoid a forced disconnect. Use sparingly. */
-  public get forcePauseIGEs() {
+  get forcePauseIGEs() {
     return this.#forcePauseIGEs;
   }
 
-  public set forcePauseIGEs(value: boolean) {
+  set forcePauseIGEs(value: boolean) {
     this.#forcePauseIGEs = value;
     this.#flushIGEs();
   }
 
   /** Whether or not the `Game` is currently allowed to process IGEs. */
-  public get igesPaused() {
+  get igesPaused() {
     return (
       this.#forcePauseIGEs || (this.#pauseIGEs && this.keyQueue.length > 0)
     );

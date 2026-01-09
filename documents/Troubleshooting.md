@@ -12,7 +12,7 @@ If you are unable to upgrade your Node.js version, do the following:
    ```bash
    npm install ws
    ```
-2. At the top of your code, (or anywhere before calling your first `Client.connect`), add the following code:
+2. At the top of your code, (or anywhere before calling your first `Client.create`), add the following code:
    **ES6/Import:**
 
    ```ts

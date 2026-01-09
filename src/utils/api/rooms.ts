@@ -19,7 +19,7 @@ export namespace Rooms {
 
 export const rooms = (get: Get, _: Post, __: APIDefaults) => {
   return {
-    rooms: async () => {
+    list: async () => {
       const res = await get<{ rooms: Rooms.Room[] }>({ uri: "rooms/" });
 
       if (res === null) return [];

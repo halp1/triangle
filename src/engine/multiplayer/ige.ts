@@ -18,19 +18,17 @@ export interface IGEHandlerSnapshot {
  * Manages network IGE cancelling
  */
 export class IGEHandler {
-  /** @hidden */
-  private players: polyfills.Map<number, PlayerData>;
-  /** @hidden */
-  private iid = 0;
+  #players: polyfills.Map<number, PlayerData>;
+  #iid = 0;
 
   /**
    * Manages network IGE cancelling
    * @param players - list of player ids
    */
   constructor(players: number[]) {
-    this.players = new polyfills.Map();
+    this.#players = new polyfills.Map();
     players.forEach((player) => {
-      this.players.set(player, { incoming: 0, outgoing: [] });
+      this.#players.set(player, { incoming: 0, outgoing: [] });
     });
   }
 
@@ -43,15 +41,15 @@ export class IGEHandler {
    */
   send({ playerID, amount }: { playerID: number; amount: number }) {
     if (amount === 0) return;
-    let player = this.players.get(playerID);
-    const iid = ++this.iid;
+    let player = this.#players.get(playerID);
+    const iid = ++this.#iid;
 
     if (!player) {
       player = { incoming: 0, outgoing: [] };
-      this.players.set(playerID, player);
+      this.#players.set(playerID, player);
     }
 
-    this.players.set(playerID, {
+    this.#players.set(playerID, {
       incoming: player.incoming,
       outgoing: [...player.outgoing, { iid, amount }]
     });
@@ -60,7 +58,7 @@ export class IGEHandler {
     //   "send",
     //   playerID,
     //   Object.fromEntries(
-    //     [...this.players.entries()].map(([k, v]) => [k, this.extract(v)])
+    //     [...this.#players.entries()].map(([k, v]) => [k, this.extract(v)])
     //   )
     // );
   }
@@ -86,10 +84,10 @@ export class IGEHandler {
     iid: number;
     amount: number;
   }) {
-    let player = this.players.get(playerID);
+    let player = this.#players.get(playerID);
     if (!player) {
       player = { incoming: 0, outgoing: [] };
-      this.players.set(playerID, player);
+      this.#players.set(playerID, player);
     }
 
     const incomingIID = Math.max(iid, player.incoming ?? 0);
@@ -105,13 +103,13 @@ export class IGEHandler {
       if (item.amount > 0) newIGEs.push(item);
     });
 
-    this.players.set(playerID, { incoming: incomingIID, outgoing: newIGEs });
+    this.#players.set(playerID, { incoming: incomingIID, outgoing: newIGEs });
 
     // console.log(
     //   "receive",
     //   playerID,
     //   Object.fromEntries(
-    //     [...this.players.entries()].map(([k, v]) => [k, this.extract(v)])
+    //     [...this.#players.entries()].map(([k, v]) => [k, this.extract(v)])
     //   )
     // );
 
@@ -120,15 +118,15 @@ export class IGEHandler {
 
   snapshot(): IGEHandlerSnapshot {
     return {
-      players: Object.fromEntries(this.players.entries()),
-      iid: this.iid
+      players: Object.fromEntries(this.#players.entries()),
+      iid: this.#iid
     };
   }
 
   fromSnapshot(snapshot: IGEHandlerSnapshot) {
-    this.players = new polyfills.Map(
+    this.#players = new polyfills.Map(
       Object.entries(snapshot.players).map(([k, v]) => [Number(k), v])
     );
-    this.iid = snapshot.iid;
+    this.#iid = snapshot.iid;
   }
 }

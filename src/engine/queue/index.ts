@@ -19,6 +19,11 @@ export class Queue extends Array<Mino> {
   bag!: Bag;
   _minLength!: number;
   repopulateListener: ((pieces: Mino[]) => void) | null = null;
+
+  static get [Symbol.species]() {
+    return Array;
+  }
+
   constructor(options: QueueInitializeParams) {
     super();
     this.seed = options.seed;
@@ -27,14 +32,9 @@ export class Queue extends Array<Mino> {
     this.minLength = options.minLength;
   }
 
-  reset(index = 0) {
+  reset() {
     this.bag = new rngMap[this.type](this.seed);
-    this.splice(0, this.length);
-    this.repopulate();
-    for (let i = 0; i < index; i++) {
-      this.shift();
-      this.repopulate();
-    }
+    this.#repopulate();
   }
 
   onRepopulate(listener: NonNullable<typeof this.repopulateListener>) {
@@ -46,7 +46,7 @@ export class Queue extends Array<Mino> {
   }
   set minLength(val: number) {
     this._minLength = val;
-    this.repopulate();
+    this.#repopulate();
   }
 
   get next() {
@@ -55,11 +55,11 @@ export class Queue extends Array<Mino> {
 
   override shift() {
     const val = super.shift();
-    this.repopulate();
+    this.#repopulate();
     return val;
   }
 
-  private repopulate() {
+  #repopulate() {
     const added: Mino[] = [];
     while (this.length < this.minLength) {
       const newValues = this.bag.next();
@@ -82,6 +82,10 @@ export class Queue extends Array<Mino> {
   fromSnapshot(snapshot: QueueSnapshot) {
     this.bag.fromSnapshot(snapshot.bag);
     this.splice(0, this.length, ...snapshot.value);
+  }
+
+  raw(): Mino[] {
+    return Array.from(this);
   }
 }
 export * from "./rng";

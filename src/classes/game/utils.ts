@@ -1,4 +1,4 @@
-import { Queue } from "../../engine";
+import { Mino, Queue } from "../../engine";
 import type { Game } from "../../types";
 
 export const getFullFrame = (
@@ -15,7 +15,7 @@ export const getFullFrame = (
         type: options.bagtype,
         minLength: 7,
         seed: options.seed
-      }).value as Game.Mino[],
+      }) as Game.Mino[],
       hold: {
         piece: null,
         locked: false
@@ -38,7 +38,7 @@ export const getFullFrame = (
         inputSoftdrop: false
       },
       falling: {
-        type: "i",
+        type: Mino.I,
         x: 0,
         y: 0,
         r: 0,

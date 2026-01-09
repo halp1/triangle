@@ -95,7 +95,7 @@ export class Engine {
   held!: Mino | null;
   holdLocked!: boolean;
   falling!: Tetromino;
-  private _kickTable!: KickTableName;
+  #kickTable!: KickTableName;
   board!: Board;
   connectedBoard!: ConnectedBoard;
   lastSpin!: SpinType | null;
@@ -179,7 +179,8 @@ export class Engine {
 
   events = new EventEmitter<Events>();
 
-  private resCache!: {
+  /** @internal */
+  resCache!: {
     pieces: number;
     garbage: {
       sent: number[];
@@ -206,7 +207,7 @@ export class Engine {
 
     this.queue.onRepopulate(this.#onQueueRepopulate.bind(this));
 
-    this._kickTable = options.kickTable;
+    this.#kickTable = options.kickTable;
 
     this.board = new Board(options.board);
     this.connectedBoard = new ConnectedBoard(options.board);
@@ -307,14 +308,14 @@ export class Engine {
       timer: 0
     };
 
-    this.flushRes();
+    this.#flushRes();
 
     this.nextPiece();
 
     this.bindAll();
   }
 
-  private flushRes() {
+  #flushRes() {
     const res = this.resCache ? deepCopy(this.resCache) : null;
     this.resCache = {
       pieces: 0,
@@ -448,15 +449,15 @@ export class Engine {
   }
 
   get kickTable(): (typeof kicks)[KickTableName] {
-    return kicks[this._kickTable];
+    return kicks[this.#kickTable];
   }
 
   get kickTableName(): KickTableName {
-    return this._kickTable;
+    return this.#kickTable;
   }
 
   set kickTable(value: KickTableName) {
-    this._kickTable = value;
+    this.#kickTable = value;
   }
 
   get dynamicStats() {
@@ -1744,7 +1745,7 @@ export class Engine {
       this.dynamic[key as keyof typeof this.dynamic].tick()
     );
 
-    return { ...this.flushRes() };
+    return { ...this.#flushRes() };
   }
 
   receiveGarbage(...garbage: IncomingGarbage[]) {
@@ -1802,16 +1803,16 @@ export class Engine {
     return this.spike.count;
   }
 
-  private static colorMap = {
-    i: chalk.bgCyan,
-    j: chalk.bgBlue,
-    l: chalk.bgYellow,
-    o: chalk.bgWhite,
-    s: chalk.bgGreenBright,
-    t: chalk.bgMagentaBright,
-    z: chalk.bgRedBright,
-    gb: chalk.bgBlackBright,
-    bomb: chalk.bgHex("#FFA500")
+  static colorMap = {
+    [Mino.I]: chalk.bgCyan,
+    [Mino.J]: chalk.bgBlue,
+    [Mino.L]: chalk.bgYellow,
+    [Mino.O]: chalk.bgWhite,
+    [Mino.S]: chalk.bgGreenBright,
+    [Mino.T]: chalk.bgMagentaBright,
+    [Mino.Z]: chalk.bgRedBright,
+    [Mino.GARBAGE]: chalk.bgBlackBright,
+    [Mino.BOMB]: chalk.bgHex("#FFA500")
   };
 
   get text() {

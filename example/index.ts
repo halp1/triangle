@@ -2,13 +2,13 @@ import { Client } from "@haelp/teto";
 import { BotWrapper, adapters } from "@haelp/teto/utils";
 import path from "path";
 
-const client = await Client.connect({
+const client = await Client.create({
   username: process.env.USERNAME!,
   password: process.env.PASSWORD!
 });
 
 // Or:
-// const client = await Client.connect({
+// const client = await Client.create({
 //   token: process.env.TOKEN!
 // });
 

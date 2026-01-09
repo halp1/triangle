@@ -22,22 +22,25 @@ export class Game {
   #client: Client;
   #listeners: Parameters<Client["on"]>[] = [];
 
-  /** Data on all players in game, including the client */
-  public players: {
+  /** Data on all players in game, including the client. Note that the client's engine data is only the data acknowledged by the server, not the most recent gameplay information. */
+  players: {
     name: string;
     gameid: number;
     userid: string;
     engine: Engine;
+    /** Queue of unprocessed replay frames for this player. Do not modify. */
     queue: GameTypes.Replay.Frame[];
+    /** Whether the player is currently receiving replay frames (actively spectated) */
+    spectating: boolean;
   }[] = [];
 
   /** The raw game config for all players, (possibly) including the client's own game config */
-  public rawPlayers: GameTypes.Ready["players"];
+  rawPlayers: GameTypes.Ready["players"];
 
   /** The client's own game handler */
-  public self?: Self;
+  self?: Self;
 
-  public get opponents() {
+  get opponents() {
     return this.players.filter((p) => p.userid !== this.#client.user.id);
   }
 
@@ -101,6 +104,8 @@ export class Game {
 
     this.players.forEach((engine) => engine.engine.events.removeAllListeners());
 
+    this.#client.ribbon.fasterPing = false;
+
     delete this.#client.game;
   }
 
@@ -114,12 +119,13 @@ export class Game {
       userid: o.userid,
       gameid: o.gameid,
       engine: Game.createEngine(o.options, o.gameid, this.rawPlayers),
-      queue: []
+      queue: [],
+      spectating: false
     }));
 
     this.#listen("game.replay", ({ gameid, frames }) => {
       const game = this.players.find((player) => player.gameid === gameid);
-      if (!game || game.engine.toppedOut) return false;
+      if (!game || game.engine.toppedOut) return;
 
       game.queue.push(...frames);
       while (game.queue.some((f) => f.frame > game.engine.frame)) {
@@ -153,62 +159,126 @@ export class Game {
     });
   }
 
+  #spectate(player: Game["players"][number] | number) {
+    const p =
+      typeof player === "number"
+        ? this.players.find((p) => p.gameid === player)
+        : player;
+    if (!p || p.spectating) return;
+    this.#client.emit("game.scope.start", p.gameid);
+    p.spectating = true;
+  }
+
+  #unspectate(player: Game["players"][number] | number) {
+    const p =
+      typeof player === "number"
+        ? this.players.find((p) => p.gameid === player)
+        : player;
+    if (!p || !p.spectating) return;
+    this.#client.emit("game.scope.end", p.gameid);
+    p.spectating = false;
+  }
+
+  /**
+   * Spectate one or more players by their game ID or user ID, or spectate all players in the game.
+   * @param gameid - An array of game IDs to spectate.
+   * @example
+   * ```ts
+   * // Spectate a player by game ID
+   * client.game!.spectate([12344]);
+   * ```
+   */
   spectate(gameid: number[]): void;
-  spectate(userid: "all"): void;
+  /**
+   * Spectate one or more players by their game ID or user ID, or spectate all players in the game.
+   * @param targets - The string "all" to spectate all players.
+   * @example
+   * ```ts
+   * // Spectate all players in the game
+   * client.game!.spectate("all");
+   * ```
+   */
+  spectate(targets: "all"): void;
+  /**
+   * Spectate one or more players by their game ID or user ID, or spectate all players in the game.
+   * @param userid - An array of user IDs to spectate.
+   * @example
+   * ```ts
+   * // Spectate a player by user ID
+   * client.game!.spectate(["646f633d276f42a80ba44304"]);
+   * ```
+   */
   // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
   spectate(userid: String[]): void;
   // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
   spectate(targets: number[] | "all" | String[]) {
     if (targets === "all") {
-      this.players.forEach((p) => {
-        this.#client.emit("game.scope.start", p.gameid);
-      });
+      this.players.forEach((p) => this.#spectate(p));
     } else if (Array.isArray(targets)) {
       if (targets.length === 0) return;
       if (typeof targets[0] === "string") {
         const useridTargets = targets as string[];
-        this.players.forEach((p) => {
-          if (useridTargets.includes(p.userid)) {
-            this.#client.emit("game.scope.start", p.gameid);
-          }
-        });
-      } else {
         this.players
-          .filter((p) => (targets as number[]).includes(p.gameid))
-          .forEach((p) => {
-            this.#client.emit("game.scope.start", p.gameid);
-          });
+          .filter((p) => useridTargets.includes(p.userid))
+          .forEach((p) => this.#spectate(p));
+      } else {
+        const gameidTargets = targets as number[];
+        this.players
+          .filter((p) => gameidTargets.includes(p.gameid))
+          .forEach((p) => this.#spectate(p));
       }
     } else {
       throw new Error("Invalid spectate targets");
     }
   }
 
+  /**
+   * Stop spectating one or more players by their game ID or user ID, or stop spectating all players in the game.
+   * @param gameid - An array of game IDs to stop spectating.
+   * @example
+   * ```ts
+   * // Stop spectating a player by game ID
+   * client.game!.unspectate([12344]);
+   * ```
+   */
   unspectate(gameid: number[]): void;
+  /**
+   * Stop spectating one or more players by their game ID or user ID, or stop spectating all players in the game.
+   * @param userid - The string "all" to stop spectating all players.
+   * @example
+   * ```ts
+   * // Stop spectating all players in the game
+   * client.game!.unspectate("all");
+   * ```
+   */
   unspectate(userid: "all"): void;
+  /**
+   * Stop spectating one or more players by their game ID or user ID, or stop spectating all players in the game.
+   * @param userid - An array of user IDs to stop spectating.
+   * @example
+   * ```ts
+   * // Stop spectating a player by user ID
+   * client.game!.unspectate(["646f633d276f42a80ba44304"]);
+   * ```
+   */
   // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
   unspectate(userid: String[]): void;
   // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
   unspectate(targets: number[] | "all" | String[]) {
     if (targets === "all") {
-      this.players.forEach((p) => {
-        this.#client.emit("game.scope.end", p.gameid);
-      });
+      this.players.forEach((p) => this.#unspectate(p));
     } else if (Array.isArray(targets)) {
       if (targets.length === 0) return;
       if (typeof targets[0] === "string") {
         const useridTargets = targets as string[];
-        this.players.forEach((p) => {
-          if (useridTargets.includes(p.userid)) {
-            this.#client.emit("game.scope.end", p.gameid);
-          }
-        });
-      } else {
         this.players
-          .filter((p) => (targets as number[]).includes(p.gameid))
-          .forEach((p) => {
-            this.#client.emit("game.scope.end", p.gameid);
-          });
+          .filter((p) => useridTargets.includes(p.userid))
+          .forEach((p) => this.#unspectate(p));
+      } else {
+        const gameidTargets = targets as number[];
+        this.players
+          .filter((p) => gameidTargets.includes(p.gameid))
+          .forEach((p) => this.#unspectate(p));
       }
     } else {
       throw new Error("Invalid unspectate targets");
@@ -464,3 +534,5 @@ export class Game {
 }
 
 export * from "./types";
+export * from "./self";
+export * from "./player";

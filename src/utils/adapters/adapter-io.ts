@@ -3,8 +3,9 @@ import type { Engine, Mino } from "../../engine";
 import { Adapter } from "./core";
 import type * as Messages from "./types/messages";
 
+import type { ChildProcessWithoutNullStreams } from "node:child_process";
+
 import chalk from "chalk";
-import { spawn, type ChildProcessWithoutNullStreams } from "child_process";
 
 export interface AdapterIOConfig {
   /** The name of the adapter. Used when logging to the terminal. */
@@ -69,7 +70,7 @@ export class AdapterIO<
   process!: ChildProcessWithoutNullStreams;
 
   constructor(
-    config: Partial<AdapterIOConfig> & {
+    config: Partial<Omit<AdapterIOConfig, "path">> & {
       path: string;
     }
   ) {
@@ -85,7 +86,8 @@ export class AdapterIO<
     };
   }
 
-  #start() {
+  async #start() {
+    const spawn = await import("node:child_process").then((m) => m.spawn);
     this.process = spawn(this.cfg.path, this.cfg.args, {
       env: this.cfg.env,
       stdio: ["pipe", "pipe", "pipe"]
