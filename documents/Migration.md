@@ -16,6 +16,12 @@ const client = await Client.create({
 });
 ```
 
+### Gameplay control has been moved to `client.game.self`
+
+All gameplay control methods and properties that were previously a part of the `Game` class have been moved to the `Self` class accessible via `client.game.self`. this includes the client's own `Engine` and player data, ige controls, and targeting setters/getters.
+
+Instead of being able to read from `client.game.over`, `client.game.self` is automatically deleted when the client's gameplay ends (top out or game end).
+
 ### `Codec` is now `Transport`
 
 The type `Codec` has been renamed to `Transport`, and has two possible values: `"binary"` and `"json"`.
@@ -36,9 +42,18 @@ const client = await Client.create({
 
 The `Queue` class (accessible via `engine.queue`) has been changed to extend the native `Array` class. This means that all array methods are now available on `engine.queue`, such as `map`, `filter`, and `forEach`. Instead of reading queue data from `queue.value`, you can now read it directly from `queue`.
 
-### `client.room.public` property removed
+To get a raw Array instead of a Queue, use `queue.raw()`.
 
-The `public` property on the `client.room` object has been removed. To check if a room is public, read the `type` property instead, which can have a value of `"public"` or `"private"`.
+### The `client.dm` event has been reworked
+
+The `client.dm` event now contains the following properties:
+
+- `relationship`: The `Relationship` repesenting the DM relationship.
+- `raw`: The raw `Social.DM` data received from the server.
+- `content`: The message content.
+- `reply`: A function that can be used to directly reply to the received dm.
+
+Importantly, `client.dm` **no longer fires** when the dm's sender is the client itself.
 
 ### `client.api.rooms` change
 
