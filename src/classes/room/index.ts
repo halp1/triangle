@@ -11,7 +11,9 @@ export class Room {
 
   /** the ID of the room */
   id!: string;
-  /** The type of the room (`public` | `private`) */
+  /** Whether or not the room is public */
+  public!: boolean;
+  /** The type of the room */
   type!: RoomTypes.Type;
   /** Name of the room */
   name!: string;
@@ -55,6 +57,7 @@ export class Room {
     this.autostart = data.auto;
 
     [
+      "public",
       "type",
       "name",
       "name_safe",

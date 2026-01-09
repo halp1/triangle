@@ -22,6 +22,7 @@ export class Self {
   // @ts-expect-error
   // eslint-disable-next-line no-unused-private-class-members
   #isPractice = false;
+  #over = false;
 
   /** The client's engine */
   engine!: Engine;
@@ -37,8 +38,6 @@ export class Self {
   keyQueue: NonNullable<GameTypes.Tick.Out["keys"]> = [];
   /** Whether or not targeting is allowed (changed by server). Setting target while this is `false` will throw an error. */
   canTarget = true;
-  /** Whether or not the client's game is over (topped out), and no longer ticking. */
-  over = false;
   /** The BotWrapper in use. When a BotWrapper is set, `tick` will not be called. */
   botWrapper?: BotWrapper;
   /** The performance.now() timestamp when the gameplay started */
@@ -99,7 +98,8 @@ export class Self {
       this.#timeout = (clearTimeout(this.#timeout) as any) || null;
 
     this.engine.events.removeAllListeners();
-    this.over = true;
+
+    delete this.#client.game?.self;
   }
 
   /** Initialize the client's game. You don't need to call this manually. */
@@ -186,7 +186,7 @@ export class Self {
   }
 
   async #tickGame(): Promise<void> {
-    if (this.over) return;
+    if (this.#over) return;
     const runAfter: GameTypes.Tick.Out["runAfter"] = [];
     if (this.tick) {
       try {
@@ -252,11 +252,11 @@ export class Self {
             })
           );
       } catch (e) {
-        if (this.over) return;
+        if (this.#over) return;
         throw e;
       }
     }
-    if (this.over) return;
+    if (this.#over) return;
 
     // ideally, iges get flushed here
     this.#flushIGEs();
