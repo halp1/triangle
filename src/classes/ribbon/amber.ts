@@ -1,8 +1,8 @@
 /* eslint-disable */
 // @ts-nocheck
 import msgpackr from "./msgpackr-943ed70";
-
 import { Buffer } from "buffer/index.js";
+
 import { strictShallowEqual } from "fast-equals";
 
 const r = msgpackr();

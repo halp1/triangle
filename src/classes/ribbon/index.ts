@@ -4,8 +4,8 @@ import { API, type APITypes, docLink, EventEmitter } from "../../utils";
 import { Codec as Amber } from "./amber";
 import { Bits } from "./amber";
 import type { RibbonEvents, RibbonSnapshot } from "./types";
-
 import { Buffer } from "buffer/index.js";
+
 import chalk from "chalk";
 
 export const transports = ["binary", "json"] as const;
