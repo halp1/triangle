@@ -22,7 +22,7 @@
     "python"
   ],
   "projectDocuments": [
-		"documents/Migration.md",
+    "documents/Migration.md",
     "documents/Adapters.md",
     "documents/Channel.md",
     "documents/Engine.md",
