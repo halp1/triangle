@@ -308,7 +308,9 @@ export class Ribbon {
       this.#flags |= Ribbon.FLAGS.CONNECTING;
 
       try {
-        const socket = new WebSocket(this.#uri, this.#spool.token);
+        const socket = this.#spool.token
+          ? new WebSocket(this.#uri, this.#spool.token)
+          : new WebSocket(this.#uri);
         this.#socket = socket;
 
         socket.binaryType = "arraybuffer";

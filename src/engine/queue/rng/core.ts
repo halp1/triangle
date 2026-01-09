@@ -28,7 +28,7 @@ export abstract class Bag {
     };
   }
 
-	// note: not static because of inheritance
+  // note: not static because of inheritance
   fromSnapshot(snapshot: BagSnapshot) {
     this.rng = new RNG(snapshot.rng);
     this.id = snapshot.id;

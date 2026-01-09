@@ -72,12 +72,12 @@ export class Queue extends Array<Mino> {
     }
   }
 
-	snapshot(): QueueSnapshot {
-		return {
-			value: Array.from(this),
-			bag: this.bag.snapshot()
-		};
-	}
+  snapshot(): QueueSnapshot {
+    return {
+      value: Array.from(this),
+      bag: this.bag.snapshot()
+    };
+  }
 
   fromSnapshot(snapshot: QueueSnapshot) {
     this.bag.fromSnapshot(snapshot.bag);

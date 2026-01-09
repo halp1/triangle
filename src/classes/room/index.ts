@@ -90,7 +90,7 @@ export class Room {
     let abortTimeout: NodeJS.Timeout | null = null;
     this.listen("room.update.host", (data) => {
       this.owner = data;
-			emitPlayers();
+      emitPlayers();
     });
 
     this.listen("room.update.bracket", (data) => {

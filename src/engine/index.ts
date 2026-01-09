@@ -1660,14 +1660,12 @@ export class Engine {
       this.#processShift(shift, subFrameDiff);
   }
 
-	#tickSpike() {
-		if (this.spike.timer > 0) {
-			this.spike.timer --;
-			if (this.spike.timer === 0) 
-				this.spike.count = 0;
-			
-		}
-	}
+  #tickSpike() {
+    if (this.spike.timer > 0) {
+      this.spike.timer--;
+      if (this.spike.timer === 0) this.spike.count = 0;
+    }
+  }
 
   #run(...frames: Game.Replay.Frame[]) {
     frames.forEach((frame) => {
@@ -1739,8 +1737,8 @@ export class Engine {
     this.#fall();
     // TODO: execute waiting frames
     // TODO: process garbage are
-		
-		this.#tickSpike();
+
+    this.#tickSpike();
 
     Object.keys(this.dynamic).forEach((key) =>
       this.dynamic[key as keyof typeof this.dynamic].tick()

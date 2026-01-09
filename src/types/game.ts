@@ -499,7 +499,7 @@ export namespace Game {
       finished: number;
     };
     unsafewaitingframes: unknown[];
-    waitingframes: {target: number, type: string, data: any}[];
+    waitingframes: { target: number; type: string; data: any }[];
     windupwaituntil: number;
     zenith: {
       allyincapacitated: boolean;

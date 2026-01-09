@@ -3,8 +3,7 @@ import type { Room } from "../../types";
 export interface RoomSnapshot {
   id: string;
   public: boolean;
-	type: Room.Type;
-
+  type: Room.Type;
 }
 
 export interface SpectateData {

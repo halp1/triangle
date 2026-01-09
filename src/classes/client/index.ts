@@ -32,7 +32,7 @@ export class Client {
   public api: API;
 
   public rooms: {
-    list(): ReturnType<API["rooms"]['rooms']>;
+    list(): ReturnType<API["rooms"]["rooms"]>;
     join(id: string): Promise<Room>;
     create(type?: "public" | "private"): Promise<Room>;
   };
