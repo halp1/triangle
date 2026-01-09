@@ -1,5 +1,5 @@
 import type { AdapterKey } from ".";
-import type { BoardSquare, Engine, Mino } from "../../../engine";
+import type { BoardSquare, EngineSnapshot, Mino } from "../../../engine";
 import type { KickTableName } from "../../../engine/utils/kicks/data";
 import type { Game } from "../../../types";
 
@@ -58,7 +58,7 @@ export namespace Outgoing {
     pcB2b: number;
     pcGarbage: number;
 
-    queue: Engine["queue"]["value"];
+    queue: EngineSnapshot["queue"]["value"];
 
     data: Data["config"];
   }

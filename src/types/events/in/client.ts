@@ -53,11 +53,7 @@ export interface Client {
   };
 
   /** Fires when a round starts (this includes 1-round games) */
-  "client.game.round.start": [
-    (cb: Game.Tick.Func) => void,
-    Engine,
-    { name: string; gameid: number; engine: Engine }[]
-  ];
+  "client.game.round.start": [(cb: Game.Tick.Func) => void, Engine];
   /** Fires when the client's game ends (topout). Finish = game.replay.end, abort = game.abort, end = game.end or game.advance or game.score */
   "client.game.over":
     | {
@@ -125,9 +121,15 @@ export interface Client {
   /** Fires whenever the client is friended */
   "client.friended": { id: string; name: string; avatar: number };
 
-  /** Fires when a DM (direct message) has been received and AFTER any unknown data has been loaded about the user */
+  /**
+   * Fires when a DM (direct message) has been received
+   * and AFTER any unknown data has been loaded about the user.
+   * `client.dm` does NOT fire when receiving a `social.dm` event
+   * triggered by a message sent by the client.
+   * */
   "client.dm": {
-    user: Relationship;
+    relationship: Relationship;
+    raw: Social.DM;
     content: string;
     reply: (message: string) => Promise<Social.DM | string>;
   };

@@ -149,7 +149,7 @@ export class GarbageQueue {
     let send = amount,
       cancel = 0;
 
-    let cancelled: IncomingGarbage[] = [];
+    const cancelled: IncomingGarbage[] = [];
     if (
       pieceCount + 1 <=
         this.options.openerPhase - (legacy.openerPhase ? 1 : 0) &&
@@ -275,11 +275,12 @@ export class GarbageQueue {
     switch (this.options.rounding) {
       case "down":
         return Math.floor(amount);
-      case "rng":
+      case "rng": {
         const floored = Math.floor(amount);
         if (floored === amount) return floored;
         const decimal = amount - floored;
         return floored + (this.rngex() < decimal ? 1 : 0);
+      }
       default:
         throw new Error(`Invalid rounding mode ${this.options.rounding}`);
     }

@@ -2,6 +2,24 @@
 // @ts-nocheck
 import { Buffer } from "buffer/index.js";
 
+import type {
+  Decoder,
+  Encoder,
+  FLOAT32_OPTIONS,
+  C1,
+  REUSE_BUFFER_MODE,
+  Packr,
+  Unpackr,
+  addExtension,
+  clearSource,
+  decode,
+  encode,
+  pack,
+  roundFloat32,
+  unpack,
+  unpackMultiple
+} from "msgpackr";
+
 export default () =>
   (function (t) {
     "use strict";
@@ -1765,4 +1783,35 @@ export default () =>
       (t.useRecords = !1),
       t
     );
-  })({});
+  })({}) as {
+    ALWAYS: number;
+    C1: {};
+    DECIMAL_FIT: number;
+    DECIMAL_ROUND: number;
+
+    Decoder: Decoder;
+    Encoder: Encoder;
+
+    FLOAT32_OPTIONS: typeof FLOAT32_OPTIONS;
+    NEVER: number;
+
+    Packr: typeof Packr;
+    Unpackr: typeof Unpackr;
+
+    REUSE_BUFFER_MODE: typeof REUSE_BUFFER_MODE;
+
+    addExtension: typeof addExtension;
+
+    clearSource: typeof clearSource;
+    decode: typeof decode;
+    decodeIter: unknown;
+    encode: typeof encode;
+    encodeIter: unknown;
+    isNativeAccelerationEnabled: boolean;
+    mapsAsObjects: boolean;
+    pack: typeof pack;
+    roundFloat32: typeof roundFloat32;
+    unpack: typeof unpack;
+    unpackMultiple: typeof unpackMultiple;
+    useRecords: boolean;
+  };

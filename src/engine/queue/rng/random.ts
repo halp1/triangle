@@ -1,9 +1,8 @@
-import { RNG } from "../../utils";
 import { Mino } from "../types";
+import { Bag } from "./core";
 
-export const random = (seed: number) => {
-  const gen = new RNG(seed);
-  return () => {
+export class Random extends Bag {
+  next() {
     const TETROMINOS: Mino[] = [
       Mino.Z,
       Mino.L,
@@ -13,6 +12,6 @@ export const random = (seed: number) => {
       Mino.J,
       Mino.T
     ];
-    return [TETROMINOS[Math.floor(gen.nextFloat() * TETROMINOS.length)]];
-  };
-};
+    return [TETROMINOS[Math.floor(this.rng.nextFloat() * TETROMINOS.length)]];
+  }
+}

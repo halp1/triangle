@@ -40,7 +40,7 @@ export interface Ribbon {
     flag: string;
   };
 
-  "server.migrated": {};
+  "server.migrated": Record<string, unknown>;
 
   "server.announcement": {
     type: string;
@@ -48,7 +48,7 @@ export interface Ribbon {
     ts: number;
   };
 
-  "server.maintenance": {};
+  "server.maintenance": Record<string, unknown>;
 
   kick: {
     reason: string;

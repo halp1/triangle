@@ -57,7 +57,7 @@ export namespace Room {
       tertiaryLabelSingle: string;
       tertiaryIsAvg: boolean;
     };
-    extra: {};
+    extra: object;
   }
 
   export interface SetConfig {

@@ -1,4 +1,4 @@
-import { Ribbon, type Codec, type LoggingLevel, type Spool } from ".";
+import { Ribbon, type LoggingLevel, type Spool, type Transport } from ".";
 import type { Game } from "../../types";
 import type { APIDefaults, APITypes } from "../../utils";
 
@@ -10,8 +10,6 @@ export namespace RibbonEvents {
       ? { command: P }
       : { command: P; data: T[P] };
   }[keyof T];
-
-  export interface Send {}
 }
 
 export interface RibbonParams {
@@ -22,11 +20,10 @@ export interface RibbonParams {
 
 export interface RibbonOptions {
   /**
-   * The type of websocket encoder to use. `amber` is recommended.
-   * `json` only works if the JSON protocol is enabled on your account. You must request it to be enabled before use or your account will be banned when Triangle tries to connect.
-   * @default "amber"
+   * The type of websocket transport to use. `binary` is recommended and significantly faster.
+   * @default "binary"
    */
-  codec: Codec;
+  transport: Transport;
   /**
    * The target level of Ribbon terminal log output.
    * `none` = no logs
@@ -52,7 +49,7 @@ export interface RibbonSnapshot {
   token: string;
   handling: Game.Handling;
   userAgent: string;
-  codec: Codec;
+  transport: Transport;
   spool: Spool;
   api: APIDefaults;
   self: APITypes.Users.Me;

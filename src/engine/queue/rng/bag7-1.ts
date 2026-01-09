@@ -1,10 +1,9 @@
-import { RNG } from "../../utils";
 import { Mino } from "../types";
+import { Bag } from "./core";
 
-export const bag7_1 = (seed: number): (() => Mino[]) => {
-  const gen = new RNG(seed);
-  return () =>
-    gen.shuffleArray([
+export class Bag7Plus1 extends Bag {
+  next() {
+    return this.rng.shuffleArray([
       Mino.Z,
       Mino.L,
       Mino.O,
@@ -13,7 +12,8 @@ export const bag7_1 = (seed: number): (() => Mino[]) => {
       Mino.J,
       Mino.T,
       ([Mino.Z, Mino.L, Mino.O, Mino.S, Mino.I, Mino.J, Mino.T] as const)[
-        Math.floor(gen.nextFloat() * 7)
+        Math.floor(this.rng.nextFloat() * 7)
       ]
-    ] as const);
-};
+    ]);
+  }
+}

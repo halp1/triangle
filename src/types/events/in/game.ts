@@ -17,7 +17,7 @@ export interface Game {
     };
     rrb: {
       type: string;
-      options: {};
+      options: Record<string, unknown>;
       scoreboard: {
         id: string;
         username: string;
@@ -92,7 +92,14 @@ export interface Game {
   };
   "game.replay.state": {
     gameid: number;
-    data: "early" | "wait";
+    data:
+      | "early"
+      | "wait"
+      | {
+          frame: number;
+          game: GameTypes.State;
+          overrides: Record<string, unknown>;
+        };
   };
 
   "game.replay.ige": {
@@ -102,37 +109,20 @@ export interface Game {
 
   "game.replay.board": {
     boards: {
-      0: {
-        board: {
-          /** Board state */
-          b: GameTypes.BoardSquare[][];
-          /** Frame number or turn */
-          f: number;
-          /** Game status or flag */
-          g: number;
-          /** Board width */
-          w: number;
-          /** Board height */
-          h: number;
-        };
-        gameid: number;
+      board: {
+        /** Board state */
+        b: GameTypes.BoardSquare[][];
+        /** Unknown*/
+        f: number;
+        /** Unknown*/
+        g: number;
+        /** Board width */
+        w: number;
+        /** Board height */
+        h: number;
       };
-      1: {
-        board: {
-          /** Board state */
-          b: GameTypes.BoardSquare[][];
-          /** Frame number or turn */
-          f: number;
-          /** Game status or flag */
-          g: number;
-          /** Board width */
-          w: number;
-          /** Board height */
-          h: number;
-        };
-        gameid: number;
-      };
-    };
+      gameid: number;
+    }[];
   };
   "game.replay": {
     gameid: number;
@@ -148,46 +138,43 @@ export interface Game {
   };
 
   "game.spectate": {
-    id: number;
-    data: {
-      players: {
-        userid: string;
-        gameid: number;
-        alive: boolean;
-        naturalorder: number;
-        options: GameTypes.ReadyOptions;
-      }[];
-      match: {
-        gamemode: string;
-        modename: string;
-        rb: {
-          type: "elimination" | "mutli-round";
-          options: {
-            ft: number;
-            wb: number;
-            gp: number;
-          };
-          leaderboard: GameTypes.Leaderboard[];
-        }[];
+    players: {
+      userid: string;
+      gameid: number;
+      alive: boolean;
+      naturalorder: number;
+      options: GameTypes.ReadyOptions;
+    }[];
+    match: {
+      gamemode: string;
+      modename: string;
+      rb: {
+        type: "elimination" | "mutli-round";
+        options: {
+          ft: number;
+          wb: number;
+          gp: number;
+        };
+        leaderboard: GameTypes.Leaderboard[];
+      };
 
-        rrb: {
-          type: "elimination";
-          options: Record<string, unknown>;
-          scoreboard: {
-            sb: {
-              stats: {
-                rank: number;
-                altitude: number;
-                btb: number;
-                revives: number;
-              };
-              allies: any[];
-              gameid: number;
-              specCount: number;
-              speedrun: boolean;
-              nearWR: boolean;
-              lovers: boolean;
-            }[];
+      rrb: {
+        type: "elimination";
+        options: Record<string, unknown>;
+        scoreboard: {
+          sb: {
+            stats: {
+              rank: number;
+              altitude: number;
+              btb: number;
+              revives: number;
+            };
+            allies: any[];
+            gameid: number;
+            specCount: number;
+            speedrun: boolean;
+            nearWR: boolean;
+            lovers: boolean;
           };
         };
       };

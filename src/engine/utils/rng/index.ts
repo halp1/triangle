@@ -1,17 +1,17 @@
 export class RNG {
-  private static readonly MODULUS: number = 2147483647;
-  private static readonly MULTIPLIER: number = 16807;
-  private static readonly MAX_FLOAT: number = 2147483646;
+  static readonly #MODULUS: number = 2147483647;
+  static readonly #MULTIPLIER: number = 16807;
+  static readonly #MAX_FLOAT: number = 2147483646;
 
-  private value: number;
+  #value: number;
 
   index = 0;
 
   constructor(seed: number) {
-    this.value = seed % RNG.MODULUS;
+    this.#value = seed % RNG.#MODULUS;
 
-    if (this.value <= 0) {
-      this.value += RNG.MAX_FLOAT;
+    if (this.#value <= 0) {
+      this.#value += RNG.#MAX_FLOAT;
     }
 
     this.next = this.next.bind(this);
@@ -23,11 +23,11 @@ export class RNG {
 
   next(): number {
     this.index++;
-    return (this.value = (RNG.MULTIPLIER * this.value) % RNG.MODULUS);
+    return (this.#value = (RNG.#MULTIPLIER * this.#value) % RNG.#MODULUS);
   }
 
   nextFloat(): number {
-    return (this.next() - 1) / RNG.MAX_FLOAT;
+    return (this.next() - 1) / RNG.#MAX_FLOAT;
   }
 
   shuffleArray<T extends any[]>(array: T): T {
@@ -44,14 +44,14 @@ export class RNG {
   }
 
   get seed() {
-    return this.value;
+    return this.#value;
   }
 
   set seed(value: number) {
-    this.value = value % RNG.MODULUS;
+    this.#value = value % RNG.#MODULUS;
 
-    if (this.value <= 0) {
-      this.value += RNG.MAX_FLOAT;
+    if (this.#value <= 0) {
+      this.#value += RNG.#MAX_FLOAT;
     }
   }
 
@@ -62,6 +62,6 @@ export class RNG {
   }
 
   clone() {
-    return new RNG(this.value);
+    return new RNG(this.#value);
   }
 }

@@ -112,7 +112,6 @@ export const core = (defaults: APIDefaults) => {
       try {
         res = await fetch(`https://tetr.io/api/${uri}`, {
           method: "POST",
-          //@ts-ignore
           body: json ? JSON.stringify(body) : pack.pack(body),
           headers: {
             Accept: json

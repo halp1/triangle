@@ -5,6 +5,7 @@ import type { Client } from "../client";
 import { Relationship } from "./relationship";
 import type { SocialSnapshot } from "./types";
 
+import chalk from "chalk";
 // import chalk from "chalk";
 import _ from "lodash";
 
@@ -27,22 +28,22 @@ const processRelationship = (r: SocialTypes.Relationship, selfID: string) => ({
 });
 
 export class Social {
-  private client: Client;
+  #client: Client;
 
   /** The current number of people online */
-  public online: number;
+  online: number;
   /** List of the client's friends */
-  public friends: Relationship[];
+  friends: Relationship[];
   /** List of "pending" relationships (shows in `other` tab on TETR.IO) */
-  public other: Relationship[];
+  other: Relationship[];
   /** people you block */
-  public blocked: SocialTypes.Blocked[];
+  blocked: SocialTypes.Blocked[];
   /** Notifications */
-  public notifications: SocialTypes.Notification[];
+  notifications: SocialTypes.Notification[];
   /** Social config */
-  public config: SocialTypes.Config;
+  config: SocialTypes.Config;
 
-  public static defaultConfig: SocialTypes.Config = {
+  static defaultConfig: SocialTypes.Config = {
     suppressDMErrors: false,
     autoLoadDMs: true,
     autoProcessNotifications: true
@@ -54,10 +55,10 @@ export class Social {
     config: Partial<SocialTypes.Config>,
     init: SocialInitData | SocialSnapshot
   ) {
-    this.client = client;
+    this.#client = client;
     this.config = _.merge(Social.defaultConfig, config);
 
-    this.init();
+    this.#init();
     this.online = init.online;
     if ("config" in init) {
       this.friends = init.friends.map((snapshot) =>
@@ -77,7 +78,7 @@ export class Social {
               avatar: r.user.avatar
             },
             this,
-            this.client
+            this.#client
           )
       );
       this.other = init.other.map(
@@ -91,7 +92,7 @@ export class Social {
             },
             this,
 
-            this.client
+            this.#client
           )
       );
     }
@@ -125,11 +126,11 @@ export class Social {
     return new Social(client, config, data);
   }
 
-  private get api() {
-    return this.client.api;
+  get #api() {
+    return this.#client.api;
   }
 
-  private init() {
+  #init() {
     if (this.config.autoProcessNotifications) {
       setTimeout(() => {
         this.notifications.forEach((n) => {
@@ -137,9 +138,9 @@ export class Social {
             if (n.type === "friend") {
               const rel = processRelationship(
                 n.data.relationship,
-                this.client.user.id
+                this.#client.user.id
               );
-              this.client.emit("client.friended", {
+              this.#client.emit("client.friended", {
                 id: rel.user.id,
                 name: rel.user.username,
                 avatar: rel.user.avatar
@@ -151,20 +152,20 @@ export class Social {
       }, 0);
     }
 
-    this.client.on("social.online", (count) => {
+    this.#client.on("social.online", (count) => {
       this.online = count;
     });
 
-    this.client.on("social.notification", async (n) => {
+    this.#client.on("social.notification", async (n) => {
       this.notifications.splice(0, 0, n);
 
       if (this.config.autoProcessNotifications) {
         if (n.type === "friend") {
           const rel = processRelationship(
             n.data.relationship,
-            this.client.user.id
+            this.#client.user.id
           );
-          this.client.emit("client.friended", {
+          this.#client.emit("client.friended", {
             id: rel.user.id,
             name: rel.user.username,
             avatar: rel.user.avatar
@@ -182,7 +183,7 @@ export class Social {
                   relationshipID: ""
                 },
                 this,
-                this.client
+                this.#client
               )
             );
           }
@@ -190,32 +191,65 @@ export class Social {
         this.markNotificationsAsRead();
       }
     });
-    this.client.on("social.dm", async (dm) => {
-      let user = this.get({ id: dm.data.user });
+
+    this.#client.on("social.dm", async (raw) => {
+      const dm: SocialTypes.DM = { ...raw, ts: new Date(raw.ts) };
+
+      let target = dm.data.user;
+
+      if (dm.data.user === this.#client.user.id) {
+        const userID = dm.stream
+          .split(":")
+          .filter((id) => id !== this.#client.user.id)[0];
+
+        // failsafe
+        if (!userID) return;
+
+        target = userID;
+      }
+
+      let user = this.get({ id: target });
       if (user) {
         if (!user.dmsLoaded && this.config.autoLoadDMs) await user.loadDms();
         else user.dms.push({ ...dm, ts: new Date(dm.ts) });
       } else {
-        const u = await this.who(dm.data.user);
-        this.other.push(
-          new Relationship(
-            {
-              id: u._id,
-              username: u.username,
-              avatar: u.avatar_revision,
-              relationshipID: ""
-            },
-            this,
-            this.client
-          )
+        try {
+          const u = await this.who(target);
+          this.other.push(
+            new Relationship(
+              {
+                id: u._id,
+                username: u.username,
+                avatar: u.avatar_revision,
+                relationshipID: ""
+              },
+              this,
+              this.#client
+            )
+          );
+
+          user = this.get({ id: target })!;
+          if (this.config.autoLoadDMs) await user.loadDms();
+        } catch {
+          /* empty */
+        }
+      }
+
+      if (!user) {
+        console.warn(
+          `${chalk.yellowBright("[Triangle.js]")}: Failed to load user data for ${target}. 'client.dm' event discareded.`
         );
 
         user = this.get({ id: dm.data.user })!;
         if (this.config.autoLoadDMs) await user.loadDms();
       }
 
-      this.client.emit("client.dm", {
-        user,
+      // don't trigger client.dm for messages sent by the client itself
+      if (dm.data.user === this.#client.user.id) return;
+
+      this.#client.emit("client.dm", {
+        relationship: user,
+        raw: dm,
         content: dm.data.content,
         reply: (content: string) => this.dm(dm.data.user, content)
       });
@@ -228,7 +262,7 @@ export class Social {
    * client.social.markNotificationsAsRead();
    */
   markNotificationsAsRead() {
-    this.client.emit("social.notification.ack");
+    this.#client.emit("social.notification.ack");
     this.notifications.forEach((n) => (n.seen = true));
   }
 
@@ -277,7 +311,7 @@ export class Social {
    * Get the user id given a username
    */
   async resolve(username: string) {
-    return await this.api.users.resolve(username);
+    return await this.#api.users.resolve(username);
   }
 
   /** Get a users' information based on their userid or username
@@ -286,7 +320,7 @@ export class Social {
    */
   who(id: string): Promise<APITypes.Users.User>;
   async who(id: string): Promise<APITypes.Users.User> {
-    return this.api.users.get({ id });
+    return this.#api.users.get({ id });
   }
 
   /**
@@ -300,7 +334,7 @@ export class Social {
     message: string
   ): Promise<SocialTypes.DM | Events.in.all["social.dm.fail"]> {
     try {
-      const res = await this.client.wrap(
+      const res = await this.#client.wrap(
         "social.dm",
         { recipient: userID, msg: message },
         "social.dm",
@@ -327,7 +361,7 @@ export class Social {
    */
   async friend(userID: string) {
     if (this.friends.find((r) => r.id === userID)) return false;
-    await this.api.social.friend(userID);
+    await this.#api.social.friend(userID);
     const userData = await this.who(userID);
     this.friends.push(
       new Relationship(
@@ -338,7 +372,7 @@ export class Social {
           avatar: userData.avatar_revision
         },
         this,
-        this.client
+        this.#client
       )
     );
 
@@ -353,7 +387,7 @@ export class Social {
    */
   async unfriend(userID: string) {
     if (!this.friends.find((r) => r.id === userID)) return false;
-    await this.api.social.unfriend(userID);
+    await this.#api.social.unfriend(userID);
     this.friends = this.friends.filter((r) => r.id !== userID);
 
     return true;
@@ -367,7 +401,7 @@ export class Social {
    */
   async block(userID: string) {
     if (this.blocked.find((r) => r.id === userID)) return false;
-    await this.api.social.block(userID);
+    await this.#api.social.block(userID);
   }
 
   /**
@@ -377,29 +411,32 @@ export class Social {
    * @returns false if the user is not unblocked, true otherwise
    */
   async unblock(userID: string) {
-    await this.api.social.unblock(userID);
+    await this.#api.social.unblock(userID);
   }
 
   /**
-   * Invite a user to your room
+   * Invite a user to your room.
+   * Note: the TETR.IO api doesn't send a response for a successful invite.
+   * Instead, Triangle.js waits 100 milliseconds for an error, and resolves/returns if there is no error.
    * @example
    * await client.social.invite(await client.social.resolve('halp'));
    */
-  invite(userID: string) {
-    return new Promise<void>(async (resolve, reject) => {
-      let r = false;
-      this.client.emit("social.invite", userID);
-      const l = (e: string) => {
-        if (r) return;
-        r = true;
-        reject(e);
-      };
-      this.client.once("client.error", l);
-      await new Promise((r) => setTimeout(r, 100));
-      this.client.off("client.error", l);
-      r = true;
-      resolve();
-    });
+  invite(userID: string): Promise<void> {
+    this.#client.emit("social.invite", userID);
+
+    return Promise.race([
+      new Promise<never>((_, reject) => {
+        const onError = (e: string) => {
+          this.#client.off("client.error", onError);
+          reject(e);
+        };
+        this.#client.once("client.error", onError);
+      }),
+
+      new Promise<void>((resolve) => {
+        setTimeout(resolve, 100);
+      })
+    ]);
   }
 
   /**
@@ -407,8 +444,9 @@ export class Social {
    * @example
    * client.social.status('online', 'lobby:X-QP');
    */
+  // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
   status(status: SocialTypes.Status, detail: SocialTypes.Detail | String = "") {
-    this.client.emit("social.presence", { status, detail });
+    this.#client.emit("social.presence", { status, detail });
   }
 
   /**

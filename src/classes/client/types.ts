@@ -47,7 +47,7 @@ export interface ClientSnapshot {
   handling: Game.Handling;
   ribbon: RibbonSnapshot;
   social: SocialSnapshot;
-	// room: RoomSnapshot;
-	game: GameSnapshot;
+  // room: RoomSnapshot;
+  game: GameSnapshot;
   api: APIDefaults;
 }

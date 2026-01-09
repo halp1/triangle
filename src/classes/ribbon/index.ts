@@ -8,8 +8,8 @@ import type { RibbonEvents, RibbonSnapshot } from "./types";
 import { Buffer } from "buffer/index.js";
 import chalk from "chalk";
 
-export const codecs = ["amber", "json"] as const;
-export type Codec = (typeof codecs)[number];
+export const transports = ["binary", "json"] as const;
+export type Transport = (typeof transports)[number];
 
 export interface Spool {
   host: string;
@@ -18,8 +18,8 @@ export interface Spool {
   signature: APITypes.Server.Signature;
 }
 
-interface CodecHandler {
-  method: Codec;
+interface Codec {
+  transport: Transport;
   encode: (msg: string, data?: Record<string, any>) => Buffer | string;
   decode: (data: Buffer) => RibbonEvents.Raw<Events.in.all>;
 }
@@ -70,7 +70,7 @@ export class Ribbon {
 
   #userAgent: string;
 
-  #codec: CodecHandler;
+  #codec: Codec;
 
   #spool: Spool;
 
@@ -112,24 +112,24 @@ export class Ribbon {
 
   emitter = new EventEmitter<Events.in.all>();
 
-  static #getCodec(codec: Codec): CodecHandler {
-    switch (codec) {
+  static #getCodec(transport: Transport): Codec {
+    switch (transport) {
       case "json":
         return {
-          method: codec,
+          transport,
           encode: (msg, data) =>
             JSON.stringify(data ? { command: msg, data } : { command: msg }),
           decode: (data) => JSON.parse(data.toString("utf-8"))
         };
-      case "amber":
+      case "binary":
         return {
-          method: codec,
+          transport,
           encode: (msg, data) => Amber.Encode(msg, data),
           decode: (data) => Amber.Decode(data)
         };
       default:
         throw new Error(
-          `Invalid codec: ${codec}. Valid codecs are: ${codecs.join(", ")}. Recommended codec is "amber".`
+          `Invalid transport: ${transport}. Valid transports are: ${transports.join(", ")}. Recommended transport is ${transports[0]}.`
         );
     }
   }
@@ -140,7 +140,7 @@ export class Ribbon {
     token,
     handling,
     userAgent,
-    codec,
+    transport,
     spool,
     api,
     self,
@@ -150,7 +150,7 @@ export class Ribbon {
     token: string;
     handling: Game.Handling;
     userAgent: string;
-    codec: Codec;
+    transport: Transport;
     spool: Spool;
     api: API;
     self: APITypes.Users.Me;
@@ -162,7 +162,7 @@ export class Ribbon {
 
     this.#spool = spool;
 
-    this.#codec = Ribbon.#getCodec(codec);
+    this.#codec = Ribbon.#getCodec(transport);
 
     this.#api = api;
 
@@ -184,7 +184,7 @@ export class Ribbon {
     token,
     handling,
     userAgent,
-    codec = "amber",
+    transport = "binary",
     spooling = true
   }: {
     /** @deprecated - use `logging` instead */
@@ -193,7 +193,7 @@ export class Ribbon {
     token: string;
     handling: Game.Handling;
     userAgent: string;
-    codec?: Codec;
+    transport?: Transport;
     spooling?: boolean;
   }): Promise<Ribbon> {
     const api = new API({
@@ -214,7 +214,7 @@ export class Ribbon {
       token,
       handling,
       userAgent,
-      codec,
+      transport,
       spool: {
         host: "",
         endpoint: "",
@@ -308,7 +308,9 @@ export class Ribbon {
       this.#flags |= Ribbon.FLAGS.CONNECTING;
 
       try {
-        const socket = new WebSocket(this.#uri, this.#spool.token);
+        const socket = this.#spool.token
+          ? new WebSocket(this.#uri, this.#spool.token)
+          : new WebSocket(this.#uri);
         this.#socket = socket;
 
         socket.binaryType = "arraybuffer";
@@ -512,7 +514,7 @@ export class Ribbon {
               return value;
             },
             2
-          )?.replace(/"Buffer<(\d+)>"/g, "Buffer<$1>")
+          )?.replaceAll(/"Buffer<(\d+)>"/g, "Buffer<$1>")
       );
       if (this.#socket && this.#socket.readyState === WebSocket.OPEN) {
         this.#socket.send(packet);
@@ -629,10 +631,10 @@ export class Ribbon {
       );
     }
 
-    let msg = message as RibbonEvents.Raw<Events.in.all>;
+    const msg = message as RibbonEvents.Raw<Events.in.all>;
 
     switch (msg.command) {
-      case "session":
+      case "session": {
         const { ribbonid, tokenid } = message.data;
 
         this.#flags &= ~Ribbon.FLAGS.CONNECTING;
@@ -654,7 +656,8 @@ export class Ribbon {
 
         this.#session.tokenID = tokenid;
         break;
-      case "ping":
+      }
+      case "ping": {
         const id = msg.data?.recvid;
 
         this.#pinger.time = Date.now() - this.#pinger.last;
@@ -663,7 +666,8 @@ export class Ribbon {
         }
 
         break;
-      case "kick":
+      }
+      case "kick": {
         const { reason } = msg.data;
 
         this.lastDisconnectReason = "server closed ribbon";
@@ -672,7 +676,8 @@ export class Ribbon {
 
         this.#close();
         break;
-      case "nope":
+      }
+      case "nope": {
         const { reason: nopeReason } = msg.data;
         this.lastDisconnectReason = nopeReason as any;
         this.log(`nope: ${nopeReason}`, { force: true, level: "error" });
@@ -680,6 +685,7 @@ export class Ribbon {
         this.#close();
 
         break;
+      }
       case "packets":
         for (const packet of msg.data.packets) {
           const message = this.#processPacket(packet);
@@ -713,11 +719,12 @@ export class Ribbon {
           this.emitter.emit("client.error", "Failure to authorize ribbon");
         }
         break;
-      case "server.migrate":
+      case "server.migrate": {
         const { endpoint } = msg.data;
         this.log(`Migrating to worker ${endpoint}`);
         this.#switch(endpoint.replace("/ribbon/", ""));
         break;
+      }
       case "server.migrated":
         break;
     }
@@ -725,12 +732,12 @@ export class Ribbon {
     this.emitter.emit(msg.command, (msg as any).data);
   }
 
-  #close(reason: string = this.lastDisconnectReason) {
+  #close(reason: string = this.lastDisconnectReason, disconnect = true) {
     this.lastDisconnectReason = reason as any;
     this.emitter.emit("client.dead", this.lastDisconnectReason);
     if (this.#connected && this.#socket) {
       this.#pipe("die");
-      this.#socket.close();
+      if (disconnect) this.#socket.close();
     }
 
     this.#flags |= Ribbon.FLAGS.DEAD;
@@ -739,6 +746,20 @@ export class Ribbon {
       clearTimeout(this.#reconnectTimeout);
       this.#reconnectTimeout = null;
     }
+  }
+
+  #closeAsync(reason: string = this.lastDisconnectReason) {
+    this.#close(reason, false);
+    return Promise.race([
+      new Promise<void>((resolve) => {
+        if (this.#socket && this.#socket.readyState !== WebSocket.CLOSED) {
+          this.#socket.onclose = () => resolve();
+        } else {
+          resolve();
+        }
+      }),
+      new Promise<void>((resolve) => setTimeout(() => resolve(), 1000))
+    ]);
   }
 
   get #uri() {
@@ -840,9 +861,9 @@ export class Ribbon {
   }
 
   /** Closes and cleans up the ribbon, called automatically by `client.destroy()` */
-  destroy() {
+  async destroy() {
     this.emitter.removeAllListeners();
-    this.#close(this.lastDisconnectReason);
+    await this.#closeAsync();
   }
 
   /** Automatically disconnect the ribbon's connection. It will attempt to automatically reconnect. */
@@ -860,7 +881,7 @@ export class Ribbon {
       token: this.#token,
       handling: this.#handling,
       userAgent: this.#userAgent,
-      codec: this.#codec.method,
+      transport: this.#codec.transport,
       spooling: this.#options.spooling
     });
 
@@ -875,7 +896,7 @@ export class Ribbon {
       token: this.#token,
       handling: this.#handling,
       userAgent: this.#userAgent,
-      codec: this.#codec.method,
+      transport: this.#codec.transport,
       spool: this.#spool,
       api: this.#api.defaults,
       self: this.#self,
@@ -914,7 +935,7 @@ export class Ribbon {
       token: snapshot.token,
       handling: snapshot.handling,
       userAgent: snapshot.userAgent,
-      codec: snapshot.codec,
+      transport: snapshot.transport,
       spool: snapshot.spool,
       api: new API(snapshot.api),
       self: snapshot.self,

@@ -16,7 +16,7 @@ export const relationship = (get: Get, post: Post, __: APIDefaults) => {
   return {
     /** Block a user */
     block: async (id: string) => {
-      const res = await post<{}>({
+      const res = await post<Record<string, never>>({
         uri: "relationships/block",
         body: { user: id }
       });
@@ -30,7 +30,7 @@ export const relationship = (get: Get, post: Post, __: APIDefaults) => {
 
     /** Friend a user */
     friend: async (id: string) => {
-      const res = await post<{}>({
+      const res = await post<Record<string, never>>({
         uri: "relationships/friend",
         body: { user: id }
       });

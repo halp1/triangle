@@ -55,7 +55,7 @@ namespace _console {
           const cols = process.stdout.columns || 80;
           const namePlain = `[${name}]`;
           const prefixPlain = `${namePlain} ${message}`;
-          let contentPlain =
+          const contentPlain =
             prefixPlain.length >= cols
               ? prefixPlain.slice(0, cols)
               : prefixPlain + " ".repeat(cols - prefixPlain.length);

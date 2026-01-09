@@ -1,9 +1,6 @@
 import { version } from "./utils";
 
-
-
 import chalk from "chalk";
-
 
 export { CH, ch, ChannelAPI } from "./channel";
 export * as Utils from "./utils";

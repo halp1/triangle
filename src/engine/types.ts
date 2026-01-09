@@ -5,6 +5,7 @@ import type {
   GarbageQueueSnapshot,
   Mino,
   OutgoingGarbage,
+  QueueSnapshot,
   TetrominoSnapshot
 } from ".";
 import type { Game } from "../types";
@@ -21,12 +22,12 @@ export interface IncreasableValue {
 export interface EngineSnapshot {
   frame: number;
   subframe: number;
-  queue: number;
+  queue: QueueSnapshot;
   hold: Mino | null;
   holdLocked: boolean;
   input: Engine["input"];
   falling: TetrominoSnapshot;
-  lastSpin: Engine["lastSpin"];
+  lastSpin: SpinType | null;
   lastWasClear: boolean;
   garbage: GarbageQueueSnapshot;
   board: Board["state"];
@@ -36,7 +37,7 @@ export interface EngineSnapshot {
   glock: number;
   stock: number;
   state: number;
-  currentSpike: number;
+  spike: Engine["spike"];
   ige: IGEHandlerSnapshot;
   resCache: Engine["resCache"];
 }

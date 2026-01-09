@@ -18,13 +18,24 @@ export namespace Rooms {
 }
 
 export const rooms = (get: Get, _: Post, __: APIDefaults) => {
-  return async () => {
-    const res = await get<{ rooms: Rooms.Room[] }>({ uri: "rooms/" });
+  return {
+    list: async () => {
+      const res = await get<{ rooms: Rooms.Room[] }>({ uri: "rooms/" });
 
-    if (res === null) return [];
-    else {
-      if (res.success) return res.rooms;
-      else return [];
+      if (res === null) return [];
+      else {
+        if (res.success) return res.rooms;
+        else return [];
+      }
+    },
+    menu: async () => {
+      const res = await get<{ rooms: Rooms.Room[] }>({ uri: "rooms/menu" });
+
+      if (res === null) return [];
+      else {
+        if (res.success) return res.rooms;
+        else return [];
+      }
     }
   };
 };

@@ -3,55 +3,56 @@ import { Client } from "../client";
 import { Game } from "../game";
 import { roomConfigPresets } from "./presets";
 import { ReplayManager } from "./replayManager";
+import type { SpectateData } from "./types";
 
 export class Room {
-  private client: Client;
-  private listeners: Parameters<typeof this.client.on>[] = [];
+  #client: Client;
+  #listeners: Parameters<Client["on"]>[] = [];
 
   /** the ID of the room */
-  public id!: string;
+  id!: string;
   /** Whether or not the room is public */
-  public public!: boolean;
-  /** The type of the room (public | private) */
-  public type!: RoomTypes.Type;
+  public!: boolean;
+  /** The type of the room */
+  type!: RoomTypes.Type;
   /** Name of the room */
-  public name!: string;
+  name!: string;
   /** Safe Name of the room */
-  public name_safe!: string;
+  name_safe!: string;
   /** UID of the host */
-  public owner!: string;
+  owner!: string;
   /** UID of the room creator (this person can reclaim host) */
-  public creator!: string;
+  creator!: string;
   /** The autostart state of the room */
-  public autostart!: RoomTypes.Autostart;
+  autostart!: RoomTypes.Autostart;
   /** The match config for the room */
-  public match!: RoomTypes.Match;
+  match!: RoomTypes.Match;
   /** The maxiumum number of players that can play in the room (override by moving as host) */
-  public userLimit!: number;
+  userLimit!: number;
   /** The players in the room */
-  public players!: RoomTypes.Player[];
+  players!: RoomTypes.Player[];
   /** The room config */
-  public options!: GameTypes.Options;
+  options!: GameTypes.Options;
   /** The current state of the room (ingame | lobby) */
-  public state!: RoomTypes.State;
+  state!: RoomTypes.State;
   /** The time the last game started */
-  public gameStart: number | null = null;
+  gameStart: number | null = null;
   /** The replay data for the last played game */
-  public replay: ReplayManager | null = null;
+  replay: ReplayManager | null = null;
 
   /** Room chat history */
-  public chats: Events.in.Room["room.chat"][] = [];
+  chats: Events.in.Room["room.chat"][] = [];
 
   /** @hideconstructor */
   constructor(client: Client, data: Events.in.Room["room.update"]) {
-    this.client = client;
+    this.#client = client;
 
-    this.handleUpdate(data);
+    this.#handleUpdate(data);
 
-    this.init();
+    this.#init();
   }
 
-  private handleUpdate(data: Events.in.Room["room.update"]) {
+  #handleUpdate(data: Events.in.Room["room.update"]) {
     this.id = data.id;
     this.autostart = data.auto;
 
@@ -73,52 +74,53 @@ export class Room {
     this.options = data.options;
   }
 
-  private listen<T extends keyof Events.in.all>(
+  #listen<T extends keyof Events.in.all>(
     event: T,
     cb: (data: Events.in.all[T]) => void,
     once = false
   ) {
-    this.listeners.push([event, cb] as any);
+    this.#listeners.push([event, cb] as any);
     if (once) {
-      this.client.once(event, cb);
+      this.#client.once(event, cb);
     } else {
-      this.client.on(event, cb);
+      this.#client.on(event, cb);
     }
   }
 
-  private init() {
+  #init() {
     const emitPlayers = () =>
-      this.client.emit("client.room.players", this.players);
+      this.#client.emit("client.room.players", this.players);
     let abortTimeout: NodeJS.Timeout | null = null;
-    this.listen("room.update.host", (data) => {
+    this.#listen("room.update.host", (data) => {
       this.owner = data;
+      emitPlayers();
     });
 
-    this.listen("room.update.bracket", (data) => {
+    this.#listen("room.update.bracket", (data) => {
       const idx = this.players.findIndex((p) => p._id === data.uid);
       if (idx >= 0) this.players[idx].bracket = data.bracket;
       emitPlayers();
     });
 
-    this.listen("room.update.auto", (auto) => {
+    this.#listen("room.update.auto", (auto) => {
       this.autostart = auto;
     });
 
-    this.listen("room.update", this.handleUpdate.bind(this));
+    this.#listen("room.update", this.#handleUpdate.bind(this));
 
-    this.listen("room.player.add", (data) => {
+    this.#listen("room.player.add", (data) => {
       this.players.push(data);
       emitPlayers();
     });
 
-    this.listen("room.player.remove", (data) => {
+    this.#listen("room.player.remove", (data) => {
       this.players = this.players.filter((p) => p._id !== data);
       emitPlayers();
     });
 
-    this.listen("game.ready", (data) => {
+    this.#listen("game.ready", (data) => {
       try {
-        this.client.game = new Game(this.client, data);
+        this.#client.game = new Game(this.#client, data.players);
       } catch {
         return; // not in room, don't do anything
       }
@@ -126,7 +128,7 @@ export class Room {
         this.gameStart = performance.now();
         this.replay = new ReplayManager(data.players, this.players);
 
-        this.client.emit("client.game.start", {
+        this.#client.emit("client.game.start", {
           multi: this.match.ft > 1 || this.match.wb > 1,
           ft: this.match.ft,
           wb: this.match.wb,
@@ -142,53 +144,54 @@ export class Room {
       this.replay?.addRound(data.players);
     });
 
-    this.listen("game.replay", (event) => this.replay?.pipe(event));
+    this.#listen("game.replay", (event) => this.replay?.pipe(event));
 
-    this.listen("game.replay.end", async ({ gameid, data }) => {
-      this.replay?.die({ gameid, data, game: this.client.game });
-      if (!this.client.game || this.client.game.gameid !== gameid) return;
-      this.client.game.stop();
-      this.client.emit("client.game.over", { reason: "finish", data });
+    this.#listen("game.replay.end", async ({ gameid, data }) => {
+      this.replay?.die({ gameid, data, game: this.#client.game });
+      if (!this.#client.game || this.#client.game.self?.gameid !== gameid)
+        return;
+      this.#client.game.self?.destroy();
+      this.#client.emit("client.game.over", { reason: "finish", data });
     });
 
-    this.listen("game.advance", () => {
-      this.replay?.endRound({ game: this.client.game });
-      if (this.client.game) {
-        this.client.game = this.client.game.destroy();
-        this.client.emit("client.game.over", { reason: "end" });
+    this.#listen("game.advance", () => {
+      this.replay?.endRound({ game: this.#client.game });
+      if (this.#client.game) {
+        this.#client.game = this.#client.game.destroy();
+        this.#client.emit("client.game.over", { reason: "end" });
       }
     });
 
-    this.listen("game.score", (data) => {
-      if (this.client.game) {
-        this.client.game = this.client.game.destroy();
+    this.#listen("game.score", (data) => {
+      if (this.#client.game) {
+        this.#client.game = this.#client.game.destroy();
       }
 
-      this.client.emit("client.game.round.end", data.victor);
+      this.#client.emit("client.game.round.end", data.victor);
     });
 
-    this.listen("game.abort", () => {
+    this.#listen("game.abort", () => {
       if (abortTimeout) return;
 
       abortTimeout = setTimeout(() => {
         abortTimeout = null;
       }, 50);
 
-      this.client.emit("client.game.abort");
+      this.#client.emit("client.game.abort");
 
-      if (!this.client.game) return;
-      this.client.game = this.client.game.destroy();
-      this.client.emit("client.game.over", { reason: "abort" });
+      if (!this.#client.game) return;
+      this.#client.game = this.#client.game.destroy();
+      this.#client.emit("client.game.over", { reason: "abort" });
     });
 
-    this.listen("game.end", (data) => {
+    this.#listen("game.end", (data) => {
       const useScoreboard = this.match.ft === 1 && this.match.wb === 1;
       const board = useScoreboard ? data.scoreboard : data.leaderboard;
-      this.client.emit("client.game.round.end", board[0]?.id ?? null);
+      this.#client.emit("client.game.round.end", board[0]?.id ?? null);
 
       const duration = performance.now() - (this.gameStart ?? 0);
       if (useScoreboard) {
-        this.client.emit("client.game.end", {
+        this.#client.emit("client.game.end", {
           duration,
           source: "scoreboard",
           players: data.scoreboard.map((item) => ({
@@ -205,7 +208,7 @@ export class Room {
           (max, item) => Math.max(max, item.wins),
           0
         );
-        this.client.emit("client.game.end", {
+        this.#client.emit("client.game.end", {
           duration: performance.now() - (this.gameStart ?? 0),
           source: "leaderboard",
           players: data.leaderboard.map(
@@ -221,39 +224,43 @@ export class Room {
         });
       }
 
-      if (!this.client.game) return;
-      this.client.game = this.client.game.destroy();
-      this.client.emit("client.game.over", { reason: "end" });
+      if (!this.#client.game) return;
+      this.#client.game = this.#client.game.destroy();
+      this.#client.emit("client.game.over", { reason: "end" });
     });
 
-    this.listen("client.game.end", () =>
-      this.replay?.end({ self: this.client.user.id })
+    this.#listen("client.game.end", () =>
+      this.replay?.end({ self: this.#client.user.id })
     );
 
     // chat
-    this.listen("room.chat", (item) => this.chats.push(item));
+    this.#listen("room.chat", (item) => this.chats.push(item));
 
     // get booted
-    this.listen("room.kick", () => this.destroy());
-    this.listen("room.leave", () => this.destroy());
+    this.#listen("room.kick", () => this.destroy());
+    this.#listen("room.leave", () => this.destroy());
   }
 
   /** Whether or not the client is the host */
   get isHost() {
-    return this.client.user.id === this.owner;
+    return this.#client.user.id === this.owner;
   }
 
-	/**
-	 * For internal use only. Use `room.leave()` instead.
-	 */
+  get self() {
+    return this.players.find((p) => p._id === this.#client.user.id) ?? null;
+  }
+
+  /**
+   * For internal use only. Use `room.leave()` instead.
+   */
   destroy() {
-    this.listeners.forEach((l) => this.client.off(l[0], l[1]));
-    if (this.client.game) {
-      this.client.game.destroy();
-      this.client.emit("client.game.over", { reason: "leave" });
+    this.#listeners.forEach((l) => this.#client.off(l[0], l[1]));
+    if (this.#client.game) {
+      this.#client.game.destroy();
+      this.#client.emit("client.game.over", { reason: "leave" });
     }
 
-    delete this.client.room;
+    delete this.#client.room;
   }
 
   /**
@@ -262,7 +269,7 @@ export class Room {
    * await client.room!.leave();
    */
   async leave() {
-    await this.client.wrap("room.leave", undefined, "room.leave");
+    await this.#client.wrap("room.leave", undefined, "room.leave");
     this.destroy();
   }
 
@@ -274,7 +281,7 @@ export class Room {
    * await client.room!.kick('646f633d276f42a80ba44304', 100);
    */
   async kick(id: string, duration = 900) {
-    return await this.client.wrap(
+    return await this.#client.wrap(
       "room.kick",
       { uid: id, duration },
       "room.player.remove"
@@ -298,11 +305,11 @@ export class Room {
    * client.room!.unban('halp');
    */
   unban(username: string) {
-    return this.client.emit("room.unban", username);
+    return this.#client.emit("room.unban", username);
   }
 
   /**
-   * Send a public message to the room's chat.
+   * Send a  message to the room's chat.
    * The `pinned` parameter is the same as using the `/announce` command in TETR.IO
    * The `pinned` parameter being true will result in an error if the client is not host.
    * @example
@@ -311,7 +318,7 @@ export class Room {
    * await client.room!.chat('Important info:', true);
    */
   async chat(message: string, pinned = false) {
-    return await this.client.wrap(
+    return await this.#client.wrap(
       "room.chat.send",
       { content: message, pinned },
       "room.chat"
@@ -322,7 +329,7 @@ export class Room {
    * Clears the chat
    */
   async clearChat() {
-    return await this.client.wrap(
+    return await this.#client.wrap(
       "room.chat.clear",
       undefined,
       "room.chat.clear"
@@ -335,7 +342,7 @@ export class Room {
    * client.room!.setID('TEST');
    */
   async setID(id: string) {
-    return await this.client.wrap(
+    return await this.#client.wrap(
       "room.setid",
       id.toUpperCase(),
       "room.update"
@@ -348,7 +355,7 @@ export class Room {
    * @returns
    */
   async update(...options: RoomTypes.SetConfigItem[]) {
-    return await this.client.wrap(
+    return await this.#client.wrap(
       "room.setconfig",
       options.map((opt) =>
         typeof opt.value === "number"
@@ -374,14 +381,61 @@ export class Room {
    * Start the game
    */
   async start() {
-    return await this.client.wrap("room.start", undefined, "game.ready");
+    return await this.#client.wrap("room.start", undefined, "game.ready");
   }
 
   /**
    * Abort the game
    */
   async abort() {
-    return await this.client.wrap("room.abort", undefined, "game.abort");
+    return await this.#client.wrap("room.abort", undefined, "game.abort");
+  }
+
+  /**
+   * Start spectating a game.
+   * @returns {Promise<SpectateData>} The current state of the game being spectated.
+   *
+   * @example
+   * const data = await client.room!.spectate();
+   */
+  async spectate(): Promise<SpectateData> {
+    if (this.#client.game) {
+      // todo: do something here!
+    }
+
+    const spectateData = await this.#client.wrap(
+      "game.spectate",
+      undefined,
+      "game.spectate"
+    );
+
+    this.#client.game = new Game(this.#client, spectateData.players);
+
+    return {
+      match: spectateData.match.rb.options,
+      players: spectateData.match.rb.leaderboard.map(
+        (p): SpectateData["players"][number] => ({
+          active: p.active,
+          naturalorder: p.naturalorder,
+          userID: p.id,
+          username: p.username,
+          wins: p.wins
+        })
+      )
+    };
+  }
+
+  /**
+   * Stop spectating the current game.
+   * @example
+   * await client.room!.unspectate();
+   */
+  async unspectate() {
+    if (!this.#client.game) return;
+
+    this.#client.game.unspectate("all");
+
+    this.#client.game = this.#client.game.destroy();
   }
 
   /**
@@ -390,7 +444,7 @@ export class Room {
    * await client.room!.transferHost(await client.social.resolve('halp'));
    */
   async transferHost(player: string) {
-    return await this.client.wrap(
+    return await this.#client.wrap(
       "room.owner.transfer",
       player,
       "room.update.host"
@@ -399,7 +453,7 @@ export class Room {
 
   /** Take host if you created the room */
   async takeHost() {
-    return await this.client.wrap(
+    return await this.#client.wrap(
       "room.owner.revoke",
       undefined,
       "room.update.host"
@@ -414,12 +468,12 @@ export class Room {
   async switch(bracket: "player" | "spectator") {
     if (
       this.players.some(
-        (p) => p._id === this.client.user.id && p.bracket === bracket
+        (p) => p._id === this.#client.user.id && p.bracket === bracket
       )
     )
       return;
 
-    return await this.client.wrap(
+    return await this.#client.wrap(
       "room.bracket.switch",
       bracket,
       "room.update.bracket"
@@ -439,7 +493,7 @@ export class Room {
 
     if (player.bracket === bracket) return;
 
-    return await this.client.wrap(
+    return await this.#client.wrap(
       "room.bracket.move",
       { uid, bracket },
       "room.update.bracket"
@@ -448,3 +502,4 @@ export class Room {
 }
 
 export { ReplayManager } from "./replayManager";
+export * from "./types";

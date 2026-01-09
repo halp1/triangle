@@ -11,28 +11,28 @@ export type * from "./types";
 
 export class Client {
   /** User information */
-  public user: ClientUser;
+  user: ClientUser;
   /** Whether the client has been disconnected. If true, the client needs to be reconnected with `.reconnect()` or destroyed */
-  public disconnected: boolean = false;
+  disconnected: boolean = false;
   /** The client's token */
-  public token: string;
+  token: string;
   /** @hidden */
-  private _handling: GameTypes.Handling;
+  #handling: GameTypes.Handling;
 
   /** Raw ribbon client, the backbone of TETR.IO multiplayer. You probably don't want to touch this unless you know what you are doing. */
-  public ribbon: Ribbon;
+  ribbon: Ribbon;
   /** A helpful manager for all things social on TETR.IO (friends, dms etc.) */
-  public social!: Social;
+  social!: Social;
   /** The room the client is in (if it is in a room). You can make it non-nullable with `client.room!` */
-  public room?: Room;
+  room?: Room;
   /** The game the client is currently in if it is in a game. */
-  public game?: Game;
+  game?: Game;
 
   /** Useful for connecting to the main game API when none of the client helpers have the request you want to send. You can use `client.api.get` and `client.api.post` to easily send GET and POST requests. */
-  public api: API;
+  api: API;
 
-  public rooms: {
-    list(): ReturnType<API["rooms"]>;
+  rooms: {
+    list(): ReturnType<API["rooms"]["list"]>;
     join(id: string): Promise<Room>;
     create(type?: "public" | "private"): Promise<Room>;
   };
@@ -42,7 +42,7 @@ export class Client {
    * @example
    * client.on('social.dm', () => console.log('DM received!'));
    */
-  public on: typeof this.ribbon.emitter.on;
+  on: typeof this.ribbon.emitter.on;
   /**
    * Raw ribbon handler.
    * @example
@@ -52,18 +52,18 @@ export class Client {
    * // later
    * client.off('social.dm', listener);
    */
-  public off: typeof this.ribbon.emitter.off;
+  off: typeof this.ribbon.emitter.off;
   /**
    * Raw ribbon handler.
    * You might want to use `client.wait` instead.
    * @example
    * client.once('social.invite', ({ roomid }) => console.log(`Invited to room ${roomid}`));
    */
-  public once: typeof this.ribbon.emitter.once;
+  once: typeof this.ribbon.emitter.once;
   /**
    * Raw ribbon handler for sending messages.
    */
-  public emit: typeof this.ribbon.emit;
+  emit: typeof this.ribbon.emit;
 
   /** @hideconstructor */
   private constructor(
@@ -89,12 +89,12 @@ export class Client {
       userAgent
     };
 
-    this._handling = handling;
+    this.#handling = handling;
 
     this.api = new API({ token: this.token, userAgent });
 
     this.rooms = {
-      list: () => this.api.rooms(),
+      list: () => this.api.rooms.list(),
       join: async (id: string) => {
         return await this.wrap(
           "room.join",
@@ -111,18 +111,18 @@ export class Client {
       }
     };
 
-    this.init();
+    this.#init();
   }
 
   /**
    * Create a new client
    * @example
-   * const client = await Client.connect({ token: 'your.jwt.token' });
+   * const client = await Client.create({ token: 'your.jwt.token' });
    * @example
-   * const client = await Client.connect({ username: 'halp', password: 'password' });
+   * const client = await Client.create({ username: 'halp', password: 'password' });
    * @example
    * // If playing games, pass in handling
-   * const client = await Client.connect({
+   * const client = await Client.create({
    *   // ...login info
    *   handling: {
    *     arr: 0,
@@ -136,12 +136,12 @@ export class Client {
    * });
    * @example
    * // You can pass in a custom user agent
-   * const client = await Client.connect({
+   * const client = await Client.create({
    *   // ...login info
    *   userAgent: "v8/001"
    * });
    */
-  static async connect(options: ClientOptions) {
+  static async create(options: ClientOptions) {
     const api = new API();
     if (options.userAgent) {
       api.update({ userAgent: options.userAgent });
@@ -278,7 +278,7 @@ export class Client {
 
       const rj = (error: string) => {
         disband();
-        reject(error);
+        reject(new Error(error));
       };
 
       this.on(listen, rs);
@@ -290,7 +290,7 @@ export class Client {
   }
 
   /** @hidden */
-  private init() {
+  #init() {
     this.on("room.join", async () => {
       const data = await this.wait("room.update");
       this.room = new Room(this, data);
@@ -348,7 +348,7 @@ export class Client {
 
     this.on("client.dead", async () => {
       this.disconnected = true;
-			this.room?.destroy();
+      this.room?.destroy();
     });
   }
 
@@ -379,23 +379,21 @@ export class Client {
         });
       }
     );
-
     delete this.room;
     this.social = await Social.create(this, this.social.config, data.social);
   }
 
-  /** The client's current handling. */
+  /** The client's current handling. Do not change the client's handling while in a room. */
   get handling() {
-    return this._handling;
+    return this.#handling;
   }
 
-  /** Change the client's current handling (do not use while in a room) */
   set handling(handling: GameTypes.Handling) {
     if (this.room)
       throw new Error(
         "Do not set the handling in a room (you will be banned)!"
       );
-    this._handling = handling;
+    this.#handling = handling;
     this.emit("config.handling", handling);
   }
 
@@ -403,10 +401,12 @@ export class Client {
   async destroy() {
     if (this.room) {
       try {
-        await this.room.leave();
-      } catch (e) {}
+        this.room.destroy();
+      } catch {
+        /* empty */
+      }
     }
-    this.ribbon.destroy();
+    await this.ribbon.destroy();
     if (this.room) delete this.room;
     if (this.game) delete this.game;
   }

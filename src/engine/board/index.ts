@@ -11,41 +11,41 @@ export type BoardSquare = Mino | null;
 export class Board {
   state: BoardSquare[][];
 
-  private _height: number;
-  private _width: number;
-  private _buffer: number;
+  #height: number;
+  #width: number;
+  #buffer: number;
 
   constructor(options: BoardInitializeParams) {
-    this._width = options.width;
-    this._height = options.height;
-    this._buffer = options.buffer;
+    this.#width = options.width;
+    this.#height = options.height;
+    this.#buffer = options.buffer;
     this.state = Array(this.fullHeight)
       .fill(null)
       .map(() => Array(this.width).fill(null));
   }
 
   get height(): number {
-    return this._height;
+    return this.#height;
   }
 
   set height(value: number) {
-    this._height = value;
+    this.#height = value;
   }
 
   get width(): number {
-    return this._width;
+    return this.#width;
   }
 
   set width(value: number) {
-    this._width = value;
+    this.#width = value;
   }
 
   get buffer(): number {
-    return this._buffer;
+    return this.#buffer;
   }
 
   set buffer(value: number) {
-    this._buffer = value;
+    this.#buffer = value;
   }
 
   get fullHeight(): number {

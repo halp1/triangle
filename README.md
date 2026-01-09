@@ -102,7 +102,7 @@ import { Client } from "@haelp/teto";
 ### Creating a client
 
 ```ts
-const client = await Client.connect({
+const client = await Client.create({
   username: "your-username",
   password: "your-password"
 });

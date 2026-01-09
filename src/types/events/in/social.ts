@@ -10,6 +10,7 @@ export interface Social {
     user: string;
     presence: {
       status: SocialTypes.Status;
+      // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
       detail: SocialTypes.Detail | String; // keep this as String for autocomplete
       invitable: boolean;
     };

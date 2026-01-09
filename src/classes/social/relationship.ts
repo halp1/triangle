@@ -4,8 +4,8 @@ import type { Social as SocialTypes } from "../../types";
 import { Client } from "../client";
 
 export class Relationship {
-  private social: Social;
-  private client: Client;
+  #social: Social;
+  #client: Client;
 
   /** ID of the account on the other side of the relationsihp */
   id: string;
@@ -41,17 +41,14 @@ export class Relationship {
     this.username = options.username;
     this.avatar = options.avatar;
 
-    this.social = social;
-    this.client = client;
+    this.#social = social;
+    this.#client = client;
 
     this.dms = [];
 
     this.ready = lazyLoad
       ? new Promise<never>(() => {})
-      : new Promise<void>(async (resolve) => {
-          await this.loadDms();
-          resolve();
-        });
+      : this.loadDms().then(() => {});
   }
 
   /**
@@ -60,7 +57,7 @@ export class Relationship {
    * relationship.dm("Hello!");
    */
   async dm(content: string) {
-    await this.social.dm(this.id, content);
+    await this.#social.dm(this.id, content);
   }
 
   /**
@@ -69,7 +66,7 @@ export class Relationship {
    * relationship.markAsRead();
    */
   markAsRead() {
-    this.client.emit("social.relation.ack", this.id);
+    this.#client.emit("social.relation.ack", this.id);
   }
 
   /**
@@ -78,7 +75,7 @@ export class Relationship {
    * await relationship.loadDms();
    */
   async loadDms() {
-    const dms = (await this.client.api.social.dms(this.id)).reverse();
+    const dms = (await this.#client.api.social.dms(this.id)).reverse();
     this.dms = dms;
     this.dmsLoaded = true;
     return dms;
@@ -90,7 +87,7 @@ export class Relationship {
    * relationship.invite();
    */
   invite() {
-    this.social.invite(this.id);
+    this.#social.invite(this.id);
   }
 
   /**
@@ -110,7 +107,11 @@ export class Relationship {
   /**
    * For internal ues only. See `Client.fromSnapshot()`
    */
-  static fromSnapshot(snapshot: RelationshipSnapshot, social: Social, client: Client) {
+  static fromSnapshot(
+    snapshot: RelationshipSnapshot,
+    social: Social,
+    client: Client
+  ) {
     const relationship = new Relationship(
       {
         id: snapshot.id,

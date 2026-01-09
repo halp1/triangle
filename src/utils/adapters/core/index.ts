@@ -24,7 +24,7 @@ export abstract class Adapter<
       garbageSpecialBonus: engine.garbageQueue.options.specialBonus,
       pcB2b: engine.pc ? engine.pc.b2b : 0,
       pcGarbage: engine.pc ? engine.pc.garbage : 0,
-      queue: engine.queue.value
+      queue: engine.queue.raw()
     };
   }
 
@@ -36,7 +36,7 @@ export abstract class Adapter<
 
       current: engine.falling.symbol,
       hold: engine.held,
-      queue: engine.queue.value,
+      queue: engine.queue.raw(),
 
       garbage: engine.garbageQueue.queue.map((item) => item.amount),
 

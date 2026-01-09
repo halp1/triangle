@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 const NodeError = Error;
 
 export namespace ChannelAPI {
