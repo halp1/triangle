@@ -457,14 +457,16 @@ export class Game {
             ...Object.keys(state.garbageacknowledgements.incoming),
             ...Object.keys(state.garbageacknowledgements.outgoing)
           ])
-        ].map((p) => ({
-          incoming: state.garbageacknowledgements.incoming[parseInt(p)] ?? 0,
-          outgoing:
-            state.garbageacknowledgements.outgoing[parseInt(p)]?.map((o) => ({
-              iid: o.iid,
-              amount: o.amt
-            })) ?? []
-        }))
+        ]
+          .map((p) => parseInt(p))
+          .map((p) => ({
+            incoming: state.garbageacknowledgements.incoming[p] ?? 0,
+            outgoing:
+              state.garbageacknowledgements.outgoing[p]?.map((o) => ({
+                iid: o.iid,
+                amount: o.amt
+              })) ?? []
+          }))
       },
       input: {
         lShift: state.lShift,

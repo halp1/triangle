@@ -1157,10 +1157,12 @@ export namespace ChannelAPI {
            * The timestamp offset. Add startTime to get the true timestamp.
            */
           number,
-          /**
-           *  Whether the score set was a PB. 0 = not a PB, 1 = PB.
-           */
-          0 | 1,
+          (
+            /**
+             *  Whether the score set was a PB. 0 = not a PB, 1 = PB.
+             */
+            0 | 1
+          ),
           /**
            * The score achieved. (For 40 LINES, this is negative.)
            */
@@ -1199,17 +1201,19 @@ export namespace ChannelAPI {
            * The timestamp offset. Add startTime to get the true timestamp.
            */
           number,
-          /**
-           *  The result of the match, where:
-           * 1 = victory,
-           * 2 = defeat,
-           * 3 = victory by disqualification,
-           * 4 = defeat by disqualification,
-           * 5 = tie,
-           * 6 = no contest,
-           * 7 = match nullified.
-           */
-          1 | 2 | 3 | 4 | 5 | 6 | 7,
+          (
+            /**
+             *  The result of the match, where:
+             * 1 = victory,
+             * 2 = defeat,
+             * 3 = victory by disqualification,
+             * 4 = defeat by disqualification,
+             * 5 = tie,
+             * 6 = no contest,
+             * 7 = match nullified.
+             */
+            1 | 2 | 3 | 4 | 5 | 6 | 7
+          ),
           /**
            * The user's TR after the match.
            */

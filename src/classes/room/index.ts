@@ -167,7 +167,10 @@ export class Room {
         this.#client.game = this.#client.game.destroy();
       }
 
-      this.#client.emit("client.game.round.end", data.victor);
+      this.#client.emit(
+        "client.game.round.end",
+        data.scoreboard?.[0]?.id ?? null
+      );
     });
 
     this.#listen("game.abort", () => {
@@ -187,7 +190,7 @@ export class Room {
     this.#listen("game.end", (data) => {
       const useScoreboard = this.match.ft === 1 && this.match.wb === 1;
       const board = useScoreboard ? data.scoreboard : data.leaderboard;
-      this.#client.emit("client.game.round.end", board[0]?.id ?? null);
+      this.#client.emit("client.game.round.end", board?.[0]?.id ?? null);
 
       const duration = performance.now() - (this.gameStart ?? 0);
       if (useScoreboard) {

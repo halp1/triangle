@@ -73,9 +73,8 @@ export interface Game {
     }[];
   };
   "game.score": {
-    refereedata: { ft: number; wb: number; modename: string };
-    leaderboard: GameTypes.Leaderboard[];
-    victor: string;
+    scoreboard: GameTypes.Scoreboard[];
+    match: GameTypes.MatchData;
   };
   "game.end": {
     leaderboard: GameTypes.Leaderboard[];
@@ -145,39 +144,6 @@ export interface Game {
       naturalorder: number;
       options: GameTypes.ReadyOptions;
     }[];
-    match: {
-      gamemode: string;
-      modename: string;
-      rb: {
-        type: "elimination" | "mutli-round";
-        options: {
-          ft: number;
-          wb: number;
-          gp: number;
-        };
-        leaderboard: GameTypes.Leaderboard[];
-      };
-
-      rrb: {
-        type: "elimination";
-        options: Record<string, unknown>;
-        scoreboard: {
-          sb: {
-            stats: {
-              rank: number;
-              altitude: number;
-              btb: number;
-              revives: number;
-            };
-            allies: any[];
-            gameid: number;
-            specCount: number;
-            speedrun: boolean;
-            nearWR: boolean;
-            lovers: boolean;
-          };
-        };
-      };
-    };
+    match: GameTypes.MatchData;
   };
 }

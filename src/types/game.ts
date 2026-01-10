@@ -670,6 +670,44 @@ export namespace Game {
     lifetime: number;
   }
 
+  export interface RB {
+    type: "elimination" | "mutli-round";
+    options: {
+      ft: number;
+      wb: number;
+      gp: number;
+    };
+    leaderboard: Leaderboard[];
+  }
+
+  export interface RRB {
+    type: "elimination";
+    options: Record<string, unknown>;
+    scoreboard: {
+      sb: {
+        stats: {
+          rank: number;
+          altitude: number;
+          btb: number;
+          revives: number;
+        };
+        allies: any[];
+        gameid: number;
+        specCount: number;
+        speedrun: boolean;
+        nearWR: boolean;
+        lovers: boolean;
+      };
+    };
+  }
+
+  export interface MatchData {
+    gamemode: string;
+    modename: string;
+    rb: RB;
+    rrb: RRB | null;
+  }
+
   export interface Stats {
     lines: number;
     level_lines: number;
