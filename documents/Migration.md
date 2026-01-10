@@ -1,6 +1,6 @@
 # Triangle.js Migration Guide
 
-This migration guide currently covers migrating from Triangle.js v3 to Triangle.js v4.
+This migration guide currently covers migrating from Triangle.js v3 to Triangle.js v4. It is recommended that you migrate as soon as possible, because v3 has reached end-of-life and will no longer receive updates or patches for TETR.IO compatibility issues.
 
 If you are using typescript, the best way to see what you need to update is to simply run `npx tsc --noEmit` on your project after updating the package. The typescript compiler will point out all the errors caused by breaking changes in the v4 update. You can refer to this guide for explanations on how to fix them.
 
