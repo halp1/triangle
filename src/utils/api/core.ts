@@ -112,6 +112,8 @@ export const core = (defaults: APIDefaults) => {
       try {
         res = await fetch(`https://tetr.io/api/${uri}`, {
           method: "POST",
+					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+					// @ts-ignore mismatched buffer type (this may throw ts error depending on your config, leave as ts-ignore)
           body: json ? JSON.stringify(body) : pack.pack(body),
           headers: {
             Accept: json
