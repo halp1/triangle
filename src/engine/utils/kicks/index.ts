@@ -1,4 +1,4 @@
-import { type BoardSquare } from "../../board";
+import type { Tile } from "../..";
 import { Mino } from "../../queue/types";
 import type { Rotation } from "../tetromino/types";
 import { kicks } from "./data";
@@ -6,7 +6,7 @@ import { kicks } from "./data";
 export { kicks as kickData };
 export type KickTable = keyof typeof kicks;
 
-export const legal = (blocks: [number, number][], board: BoardSquare[][]) => {
+export const legal = (blocks: [number, number][], board: Tile[][]) => {
   if (board.length === 0) return false;
   for (const block of blocks) {
     if (block[0] < 0) return false;
@@ -28,7 +28,7 @@ export const performKick = (
   blocks: [number, number][],
   startRotation: Rotation,
   endRotation: Rotation,
-  board: BoardSquare[][]
+  board: Tile[][]
 ):
   | {
       kick: [number, number];

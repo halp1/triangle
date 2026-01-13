@@ -44,6 +44,9 @@ The `Queue` class (accessible via `engine.queue`) has been changed to extend the
 
 To get a raw Array instead of a Queue, use `queue.raw()`.
 
+### The `Board` now holds tile connection data by default
+The previous `ConnectedBoard` class has been merged into the main `Board` class. You can now access tile connection data directly from `engine.board`. `engine.board.state` is now a 2D array of `Tile` objects, which contain both the `Mino` (as the `mino` property) and the connection data (as the `connections` property). Similarly to v3 and prior, empty tiles are represented as `null`. The `BoardSquare` type has been removed to prevent confusion.
+
 ### The `client.dm` event has been reworked
 
 The `client.dm` event now contains the following properties:

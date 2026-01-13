@@ -1,5 +1,5 @@
 import { deepCopy } from "..";
-import { type BoardSquare } from "../../board";
+import type { Tile } from "../..";
 import { Mino } from "../../queue/types";
 import { type KickTable, legal, performKick } from "../kicks";
 import { tetrominoes } from "./data";
@@ -134,7 +134,7 @@ export class Tetromino {
     this.location[1] = value;
   }
 
-  isStupidSpinPosition(board: BoardSquare[][]) {
+  isStupidSpinPosition(board: Tile[][]) {
     return !legal(
       this.blocks.map((block) => [
         block[0] + this.location[0],
@@ -144,7 +144,7 @@ export class Tetromino {
     );
   }
 
-  isAllSpinPosition(board: BoardSquare[][]) {
+  isAllSpinPosition(board: Tile[][]) {
     return (
       !legal(
         this.blocks.map((block) => [
@@ -178,7 +178,7 @@ export class Tetromino {
   }
 
   rotate(
-    board: BoardSquare[][],
+    board: Tile[][],
     kickTable: KickTable,
     amt: Rotation,
     maxMovement: boolean
@@ -208,7 +208,7 @@ export class Tetromino {
     return false;
   }
 
-  moveRight(board: BoardSquare[][]) {
+  moveRight(board: Tile[][]) {
     if (
       legal(
         this.blocks.map((block) => [
@@ -223,7 +223,7 @@ export class Tetromino {
     }
     return false;
   }
-  moveLeft(board: BoardSquare[][]) {
+  moveLeft(board: Tile[][]) {
     if (
       legal(
         this.blocks.map((block) => [
@@ -240,7 +240,7 @@ export class Tetromino {
     return false;
   }
 
-  dasRight(board: BoardSquare[][]) {
+  dasRight(board: Tile[][]) {
     if (this.moveRight(board)) {
       while (this.moveRight(board)) {
         /* empty */
@@ -250,7 +250,7 @@ export class Tetromino {
     return false;
   }
 
-  dasLeft(board: BoardSquare[][]) {
+  dasLeft(board: Tile[][]) {
     if (this.moveLeft(board)) {
       while (this.moveLeft(board)) {
         /* empty */
@@ -260,7 +260,7 @@ export class Tetromino {
     return false;
   }
 
-  softDrop(board: BoardSquare[][]) {
+  softDrop(board: Tile[][]) {
     const start = this.location[1];
     while (
       legal(

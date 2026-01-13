@@ -20,7 +20,7 @@ export class Queue extends Array<Mino> {
   _minLength!: number;
   repopulateListener: ((pieces: Mino[]) => void) | null = null;
 
-  static get [Symbol.species]() {
+  static override get [Symbol.species]() {
     return Array;
   }
 

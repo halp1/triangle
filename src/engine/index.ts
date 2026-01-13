@@ -1,6 +1,11 @@
 import type { Game } from "../types/game";
 import { EventEmitter } from "../utils/events";
-import { Board, type BoardInitializeParams, ConnectedBoard } from "./board";
+import {
+  Board,
+  BoardConnections,
+  type BoardInitializeParams,
+  type Tile
+} from "./board";
 import { constants } from "./constants";
 import {
   GarbageQueue,
@@ -97,7 +102,6 @@ export class Engine {
   falling!: Tetromino;
   #kickTable!: KickTableName;
   board!: Board;
-  connectedBoard!: ConnectedBoard;
   lastSpin!: SpinType | null;
   lastWasClear!: boolean;
   stats!: {
@@ -210,7 +214,6 @@ export class Engine {
     this.#kickTable = options.kickTable;
 
     this.board = new Board(options.board);
-    this.connectedBoard = new ConnectedBoard(options.board);
 
     this.garbageQueue = new (
       (options.misc.date ?? new Date()) > new Date("2025-05-06T15:00:00-04:00")
@@ -357,7 +360,6 @@ export class Engine {
   snapshot(): EngineSnapshot {
     return {
       board: deepCopy(this.board.state),
-      connectedBoard: deepCopy(this.connectedBoard.state),
       falling: this.falling.snapshot(),
       frame: this.frame,
       garbage: this.garbageQueue.snapshot(),
@@ -384,7 +386,6 @@ export class Engine {
       { type: Date, copy: (d) => new Date(d) }
     ]);
     this.board.state = deepCopy(snapshot.board);
-    this.connectedBoard.state = deepCopy(snapshot.connectedBoard);
     this.falling = new Tetromino({
       boardHeight: this.board.height,
       boardWidth: this.board.width,
@@ -1193,19 +1194,17 @@ export class Engine {
         ] as [Mino, number, number]
     );
 
-    this.board.add(...placed);
-    this.connectedBoard.add(
+    this.board.add(
       ...this.connect(placed.map(([_, x, y]) => [x, -y])).map(
         ([x, y, s]) =>
-          [{ mino: this.falling.symbol, connection: s }, x, -y] as [
-            { mino: Mino; connection: number },
+          [{ mino: this.falling.symbol, connections: s }, x, -y] as [
+            { mino: Mino; connections: number },
             number,
             number
           ]
       )
     );
 
-    this.connectedBoard.clearBombsAndLines(placed.map((b) => [b[1], b[2]]));
     const { lines, garbageCleared } = this.board.clearBombsAndLines(
       placed.map((b) => [b[1], b[2]])
     );
@@ -1360,10 +1359,6 @@ export class Engine {
         const tankEvent: Events["garbage.tank"][] = [];
         garbages.forEach((garbage, idx) => {
           this.board.insertGarbage({
-            ...garbage,
-            bombs: this.garbageQueue.options.bombs
-          });
-          this.connectedBoard.insertGarbage({
             ...garbage,
             bombs: this.garbageQueue.options.bombs,
             isBeginning: idx === 0 || garbages[idx - 1].id !== garbage.id,
@@ -1762,21 +1757,33 @@ export class Engine {
 
     return blocks.map(([x, y]) => {
       let state = 0;
-      if (!exists(x, y - 1)) state |= 0b1000;
-      if (!exists(x + 1, y)) state |= 0b0100;
-      if (!exists(x, y + 1)) state |= 0b0010;
-      if (!exists(x - 1, y)) state |= 0b0001;
+      if (!exists(x, y - 1)) state |= BoardConnections.TOP;
+      if (!exists(x + 1, y)) state |= BoardConnections.RIGHT;
+      if (!exists(x, y + 1)) state |= BoardConnections.BOTTOM;
+      if (!exists(x - 1, y)) state |= BoardConnections.LEFT;
       if (
-        (state === 0b1001 && !exists(x + 1, y + 1)) ||
-        (state === 0b1100 && !exists(x - 1, y + 1)) ||
-        (state === 0b0011 && !exists(x + 1, y - 1)) ||
-        (state === 0b0110 && !exists(x - 1, y - 1)) ||
-        (state === 0b0010 && !exists(x + 1, y - 1) && !exists(x - 1, y - 1)) ||
-        (state === 0b0001 && !exists(x + 1, y - 1) && !exists(x + 1, y + 1)) ||
-        (state === 0b1000 && !exists(x - 1, y + 1) && !exists(x + 1, y + 1)) ||
-        (state === 0b0100 && !exists(x - 1, y - 1) && !exists(x - 1, y + 1))
+        (state === (BoardConnections.TOP | BoardConnections.LEFT) &&
+          !exists(x + 1, y + 1)) ||
+        (state === (BoardConnections.TOP | BoardConnections.RIGHT) &&
+          !exists(x - 1, y + 1)) ||
+        (state === (BoardConnections.BOTTOM | BoardConnections.LEFT) &&
+          !exists(x + 1, y - 1)) ||
+        (state === (BoardConnections.BOTTOM | BoardConnections.RIGHT) &&
+          !exists(x - 1, y - 1)) ||
+        (state === BoardConnections.BOTTOM &&
+          !exists(x + 1, y - 1) &&
+          !exists(x - 1, y - 1)) ||
+        (state === BoardConnections.LEFT &&
+          !exists(x + 1, y - 1) &&
+          !exists(x + 1, y + 1)) ||
+        (state === BoardConnections.TOP &&
+          !exists(x - 1, y + 1) &&
+          !exists(x + 1, y + 1)) ||
+        (state === BoardConnections.RIGHT &&
+          !exists(x - 1, y - 1) &&
+          !exists(x - 1, y + 1))
       ) {
-        state |= 0b1_0000;
+        state |= BoardConnections.CORNER;
       }
 
       return [x, y, state] as const;
@@ -1816,7 +1823,7 @@ export class Engine {
   };
 
   get text() {
-    const boardTop = this.board.state.findIndex((row: (string | null)[]) =>
+    const boardTop = this.board.state.findIndex((row: Tile[]) =>
       row.every((block) => block === null)
     );
     const height = Math.max(this.garbageQueue.size, boardTop, 0);
@@ -1835,7 +1842,7 @@ export class Engine {
 
       for (let j = 0; j < this.board.width; j++) {
         const block = this.board.state[i][j];
-        str += block ? Engine.colorMap[block]("  ") : "  ";
+        str += block ? Engine.colorMap[block.mino]("  ") : "  ";
       }
 
       output.push(str + " " + (i % 2 === 0 ? "|" : " "));

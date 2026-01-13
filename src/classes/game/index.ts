@@ -1,9 +1,11 @@
 import {
+  BoardConnections,
   Engine,
   type EngineInitializeParams,
   type EngineSnapshot,
   type IncomingGarbage,
-  type Rotation
+  type Rotation,
+  type Tile
 } from "../../engine";
 import { constants } from "../../engine/constants";
 import type { Events, Game as GameTypes } from "../../types";
@@ -397,15 +399,22 @@ export class Game {
     state: GameTypes.State
   ): EngineSnapshot {
     return {
-      board: state.board.toReversed(),
       // TODO: actual connected board
-      connectedBoard: state.board
-        .toReversed()
-        .map((row) =>
-          row.map((square) =>
-            square ? { mino: square, connection: 0b0_0000 } : null
-          )
-        ),
+      board: state.board.toReversed().map((row) =>
+        row.map(
+          (square): Tile =>
+            square
+              ? {
+                  mino: square,
+                  connections:
+                    BoardConnections.TOP |
+                    BoardConnections.RIGHT |
+                    BoardConnections.BOTTOM |
+                    BoardConnections.LEFT
+                }
+              : null
+        )
+      ),
       falling: {
         aox: 0,
         aoy: 0,
@@ -529,7 +538,7 @@ export class Game {
           lastGenerated: state.lastGenerated,
           rng: state.rng
         },
-        value: state.bag.slice()
+        value: [...state.bag]
       }
     };
   }

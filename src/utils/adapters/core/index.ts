@@ -32,7 +32,7 @@ export abstract class Adapter<
     engine: Engine
   ): Omit<Messages.Outgoing.State<T>, "type" | "data"> {
     return {
-      board: engine.board.state,
+      board: engine.board.state.map((r) => r.map((t) => t?.mino ?? null)),
 
       current: engine.falling.symbol,
       hold: engine.held,

@@ -1,5 +1,5 @@
 import type { AdapterKey } from ".";
-import type { BoardSquare, EngineSnapshot, Mino } from "../../../engine";
+import type { EngineSnapshot, Mino } from "../../../engine";
 import type { KickTableName } from "../../../engine/utils/kicks/data";
 import type { Game } from "../../../types";
 
@@ -66,7 +66,7 @@ export namespace Outgoing {
   export interface State<Data extends CustomMessageData> {
     type: "state";
 
-    board: BoardSquare[][];
+    board: (Mino | null)[][];
 
     current: Mino;
     hold: Mino | null;
