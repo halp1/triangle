@@ -4,11 +4,12 @@ import type { Game as GameTypes } from "../../types";
 import type { Events } from "../../types";
 import type { BotWrapper } from "../../utils";
 import type { Client } from "../client";
+import type { Hook } from "../client/hook";
 import { getFullFrame } from "./utils";
 
 export class Self {
   #client: Client;
-  #listeners: Parameters<Client["on"]>[] = [];
+  #hook: Hook<Events.in.all>;
   #frameQueue: GameTypes.Replay.Frame[] = [];
   #incomingGarbage: (GameTypes.Replay.Frames.IGE & { frame: number })[] = [];
   #timeout: NodeJS.Timeout | null = null;
@@ -54,6 +55,7 @@ export class Self {
 
   constructor(client: Client, players: GameTypes.Ready["players"]) {
     this.#client = client;
+    this.#hook = client.hook();
     this.#players = players;
 
     const self = players.find((p) => p.userid === this.#client.user.id);
@@ -71,28 +73,12 @@ export class Self {
     }
   }
 
-  #listen<T extends keyof Events.in.all>(
-    event: T,
-    cb: (data: Events.in.all[T]) => void,
-    once = false
-  ) {
-    this.#listeners.push([event, cb] as any);
-    if (once) {
-      this.#client.once(event, cb);
-    } else {
-      this.#client.on(event, cb);
-    }
-  }
-
   /**
    * @internal
    * Stops the client's gameplay, when it dies. Does not destroy the game. You don't need to call this manually.
    */
   destroy() {
-    this.#listeners.forEach(
-      (l) => l[0] !== "game.replay" && this.#client.off(l[0], l[1])
-    );
-    this.#listeners = this.#listeners.filter((l) => l[0] === "game.replay");
+    this.#hook.destroy();
 
     if (this.#timeout)
       this.#timeout = (clearTimeout(this.#timeout) as any) || null;
@@ -104,24 +90,20 @@ export class Self {
 
   /** Initialize the client's game. You don't need to call this manually. */
   init() {
-    this.#listen("game.match", (_data) => {});
-    this.#listen(
-      "game.start",
-      () => {
-        this.#timeout = setTimeout(
-          () => {
-            this.#start();
-          },
-          this.options.countdown_count * this.options.countdown_interval +
-            this.options.precountdown +
-            this.options.prestart
-        );
-        this.#listen("game.abort", () => clearTimeout(this.#timeout!), true);
-      },
-      true
-    );
+    this.#hook.on("game.match", (_data) => {});
+    this.#hook.once("game.start", () => {
+      this.#timeout = setTimeout(
+        () => {
+          this.#start();
+        },
+        this.options.countdown_count * this.options.countdown_interval +
+          this.options.precountdown +
+          this.options.prestart
+      );
+      this.#hook.once("game.abort", () => clearTimeout(this.#timeout!));
+    });
 
-    this.#listen("game.replay.ige", (data) => this.#handleIGE(data));
+    this.#hook.on("game.replay.ige", (data) => this.#handleIGE(data));
   }
 
   #start() {

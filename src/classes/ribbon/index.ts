@@ -962,7 +962,7 @@ export class Ribbon {
     ribbon.#reconnectPenalty = snapshot.reconnectPenalty;
 
     ribbon.#options = { ...snapshot.options };
-    ribbon.emitter.maxListeners = snapshot.emitter.maxListeners;
+    ribbon.emitter._maxListeners = snapshot.emitter.maxListeners;
     ribbon.emitter.verbose = snapshot.emitter.verbose;
 
     return ribbon;

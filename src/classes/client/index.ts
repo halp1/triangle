@@ -1,11 +1,12 @@
 import type { Types } from "../..";
 import type { Events, Game as GameTypes } from "../../types";
 import { API, CONSTANTS, parseToken } from "../../utils";
-import { Game } from "../game";
+import { Game, type SpectatingStrategy } from "../game";
 import { Ribbon } from "../ribbon";
 import { Room } from "../room";
 import { Social } from "../social";
-import type { ClientOptions, ClientUser } from "./types";
+import { Hook } from "./hook";
+import type { ClientOptions, ClientUser, GameOptions } from "./types";
 
 export type * from "./types";
 
@@ -18,6 +19,7 @@ export class Client {
   token: string;
   /** @hidden */
   #handling: GameTypes.Handling;
+  #spectatingStrategy!: SpectatingStrategy;
 
   /** Raw ribbon client, the backbone of TETR.IO multiplayer. You probably don't want to touch this unless you know what you are doing. */
   ribbon: Ribbon;
@@ -72,7 +74,7 @@ export class Client {
     ribbon: Ribbon,
     me: Awaited<ReturnType<API["users"]["me"]>>,
     userAgent: string = CONSTANTS.userAgent,
-    handling: GameTypes.Handling
+    gameOptions: GameOptions
   ) {
     this.token = token;
     this.ribbon = ribbon;
@@ -89,7 +91,8 @@ export class Client {
       userAgent
     };
 
-    this.#handling = handling;
+    this.#handling = gameOptions.handling;
+    this.#spectatingStrategy = gameOptions.spectatingStrategy;
 
     this.api = new API({ token: this.token, userAgent });
 
@@ -174,7 +177,7 @@ export class Client {
     api.update({ token });
     const me = api.users.me();
 
-    const handling: Types.Game.Handling = options.handling || {
+    const handling: Types.Game.Handling = options.game?.handling || {
       arr: 0,
       cancel: false,
       das: 5,
@@ -223,7 +226,7 @@ export class Client {
       ribbon,
       await me,
       options.userAgent || CONSTANTS.userAgent,
-      handling
+      { handling, spectatingStrategy: "instant", ...options.game }
     );
 
     client.social = await Social.create(
@@ -287,6 +290,10 @@ export class Client {
       // @ts-expect-error
       this.emit(event, data);
     });
+  }
+
+  hook() {
+    return new Hook(this.ribbon.emitter);
   }
 
   /** @hidden */
@@ -395,6 +402,18 @@ export class Client {
       );
     this.#handling = handling;
     this.emit("config.handling", handling);
+  }
+
+  /** The client's spectating strategy. */
+  get spectatingStrategy() {
+    return this.#spectatingStrategy;
+  }
+
+  set spectatingStrategy(strategy: SpectatingStrategy) {
+    this.#spectatingStrategy = strategy;
+    if (this.game) {
+      this.game._strategy = strategy;
+    }
   }
 
   /** Clean up the client. Leaves any rooms first. */

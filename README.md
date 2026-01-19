@@ -205,6 +205,8 @@ const data = await client.wrap(<send event>, <data>, <receive event>);
 
 For events that you might want to handle multiple times, you can use `client.on`, `client.off`, and `client.once` (node EventEmitter methods).
 
+If you want to attach a group of listeners that later need to be removed together, you can use the `client.hook()` method. This creates a `Hook<Events.in.all>` object that you can call `.on()`, `.off()`, and `.once()` on. When you want to remove all listeners attached to the hook, just call `hook.destroy()`.
+
 ### Client Events
 
 Client events are not sent by TETR.IO. They are events sent by the Triangle.js client itself to help make creating a bot easier.

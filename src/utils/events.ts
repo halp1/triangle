@@ -1,6 +1,9 @@
 export class EventEmitter<T extends Record<string, any>> {
   #listeners: [keyof T, (data: any) => void, boolean][];
-  #maxListeners: number = 10;
+  #maxListeners = {
+    default: 10,
+    overrides: new Map<keyof T, number>()
+  };
 
   /** Enables more debugging logs for memory leaks */
   verbose = false;
@@ -13,11 +16,14 @@ export class EventEmitter<T extends Record<string, any>> {
     this.#listeners.push([event, cb, false]);
 
     const listeners = this.#listeners.filter(([e]) => e === event);
-    if (listeners.length > this.#maxListeners) {
+    if (
+      listeners.length >
+      (this.#maxListeners.overrides.get(event) ?? this.#maxListeners.default)
+    ) {
       console.warn(
         `Max listeners exceeded for event "${String(event)}". Current: ${
           this.#listeners.filter(([e]) => e === event).length
-        }, Max: ${this.#maxListeners}`
+        }, Max: ${this.#maxListeners.overrides.get(event) ?? this.#maxListeners.default}`
       );
       if (this.verbose)
         console.warn(
@@ -38,7 +44,9 @@ export class EventEmitter<T extends Record<string, any>> {
   emit<K extends keyof T>(event: K, data: T[K]) {
     const toRemove = new Set<number>();
 
-    this.#listeners.forEach(([e, cb, once], idx) => {
+    const listeners = [...this.#listeners];
+
+    listeners.forEach(([e, cb, once], idx) => {
       if (e !== event) return;
       cb(data);
       if (once) toRemove.add(idx);
@@ -63,16 +71,39 @@ export class EventEmitter<T extends Record<string, any>> {
     }
   }
 
-  set maxListeners(n: number) {
-    if (n <= 0 || !Number.isInteger(n)) {
+  /** Sets the default number of max listeners */
+  setMaxListeners(n: number): void;
+  setMaxListeners<K extends keyof T>(event: K, n: number): void;
+  setMaxListeners<K extends keyof T>(event: K[], n: number): void;
+  setMaxListeners<K extends keyof T>(eventOrN: K | K[] | number, n?: number) {
+    const count: number = n ?? (eventOrN as number);
+    if (!Number.isInteger(count) || count <= 0) {
       throw new RangeError("Max listeners must be a positive integer");
     }
 
-    this.#maxListeners = n;
+    if (typeof eventOrN === "number") {
+      this.#maxListeners.default = eventOrN;
+    } else if (Array.isArray(eventOrN)) {
+      eventOrN.forEach((event) => {
+        this.#maxListeners.overrides.set(event, count);
+      });
+    } else {
+      this.#maxListeners.overrides.set(eventOrN, count);
+    }
   }
 
   get maxListeners() {
     return this.#maxListeners;
+  }
+
+  /**
+   * @internal
+   */
+  set _maxListeners(data: {
+    default: number;
+    overrides: Map<keyof T, number>;
+  }) {
+    this.#maxListeners = data;
   }
 
   export() {

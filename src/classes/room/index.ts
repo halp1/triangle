@@ -1,5 +1,6 @@
 import type { Events, Game as GameTypes, Room as RoomTypes } from "../../types";
 import { Client } from "../client";
+import type { Hook } from "../client/hook";
 import { Game } from "../game";
 import { roomConfigPresets } from "./presets";
 import { ReplayManager } from "./replayManager";
@@ -7,8 +8,7 @@ import type { SpectateData } from "./types";
 
 export class Room {
   #client: Client;
-  #listeners: Parameters<Client["on"]>[] = [];
-
+  #hook: Hook<Events.in.all>;
   /** the ID of the room */
   id!: string;
   /** Whether or not the room is public */
@@ -46,6 +46,7 @@ export class Room {
   /** @hideconstructor */
   constructor(client: Client, data: Events.in.Room["room.update"]) {
     this.#client = client;
+    this.#hook = client.hook();
 
     this.#handleUpdate(data);
 
@@ -74,51 +75,37 @@ export class Room {
     this.options = data.options;
   }
 
-  #listen<T extends keyof Events.in.all>(
-    event: T,
-    cb: (data: Events.in.all[T]) => void,
-    once = false
-  ) {
-    this.#listeners.push([event, cb] as any);
-    if (once) {
-      this.#client.once(event, cb);
-    } else {
-      this.#client.on(event, cb);
-    }
-  }
-
   #init() {
     const emitPlayers = () =>
       this.#client.emit("client.room.players", this.players);
     let abortTimeout: NodeJS.Timeout | null = null;
-    this.#listen("room.update.host", (data) => {
+    this.#hook.on("room.update.host", (data) => {
       this.owner = data;
       emitPlayers();
     });
 
-    this.#listen("room.update.bracket", (data) => {
+    this.#hook.on("room.update.bracket", (data) => {
       const idx = this.players.findIndex((p) => p._id === data.uid);
       if (idx >= 0) this.players[idx].bracket = data.bracket;
       emitPlayers();
     });
 
-    this.#listen("room.update.auto", (auto) => {
+    this.#hook.on("room.update.auto", (auto) => {
       this.autostart = auto;
     });
 
-    this.#listen("room.update", this.#handleUpdate.bind(this));
-
-    this.#listen("room.player.add", (data) => {
+    this.#hook.on("room.update", this.#handleUpdate.bind(this));
+    this.#hook.on("room.player.add", (data) => {
       this.players.push(data);
       emitPlayers();
     });
 
-    this.#listen("room.player.remove", (data) => {
+    this.#hook.on("room.player.remove", (data) => {
       this.players = this.players.filter((p) => p._id !== data);
       emitPlayers();
     });
 
-    this.#listen("game.ready", (data) => {
+    this.#hook.on("game.ready", (data) => {
       try {
         this.#client.game = new Game(this.#client, data.players);
       } catch {
@@ -144,9 +131,9 @@ export class Room {
       this.replay?.addRound(data.players);
     });
 
-    this.#listen("game.replay", (event) => this.replay?.pipe(event));
+    this.#hook.on("game.replay", (event) => this.replay?.pipe(event));
 
-    this.#listen("game.replay.end", async ({ gameid, data }) => {
+    this.#hook.on("game.replay.end", async ({ gameid, data }) => {
       this.replay?.die({ gameid, data, game: this.#client.game });
       if (!this.#client.game || this.#client.game.self?.gameid !== gameid)
         return;
@@ -154,7 +141,7 @@ export class Room {
       this.#client.emit("client.game.over", { reason: "finish", data });
     });
 
-    this.#listen("game.advance", () => {
+    this.#hook.on("game.advance", () => {
       this.replay?.endRound({ game: this.#client.game });
       if (this.#client.game) {
         this.#client.game = this.#client.game.destroy();
@@ -162,7 +149,7 @@ export class Room {
       }
     });
 
-    this.#listen("game.score", (data) => {
+    this.#hook.on("game.score", (data) => {
       if (this.#client.game) {
         this.#client.game = this.#client.game.destroy();
       }
@@ -173,7 +160,7 @@ export class Room {
       );
     });
 
-    this.#listen("game.abort", () => {
+    this.#hook.on("game.abort", () => {
       if (abortTimeout) return;
 
       abortTimeout = setTimeout(() => {
@@ -187,7 +174,7 @@ export class Room {
       this.#client.emit("client.game.over", { reason: "abort" });
     });
 
-    this.#listen("game.end", (data) => {
+    this.#hook.on("game.end", (data) => {
       const useScoreboard = this.match.ft === 1 && this.match.wb === 1;
       const board = useScoreboard ? data.scoreboard : data.leaderboard;
       this.#client.emit("client.game.round.end", board?.[0]?.id ?? null);
@@ -232,16 +219,16 @@ export class Room {
       this.#client.emit("client.game.over", { reason: "end" });
     });
 
-    this.#listen("client.game.end", () =>
+    this.#hook.on("client.game.end", () =>
       this.replay?.end({ self: this.#client.user.id })
     );
 
     // chat
-    this.#listen("room.chat", (item) => this.chats.push(item));
+    this.#hook.on("room.chat", (item) => this.chats.push(item));
 
     // get booted
-    this.#listen("room.kick", () => this.destroy());
-    this.#listen("room.leave", () => this.destroy());
+    this.#hook.on("room.kick", () => this.destroy());
+    this.#hook.on("room.leave", () => this.destroy());
   }
 
   /** Whether or not the client is the host */
@@ -257,7 +244,7 @@ export class Room {
    * For internal use only. Use `room.leave()` instead.
    */
   destroy() {
-    this.#listeners.forEach((l) => this.#client.off(l[0], l[1]));
+    this.#hook.destroy();
     if (this.#client.game) {
       this.#client.game.destroy();
       this.#client.emit("client.game.over", { reason: "leave" });

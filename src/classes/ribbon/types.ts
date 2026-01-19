@@ -1,6 +1,6 @@
 import { Ribbon, type LoggingLevel, type Spool, type Transport } from ".";
-import type { Game } from "../../types";
-import type { APIDefaults, APITypes } from "../../utils";
+import type { Events, Game } from "../../types";
+import type { APIDefaults, APITypes, EventEmitter } from "../../utils";
 import { Buffer } from "buffer/index.js";
 
 export namespace RibbonEvents {
@@ -81,7 +81,7 @@ export interface RibbonSnapshot {
   };
 
   emitter: {
-    maxListeners: number;
+    maxListeners: EventEmitter<Events.in.all>["maxListeners"];
     verbose: boolean;
   };
 }

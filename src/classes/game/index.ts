@@ -8,8 +8,9 @@ import {
   type Tile
 } from "../../engine";
 import { constants } from "../../engine/constants";
-import type { Events, Game as GameTypes } from "../../types";
+import type { Game as GameTypes } from "../../types";
 import { Client } from "../client";
+import { Player, type SpectatingStrategy } from "./player";
 import { Self } from "./self";
 
 import chalk from "chalk";
@@ -23,18 +24,12 @@ export const moveElementToFirst = <T>(arr: T[], n: number) => [
 export class Game {
   #client: Client;
   #listeners: Parameters<Client["on"]>[] = [];
+  #strategy: SpectatingStrategy;
+  #spectatingTimeout: NodeJS.Timeout | null = null;
+	#spectateWarningCounter = 0;
 
   /** Data on all players in game, including the client. Note that the client's engine data is only the data acknowledged by the server, not the most recent gameplay information. */
-  players: {
-    name: string;
-    gameid: number;
-    userid: string;
-    engine: Engine;
-    /** Queue of unprocessed replay frames for this player. Do not modify. */
-    queue: GameTypes.Replay.Frame[];
-    /** Whether the player is currently receiving replay frames (actively spectated) */
-    spectating: boolean;
-  }[] = [];
+  players: Player[] = [];
 
   /** The raw game config for all players, (possibly) including the client's own game config */
   rawPlayers: GameTypes.Ready["players"];
@@ -52,6 +47,7 @@ export class Game {
   /** @hideconstructor */
   constructor(client: Client, players: GameTypes.Ready["players"]) {
     this.#client = client;
+    this.#strategy = this.#client.spectatingStrategy;
 
     const self = players.find((p) => p.userid === client.user.id);
 
@@ -82,19 +78,6 @@ export class Game {
     console.log(`${func("[Triangle.JS]")}: ${msg}`);
   }
 
-  #listen<T extends keyof Events.in.all>(
-    event: T,
-    cb: (data: Events.in.all[T]) => void,
-    once = false
-  ) {
-    this.#listeners.push([event, cb] as any);
-    if (once) {
-      this.#client.once(event, cb);
-    } else {
-      this.#client.on(event, cb);
-    }
-  }
-
   /**
    * @internal
    * Kill the game. This is called automatically by the Room class when a game ends/is aborted, you don't need to use this.
@@ -104,9 +87,14 @@ export class Game {
 
     this.#listeners.forEach((l) => this.#client.off(l[0], l[1]));
 
-    this.players.forEach((engine) => engine.engine.events.removeAllListeners());
+    this.players.forEach((player) => player.destroy());
 
     this.#client.ribbon.fasterPing = false;
+
+    if (this.#spectatingTimeout) {
+      clearTimeout(this.#spectatingTimeout);
+      this.#spectatingTimeout = null;
+    }
 
     delete this.#client.game;
   }
@@ -116,69 +104,54 @@ export class Game {
 
     this.self?.init();
 
-    this.players = this.rawPlayers.map((o) => ({
-      name: o.options.username,
-      userid: o.userid,
-      gameid: o.gameid,
-      engine: Game.createEngine(o.options, o.gameid, this.rawPlayers),
-      queue: [],
-      spectating: false
-    }));
+    this.#client.ribbon.emitter.setMaxListeners(
+      ["game.replay", "game.replay.state", "game.replay.end"],
+      this.rawPlayers.length + 10
+    );
 
-    this.#listen("game.replay", ({ gameid, frames }) => {
-      const game = this.players.find((player) => player.gameid === gameid);
-      if (!game || game.engine.toppedOut) return;
+    this.players = this.rawPlayers.map(
+      (p) => new Player(this.#client, this.#strategy, p, this.rawPlayers)
+    );
+		 
+    this.#spectatingTimeout = setTimeout(
+      this.#tick.bind(this),
+      1000 / Game.fps
+    );
+  }
 
-      game.queue.push(...frames);
-      while (game.queue.some((f) => f.frame > game.engine.frame)) {
-        const frames: GameTypes.Replay.Frame[] = [];
-        while (
-          game.queue.length > 0 &&
-          game.queue[0].frame <= game.engine.frame
-        ) {
-          frames.push(game.queue.shift()!);
-        }
-        game.engine.tick(frames);
-      }
-    });
+  #tick() {
+    const tickStart = performance.now();
 
-    this.#listen("game.replay.state", ({ gameid, data }) => {
-      const player = this.players.find((g) => g.gameid === gameid);
-      if (!player) return; // should never happen, in theory
-      if (data === "early") {
-        // todo: what to do here?
-      } else if (data === "wait") {
-        // todo: what to do here?
-      } else {
-        player.engine.fromSnapshot(
-          Game.snapshotFromState(
-            data.frame,
-            player.engine.initializer,
-            data.game
-          )
-        );
-      }
-    });
+    this.players.forEach((p) => p._tick());
+
+		if (performance.now() - tickStart > 1000 / Game.fps - 1) {
+			if (this.#spectateWarningCounter++ === 5) {
+				Game.log(
+					"Spectating is falling behind! You are spectating too many players. Consider reducing the number of players you are spectating to improve performance.",
+				)
+			}
+		} else {
+			this.#spectateWarningCounter = 0;
+		}
+
+    this.#spectatingTimeout = setTimeout(
+      this.#tick.bind(this),
+      Math.max(0, 1000 / Game.fps - (performance.now() - tickStart))
+    );
   }
 
   #spectate(player: Game["players"][number] | number) {
-    const p =
-      typeof player === "number"
-        ? this.players.find((p) => p.gameid === player)
-        : player;
-    if (!p || p.spectating) return;
-    this.#client.emit("game.scope.start", p.gameid);
-    p.spectating = true;
+    (typeof player === "number"
+      ? this.players.find((p) => p.gameid === player)
+      : player
+    )?.spectate();
   }
 
   #unspectate(player: Game["players"][number] | number) {
-    const p =
-      typeof player === "number"
-        ? this.players.find((p) => p.gameid === player)
-        : player;
-    if (!p || !p.spectating) return;
-    this.#client.emit("game.scope.end", p.gameid);
-    p.spectating = false;
+    (typeof player === "number"
+      ? this.players.find((p) => p.gameid === player)
+      : player
+    )?.unspectate();
   }
 
   /**
@@ -285,6 +258,17 @@ export class Game {
     } else {
       throw new Error("Invalid unspectate targets");
     }
+  }
+
+  /** @internal */
+  set _strategy(strategy: SpectatingStrategy) {
+    this.#strategy = strategy;
+    this.players.forEach((p) => (p._strategy = strategy));
+  }
+
+  /** @internal */
+  get _strategy() {
+    return this.#strategy;
   }
 
   /**
@@ -420,11 +404,11 @@ export class Game {
         aoy: 0,
         fallingRotations: 0,
         totalRotations: state.totalRotations,
-        highestY: state.falling.hy,
+        highestY: config.board.height + 20 - state.falling.hy,
         irs: state.falling.irs,
         ihs: false,
         keys: state.falling.keys,
-        location: [state.falling.x, state.falling.y],
+        location: [state.falling.x, config.board.height + 20 - state.falling.y],
         locking: state.falling.locking,
         lockResets: state.falling.lockresets,
         rotation: state.falling.r as Rotation,
@@ -461,21 +445,26 @@ export class Game {
       holdLocked: state.holdlocked,
       ige: {
         iid: state.interactionid,
-        players: [
-          ...new Set([
-            ...Object.keys(state.garbageacknowledgements.incoming),
-            ...Object.keys(state.garbageacknowledgements.outgoing)
-          ])
-        ]
-          .map((p) => parseInt(p))
-          .map((p) => ({
-            incoming: state.garbageacknowledgements.incoming[p] ?? 0,
-            outgoing:
-              state.garbageacknowledgements.outgoing[p]?.map((o) => ({
-                iid: o.iid,
-                amount: o.amt
-              })) ?? []
-          }))
+        players: Object.fromEntries(
+          [
+            ...new Set([
+              ...Object.keys(state.garbageacknowledgements.incoming),
+              ...Object.keys(state.garbageacknowledgements.outgoing)
+            ])
+          ]
+            .map((p) => parseInt(p))
+            .map((p) => [
+              p,
+              {
+                incoming: state.garbageacknowledgements.incoming[p] ?? 0,
+                outgoing:
+                  state.garbageacknowledgements.outgoing[p]?.map((o) => ({
+                    iid: o.iid,
+                    amount: o.amt
+                  })) ?? []
+              }
+            ])
+        )
       },
       input: {
         lShift: state.lShift,

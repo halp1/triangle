@@ -64,6 +64,21 @@ The `client.api.rooms` method has been renamed to `client.api.rooms.list`. Addit
 
 Note that you should generally use `client.rooms.list()` instead of directly accessing the API.
 
+### `EventEmitter['maxListeners']` change
+
+The `maxListeners` property on `EventEmitter` instances is now an object with the following structure:
+
+```ts
+export class EventEmitter<T extends Record<string, any>> {
+  #maxListeners = {
+    default: 10,
+    overrides: new Map<keyof T, number>()
+  };
+}
+```
+
+Instead of setting `emitter.maxListeners = 20`, you would now do `emitter.setMaxListeners(20)` or `emitter.setMaxListeners(event, 20)` to set the max listeners for a specific event.
+
 ### Other changes
 
 - `client.destroy()` now gracefully disconnects from the server naturally instead of leaving the room first and then disconnecting. It wait for the server to close the connection before resolving.
