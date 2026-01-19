@@ -37,6 +37,12 @@ export interface RibbonOptions {
    */
   spooling: boolean;
   /**
+   * Enables debug mode, which logs any mismatches between received packets and expected packet types.
+   * May cause a performance decrease.
+   * @default false
+   */
+  debug: boolean;
+  /**
    * @deprecated - use `logging`
    * Enables logging
    * @default false
@@ -78,6 +84,7 @@ export interface RibbonSnapshot {
   options: {
     logging: LoggingLevel;
     spooling: boolean;
+    debug: boolean;
   };
 
   emitter: {

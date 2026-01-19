@@ -83,12 +83,12 @@ export interface VersusReplay {
           g: number;
           gincrease: number;
           gmargin: number;
-          gravitymay20g: boolean;
+          gravitymay20g?: boolean;
           handling: Game.Handling;
           hasgarbage: boolean;
           infinite_hold: boolean;
           kickset: KickTable;
-          latencymode: string;
+          latencymode?: string;
           lockresets: number;
           manual_allowed: boolean;
           messiness_change: number;
@@ -127,7 +127,7 @@ export interface VersusReplay {
             pps: number;
             vsscore: number;
           };
-          gameoverreason: "garbagesmash" | "topout" | "winner";
+          gameoverreason: Game.GameOverReason;
           stats: {
             btb: number;
             btbpower: number;

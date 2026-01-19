@@ -11,7 +11,8 @@ export class Self {
   #client: Client;
   #hook: Hook<Events.in.all>;
   #frameQueue: GameTypes.Replay.Frame[] = [];
-  #incomingGarbage: (GameTypes.Replay.Frames.IGE & { frame: number })[] = [];
+  #incomingGarbage: (GameTypes.Replay.Frames.IGEFrame & { frame: number })[] =
+    [];
   #timeout: NodeJS.Timeout | null = null;
   #messageQueue: GameTypes.Client.Events[] = [];
   #target: GameTypes.Target = { strategy: "even" };

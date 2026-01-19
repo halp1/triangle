@@ -32,6 +32,28 @@ export namespace Game {
     | "bombs"
     | "quickplay";
 
+  /** Ranks */
+  export type Rank =
+    | "z"
+    | "d"
+    | "d+"
+    | "c-"
+    | "c"
+    | "c+"
+    | "b-"
+    | "b"
+    | "b+"
+    | "a-"
+    | "a"
+    | "a+"
+    | "s-"
+    | "s"
+    | "s+"
+    | "ss"
+    | "u"
+    | "x"
+    | "x+";
+
   /** Way the garbage enters the board. `continuous` and `delayed` not yet supported */
   export type GarbageEntry = "instant" | "continuous" | "delayed";
   /** When garbage enters the board. only `combo blocking` is currently supported */
@@ -64,7 +86,18 @@ export namespace Game {
   export type GameMode = "versus" | "royale" | "practice";
 
   /** Topout: Player tops themself out. Garbage smash: Player received garbage that causes them to top out. Winner: Player wins (does not die) */
-  export type GameOverReason = "topout" | "garbagesmash" | "winner";
+  export type GameOverReason =
+    | "topout"
+    | "garbagesmash"
+    | "zenith"
+    | "clear"
+    | "topout_clear"
+    | "winner"
+    | "forfeit"
+    | "retry"
+    | "drop"
+    | "dropnow"
+    | "disconnect";
 
   export interface Options {
     version: number;
@@ -80,11 +113,6 @@ export namespace Game {
     mission: string;
     mission_type: string;
     zoominto: string;
-    slot_counter1: string;
-    slot_counter2: string;
-    slot_counter3: string;
-    slot_counter5: string;
-    slot_bar1: string;
     display_fire: boolean;
     display_username: boolean;
     hasgarbage: boolean;
@@ -102,7 +130,7 @@ export namespace Game {
     garbagecapincrease: number;
     garbagecapmargin: number;
     garbagecapmax: number;
-    garbageabsolutecap: boolean;
+    garbageabsolutecap: number;
     garbageholesize: number;
     garbagephase: number;
     garbagequeue: boolean;
@@ -118,6 +146,7 @@ export namespace Game {
     combotable: ComboTable;
     kickset: KickTable;
     nextcount: number;
+    infinite_movement: boolean;
     allow_harddrop: boolean;
     display_shadow: boolean;
     locktime: number;
@@ -125,7 +154,6 @@ export namespace Game {
     forfeit_time: number;
     are: number;
     lineclear_are: number;
-    infinitemovement: boolean;
     lockresets: number;
     allow180: boolean;
     objective: {
@@ -137,7 +165,20 @@ export namespace Game {
     room_handling_sdf: number;
     manual_allowed: boolean;
     b2bchaining: boolean;
+    b2bcharging: boolean;
+    b2bcharge_at: number;
+    b2bcharge_base: number;
+    b2bextras: boolean;
+    objective_type: string;
     allclears: boolean;
+    allclear_garbage: number;
+    allclear_b2b: number;
+    allclear_b2b_sends: boolean;
+    allclear_b2b_dupes: boolean;
+    allclear_charges: boolean;
+    openerphase: number;
+    garbagearebump: number;
+    roundmode: RoundingMode;
     clutch: boolean;
     nolockout: boolean;
     passthrough: Passthrough;
@@ -153,6 +194,13 @@ export namespace Game {
     messiness_inner: number;
     messiness_nosame: boolean;
     messiness_timeout: number;
+    slot_counter1: string;
+    slot_counter2: string;
+    slot_counter3: string;
+    slot_counter4: string;
+    slot_counter5: string;
+    slot_bar1: string;
+    slot_bar2: string;
   }
 
   export interface ReadyOptions {
@@ -164,14 +212,15 @@ export namespace Game {
     g: number;
     gincrease: number;
     gmargin: number;
-    gravitymay20g: boolean;
-    shielded: boolean;
+    gravitymay20g?: boolean;
+    shielded?: number;
+    score?: number;
     hasgarbage: boolean;
     usebombs: boolean;
     garbagespeed: number;
-    garbagefavor: number;
+    garbagefavor?: number;
     garbagemultiplier: number;
-    receivemultiplier: number;
+    receivemultiplier?: number;
     garbagemargin: number;
     garbageincrease: number;
     garbageholesize: number;
@@ -184,7 +233,7 @@ export namespace Game {
     garbagecapmargin: number;
     garbagecapmax: number;
     garbageabsolutecap: number;
-    garbageattackcap: number;
+    garbageattackcap?: number;
     garbagetargetbonus: GarbageTargetBonus;
     garbageblocking: GarbageBlocking;
     garbagespecialbonus: boolean;
@@ -217,16 +266,22 @@ export namespace Game {
     infinite_movement: boolean;
     nextcount: number;
     clutch: boolean;
-    no_szo: boolean;
+    no_szo?: boolean;
     nolockout: boolean;
     manual_allowed: boolean;
     new_payback: boolean;
     can_undo: boolean;
+    cancelmultiplier?: number;
+    invisible?: boolean;
+    master_invisible?: boolean;
+    void_holes?: number;
+    void_holes_hungryness?: number;
+    tutorial?: boolean;
     boardwidth: number;
     boardheight: number;
-    boardbuffer: number;
+    boardbuffer?: number;
     stock: number;
-    infinite_stock: boolean;
+    infinite_stock?: boolean;
     locktime: number;
     lockresets: number;
     prestart: number;
@@ -234,20 +289,20 @@ export namespace Game {
     countdown: boolean;
     countdown_count: number;
     countdown_interval: number;
-    inverted: boolean;
+    inverted?: boolean;
     mission: string;
     mission_type: string;
-    no_mission_sound: boolean;
+    no_mission_sound?: boolean;
     objective_type: string;
-    objective_count: number;
-    objective_time: number;
-    objective_result: string;
+    objective_count?: number;
+    objective_time?: number;
+    objective_result?: string;
     zoominto: string;
     noextrawidth: boolean;
     stride: boolean;
-    pro: boolean;
-    pro_alert: boolean;
-    pro_retry: boolean;
+    pro?: boolean;
+    pro_alert?: boolean;
+    pro_retry?: boolean;
     can_retry: boolean;
     slot_counter1: string;
     slot_counter2: string;
@@ -256,23 +311,23 @@ export namespace Game {
     slot_counter5: string;
     slot_bar1: string;
     slot_bar2: string;
-    absolute_lines: boolean;
-    display_zen: boolean;
+    absolute_lines?: boolean;
+    display_zen?: boolean;
     display_username: boolean;
     display_fire: boolean;
-    display_replay: boolean;
+    display_replay?: boolean;
     display_next: boolean;
     display_hold: boolean;
     display_shadow: boolean;
-    levels: boolean;
-    masterlevels: boolean;
-    startinglevel: number;
-    levelspeed: number;
-    levelstatic: boolean;
-    levelstaticspeed: number;
-    levelgbase: number;
-    levelgspeed: number;
-    minoskin: {
+    levels?: boolean;
+    masterlevels?: boolean;
+    startinglevel?: number;
+    levelspeed?: number;
+    levelstatic?: boolean;
+    levelstaticspeed?: number;
+    levelgbase?: number;
+    levelgspeed?: number;
+    minoskin?: {
       z: string;
       l: string;
       o: string;
@@ -283,53 +338,55 @@ export namespace Game {
       other: string;
       ghost: string;
     };
-    boardskin: string;
+    boardskin?: string;
     map: string;
     handling: Handling;
     room_handling: boolean;
     room_handling_arr: number;
     room_handling_das: number;
     room_handling_sdf: number;
-    noreplay: boolean;
-    nosound: boolean;
+    noreplay?: boolean;
+    nosound?: boolean;
     bgmnoreset: boolean;
     neverstopbgm: boolean;
     song: string;
-    survivalmode: string;
-    survival_messiness: number;
-    survival_layer_amt: number;
-    survival_layer_non: boolean;
-    survival_layer_min: number;
-    survival_timer_itv: number;
-    survival_cap: number;
-    usezenconfig: boolean;
-    zenlevels: boolean;
-    zenlevel: number;
-    zenprogress: number;
-    nosiren: boolean;
-    anchorseed: boolean;
+    survivalmode?: string;
+    survival_messiness?: number;
+    survival_layer_amt?: number;
+    survival_layer_non?: boolean;
+    survival_layer_min?: number;
+    survival_timer_itv?: number;
+    survival_cap?: number;
+    usezenconfig?: boolean;
+    zenlevels?: boolean;
+    zenlevel?: number;
+    zenprogress?: number;
+    nosiren?: boolean;
+    anchorseed?: boolean;
     forfeit_time: number;
     username: string;
-    latencymode: string;
+    latencymode?: string;
     fulloffset: number;
     fullinterval: number;
-    fromretry: boolean;
+    fromretry?: boolean;
     retryisclear: boolean;
-    topoutisclear: boolean;
-    zenith: boolean;
-    zenith_expert: boolean;
-    zenith_doublehole: boolean;
-    zenith_volatile: boolean;
-    zenith_gravity: boolean;
-    zenith_messy: boolean;
-    zenith_invisible: boolean;
-    zenith_allspin: boolean;
-    zenith_duo: boolean;
-    zenith_mods: any[];
-    zenith_ally: any[];
-    zenith_allyexpert: boolean;
-    TEMP_zenith_rng: boolean;
-    TEMP_zenith_grace: string;
+    topoutisclear?: boolean;
+    zenith?: boolean;
+    zenith_expert?: boolean;
+    zenith_doublehole?: boolean;
+    zenith_volatile?: boolean;
+    zenith_gravity?: boolean;
+    zenith_messy?: boolean;
+    zenith_invisible?: boolean;
+    zenith_allspin?: boolean;
+    zenith_duo?: boolean;
+    zenith_mods?: any[];
+    zenith_ally?: any[];
+    zenith_allyexpert?: boolean;
+    TEMP_zenith_rng?: boolean;
+    TEMP_zenith_grace?: string;
+    garbagearebump?: number;
+    gameid?: number;
   }
 
   export interface Ready {
@@ -355,7 +412,7 @@ export namespace Game {
     cancelstreak: number;
     cheesespawned: number;
     clutchCount: number;
-    countdown_started: number;
+    countdown_started: boolean;
     destroyed: boolean;
     diyusi: number;
     endqueued: boolean;
@@ -412,8 +469,8 @@ export namespace Game {
       type: unknown;
       active: boolean;
       status: "caution" | "spawn" | "sleeping";
-      hardened: boolean;
-      shielded: boolean;
+      hardened?: boolean;
+      shielded?: boolean;
       delay: number;
       queued: boolean;
       amt: number;
@@ -425,8 +482,9 @@ export namespace Game {
       column: number | undefined;
       position: unknown;
       color: unknown;
-      actor_pos: string;
-      actor_neg: string;
+      actor_pos?: string;
+      actor_neg?: string;
+      firstcycle?: boolean;
     }[];
     inputHold: boolean;
     inputRotate180: boolean;
@@ -434,7 +492,7 @@ export namespace Game {
     inputRotateCW: boolean;
     inputSoftdrop: boolean;
     interactionid: number;
-    killer: { gameid: number; type: "sizzle"; username: null | string };
+    killer: { gameid: number; type: "sizzle"; username?: null | string };
     lShift: { held: boolean; arr: number; das: number; dir: -1 };
     lastGenerated: null | number;
     lastatktime: number;
@@ -566,10 +624,11 @@ export namespace Game {
       wasCCWUsed: boolean;
       wasCWUsed: boolean;
     };
+    clearsbypiece?: Record<string, Record<string, number>>;
   }
 
   export namespace IGEs {
-    export type all = Target | AllowTargeting | Interaction | KEV;
+    export type all = Target | Targeted | AllowTargeting | Interaction | KEV;
 
     export interface Target {
       type: "target";
@@ -581,6 +640,15 @@ export namespace Game {
       type: "allow_targeting";
       data: {
         value: boolean;
+      };
+    }
+
+    export interface Targeted {
+      type: "targeted";
+      data: {
+        value: boolean;
+        gameid: number;
+        frame: number;
       };
     }
 
@@ -598,13 +666,15 @@ export namespace Game {
         x: number;
         y: number;
         size: number;
-        zthalt?: any; //! IRRELEVANT (qp)
+        zthalt?: any;
       }
 
       export interface Targeted {
         // TODO: check this
         type: "targeted";
         value: boolean;
+        gameid: number;
+        frame: number;
       }
     }
 
@@ -622,6 +692,7 @@ export namespace Game {
         killer: {
           gameid: number;
         };
+        frame: number;
         fire: number;
       };
     }
@@ -647,9 +718,9 @@ export namespace Game {
     targetinggrace: number;
     btb: number;
     revives: number;
-    escapeartist: number;
-    blockrationing_app: number;
-    blockrationing_final: number;
+    escapeartist?: number | null;
+    blockrationing_app?: number | null;
+    blockrationing_final?: number | null;
   }
 
   export interface LeaderboardBase {
@@ -671,7 +742,7 @@ export namespace Game {
   }
 
   export interface RB {
-    type: "elimination" | "mutli-round";
+    type: "elimination" | "multi-round";
     options: {
       ft: number;
       wb: number;
@@ -690,14 +761,17 @@ export namespace Game {
           altitude: number;
           btb: number;
           revives: number;
+          escapeartist?: number;
+          blockrationing_app?: number;
+          blockrationing_final?: number;
         };
         allies: any[];
         gameid: number;
         specCount: number;
         speedrun: boolean;
         nearWR: boolean;
-        lovers: boolean;
-      };
+        lovers?: boolean;
+      }[];
     };
   }
 
@@ -792,7 +866,7 @@ export namespace Game {
       export type all =
         | Start
         | Full
-        | IGE
+        | IGEFrame
         | Keypress
         | End
         | Strategy
@@ -856,9 +930,9 @@ export namespace Game {
         };
       }
 
-      export interface IGE {
+      export interface IGEFrame {
         type: "ige";
-        data: IGEs.all;
+        data: IGE;
       }
 
       export interface Keypress {

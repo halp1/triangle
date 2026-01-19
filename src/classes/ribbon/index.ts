@@ -1,6 +1,7 @@
 import { deepCopy } from "../../engine";
 import type { Events, Game } from "../../types";
 import { API, type APITypes, docLink, EventEmitter } from "../../utils";
+import { validateIncomingMessage } from "../../utils/typia/functional";
 import { Codec as Amber } from "./amber";
 import { Bits } from "./amber";
 import type { RibbonEvents, RibbonSnapshot } from "./types";
@@ -25,6 +26,8 @@ interface Codec {
 }
 
 export type LoggingLevel = "all" | "error" | "none";
+
+export type Packet = RibbonEvents.Raw<Events.in.all> & { id?: number };
 
 export class Ribbon {
   static CACHE_MAXSIZE = 4096;
@@ -108,6 +111,7 @@ export class Ribbon {
   #options: {
     logging: LoggingLevel;
     spooling: boolean;
+    debug: boolean;
   };
 
   emitter = new EventEmitter<Events.in.all>();
@@ -144,7 +148,8 @@ export class Ribbon {
     spool,
     api,
     self,
-    spooling = true
+    spooling = true,
+    debug
   }: {
     logging: LoggingLevel;
     token: string;
@@ -155,6 +160,7 @@ export class Ribbon {
     api: API;
     self: APITypes.Users.Me;
     spooling?: boolean;
+    debug: boolean;
   }) {
     this.#token = token;
     this.#handling = handling;
@@ -170,7 +176,8 @@ export class Ribbon {
 
     this.#options = {
       logging,
-      spooling
+      spooling,
+      debug
     };
   }
 
@@ -185,7 +192,8 @@ export class Ribbon {
     handling,
     userAgent,
     transport = "binary",
-    spooling = true
+    spooling = true,
+    debug = false
   }: {
     /** @deprecated - use `logging` instead */
     verbose?: boolean;
@@ -195,6 +203,7 @@ export class Ribbon {
     userAgent: string;
     transport?: Transport;
     spooling?: boolean;
+    debug?: boolean;
   }): Promise<Ribbon> {
     const api = new API({
       token,
@@ -223,7 +232,8 @@ export class Ribbon {
       },
       api,
       self,
-      spooling
+      spooling,
+      debug
     });
   }
 
@@ -633,6 +643,16 @@ export class Ribbon {
 
     const msg = message as RibbonEvents.Raw<Events.in.all>;
 
+    if (this.#options.debug && msg.command !== "packets") {
+      const validation = validateIncomingMessage(msg);
+      if (!validation.success) {
+        this.log(
+          `Invalid packet received.\nCommand: ${msg.command}\nErrors: ${JSON.stringify(validation.errors, null, 2)}\nPacket: ${JSON.stringify(msg, null, 2)}`,
+          { force: true, level: "error" }
+        );
+      }
+    }
+
     switch (msg.command) {
       case "session": {
         const { ribbonid, tokenid } = message.data;
@@ -939,7 +959,8 @@ export class Ribbon {
       spool: snapshot.spool,
       api: new API(snapshot.api),
       self: snapshot.self,
-      spooling: snapshot.options.spooling
+      spooling: snapshot.options.spooling,
+      debug: snapshot.options.debug
     });
 
     ribbon.#sentID = snapshot.sentID;

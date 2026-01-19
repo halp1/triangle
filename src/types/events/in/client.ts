@@ -119,7 +119,7 @@ export interface Client {
 
   // relationship stuff
   /** Fires whenever the client is friended */
-  "client.friended": { id: string; name: string; avatar: number };
+  "client.friended": { id: string; name: string; avatar: number | null };
 
   /**
    * Fires when a DM (direct message) has been received

@@ -26,7 +26,7 @@ export class Game {
   #listeners: Parameters<Client["on"]>[] = [];
   #strategy: SpectatingStrategy;
   #spectatingTimeout: NodeJS.Timeout | null = null;
-	#spectateWarningCounter = 0;
+  #spectateWarningCounter = 0;
 
   /** Data on all players in game, including the client. Note that the client's engine data is only the data acknowledged by the server, not the most recent gameplay information. */
   players: Player[] = [];
@@ -112,7 +112,7 @@ export class Game {
     this.players = this.rawPlayers.map(
       (p) => new Player(this.#client, this.#strategy, p, this.rawPlayers)
     );
-		 
+
     this.#spectatingTimeout = setTimeout(
       this.#tick.bind(this),
       1000 / Game.fps
@@ -124,15 +124,15 @@ export class Game {
 
     this.players.forEach((p) => p._tick());
 
-		if (performance.now() - tickStart > 1000 / Game.fps - 1) {
-			if (this.#spectateWarningCounter++ === 5) {
-				Game.log(
-					"Spectating is falling behind! You are spectating too many players. Consider reducing the number of players you are spectating to improve performance.",
-				)
-			}
-		} else {
-			this.#spectateWarningCounter = 0;
-		}
+    if (performance.now() - tickStart > 1000 / Game.fps - 1) {
+      if (this.#spectateWarningCounter++ === 5) {
+        Game.log(
+          "Spectating is falling behind! You are spectating too many players. Consider reducing the number of players you are spectating to improve performance."
+        );
+      }
+    } else {
+      this.#spectateWarningCounter = 0;
+    }
 
     this.#spectatingTimeout = setTimeout(
       this.#tick.bind(this),
@@ -359,7 +359,7 @@ export class Game {
           infinite: options.infinite_movement,
           lockResets: options.lockresets,
           lockTime: options.locktime,
-          may20G: options.gravitymay20g
+          may20G: options.gravitymay20g ?? false
         },
         allowed: {
           spin180: options.allow180,

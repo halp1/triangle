@@ -58,6 +58,6 @@ export default tseslint.config(
     }
   },
   {
-    ignores: ["dist/**", "node_modules/**", "docs/**", "test/data/**"]
+    ignores: ["dist/**", "node_modules/**", "docs/**", "test/data/**", "src/utils/typia/functional/**"]
   }
 );

@@ -47,7 +47,7 @@ export interface Game {
       }[];
     };
   };
-  "game.start": void;
+  "game.start": null | undefined;
   "game.advance": {
     scoreboard: {
       id: string;
@@ -64,11 +64,13 @@ export interface Game {
         vsscore: number;
         garbagesent: number;
         garbagereceived: number;
-        kills: 1;
-        altitude: 0;
-        rank: 1;
-        targetingfactor: 3;
-        targetinggrace: 0;
+        kills: number;
+        altitude: number;
+        rank: number;
+        targetingfactor: number;
+        targetinggrace: number;
+        btb: number;
+        revives: number;
       };
     }[];
   };
@@ -132,7 +134,7 @@ export interface Game {
     gameid: number;
     data: {
       gameoverreason: GameTypes.GameOverReason;
-      killer: { gameid: number; type: "sizzle"; username: null | string };
+      killer: { gameid: number; type: "sizzle"; username?: null | string };
     };
   };
 

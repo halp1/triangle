@@ -74,6 +74,7 @@ export namespace Social {
     _id: string;
     data: {
       relationship: Relationship;
+      ismutual: boolean;
     };
     seen: boolean;
     stream: string;
@@ -87,12 +88,12 @@ export namespace Social {
     from: {
       _id: string;
       username: string;
-      avatar_revision: number;
+      avatar_revision: number | null;
     };
     to: {
       _id: string;
       username: string;
-      avatar_revision: number;
+      avatar_revision: number | null;
     };
     type: Social.RelationshipType;
     unread: number;
@@ -102,6 +103,6 @@ export namespace Social {
   export interface Blocked {
     id: string;
     username: string;
-    avatar: number;
+    avatar?: number;
   }
 }

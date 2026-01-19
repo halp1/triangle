@@ -347,7 +347,6 @@ test(
     const files = await fs
       .readdir(path.join(__dirname, p))
       .then((r) => r.map((v) => path.join(__dirname, p, v)));
-
     if (files.length === 0)
       throw new Error(
         "No replays found. Refer to the contributing section of the documentation for information on how to load and extract the Triangle.js replay set."

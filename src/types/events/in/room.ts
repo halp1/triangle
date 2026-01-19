@@ -7,9 +7,7 @@ export interface Room {
     silent: boolean;
   };
 
-  "room.leave": {
-    id: string;
-  };
+  "room.leave": string;
 
   "room.kick": "hostkick" | "hostban";
 
@@ -17,23 +15,38 @@ export interface Room {
     id: string;
     public: boolean;
     name: string;
-    name_safe: string;
+    name_safe?: string;
     type: RoomTypes.Type;
     owner: string;
     creator: string;
+    allowChat?: boolean;
+    userLimit: number;
+    autoStart: number;
     state: RoomTypes.State;
     topic: Record<string, unknown>;
     info: Record<string, unknown>;
     auto: RoomTypes.Autostart;
-    options: GameTypes.Options;
+    allowAnonymous: boolean;
+    allowUnranked: boolean;
+    allowQueued: boolean;
+    allowBots: boolean;
+    userRankLimit: GameTypes.Rank;
+    useBestRankAsLimit: boolean;
+    options: Partial<GameTypes.Options>;
     match: RoomTypes.Match;
     players: RoomTypes.Player[];
+    lobbybg: string | null;
+    lobbybgm: string;
+    gamebgm: string;
+    forceRequireXPToChat: boolean;
+    bgmList: unknown[];
+    constants: unknown;
   };
 
   /** Fires when the room's autostart state changes */
   "room.update.auto": {
     enabled: boolean;
-    status: RoomTypes.State;
+    status: "active" | "needsplayers" | "ingame";
     time: number;
     maxtime: number;
   };
@@ -49,16 +62,16 @@ export interface Room {
 
   "room.chat": {
     content: string;
-    content_safe: string;
+    content_safe?: string;
+    suppressable?: boolean;
     user: {
       username: string;
-      _id: string;
-      role: User.Role;
-      supporter: boolean;
-      supporter_tier: number;
-      verified: boolean;
+      _id: string | null;
+      role?: User.Role;
+      supporter?: boolean;
+      supporter_tier?: number;
     };
-    pinned: boolean;
+    pinned?: boolean;
     system: boolean;
   };
 

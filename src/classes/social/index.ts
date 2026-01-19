@@ -75,7 +75,7 @@ export class Social {
               id: r.user.id,
               relationshipID: r._id,
               username: r.user.username,
-              avatar: r.user.avatar
+              avatar: r.user.avatar ?? undefined
             },
             this,
             this.#client
@@ -88,7 +88,7 @@ export class Social {
               id: r.user.id,
               relationshipID: r._id,
               username: r.user.username,
-              avatar: r.user.avatar
+              avatar: r.user.avatar ?? undefined
             },
             this,
 
@@ -119,7 +119,7 @@ export class Social {
         .map((r) => ({
           id: r.user.id,
           username: r.user.username,
-          avatar: r.user.avatar
+          avatar: r.user.avatar ?? undefined
         }))
     };
 
@@ -179,7 +179,7 @@ export class Social {
                 {
                   id: rel.user.id,
                   username: rel.user.username,
-                  avatar: rel.user.avatar,
+                  avatar: rel.user.avatar ?? undefined,
                   relationshipID: ""
                 },
                 this,

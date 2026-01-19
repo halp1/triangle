@@ -31,8 +31,8 @@ export class Room {
   userLimit!: number;
   /** The players in the room */
   players!: RoomTypes.Player[];
-  /** The room config */
-  options!: GameTypes.Options;
+  /** The room config. Note that TETR.IO does not send all options when joining a room, and some properties may not be present (hence the `Partial`) */
+  options!: Partial<GameTypes.Options>;
   /** The current state of the room (ingame | lobby) */
   state!: RoomTypes.State;
   /** The time the last game started */
@@ -72,7 +72,7 @@ export class Room {
       Object.assign(this, { [key]: data[key as keyof typeof data] })
     );
 
-    this.options = data.options;
+    this.options = Object.assign(this.options ?? {}, data.options ?? {});
   }
 
   #init() {

@@ -4,7 +4,7 @@ export interface RelationshipSnapshot {
   id: string;
   relationshipID: string;
   username: string;
-  avatar: number;
+  avatar?: number;
   dms: Social.DM[];
   dmsLoaded: boolean;
 }

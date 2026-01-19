@@ -13,11 +13,13 @@ export namespace Room {
   export interface Player {
     _id: string;
     username: string;
+    avatar_revision?: number | null;
+    ready: boolean;
     anon: boolean;
     bot: boolean;
     role: string;
     xp: number;
-    badges: User.Badge[];
+    badges?: User.Badge[];
     record: {
       games: number;
       wins: number;
@@ -25,7 +27,7 @@ export namespace Room {
     };
     bracket: Bracket;
     supporter: boolean;
-    verified: boolean;
+    verified?: boolean;
     country: string | null;
   }
 
@@ -41,23 +43,70 @@ export namespace Room {
     modename: string;
     ft: number;
     wb: number;
+    gp: number;
     record_replays: boolean;
-    winningKey: string;
-    keys: {
-      primary: string;
-      primaryLabel: string;
-      primaryLabelSingle: string;
-      primaryIsAvg: boolean;
-      secondary: string;
-      secondaryLabel: string;
-      secondaryLabelSingle: string;
-      secondaryIsAvg: boolean;
-      tertiary: string;
-      tertiaryLabel: string;
-      tertiaryLabelSingle: string;
-      tertiaryIsAvg: boolean;
+    stats: {
+      apm: {
+        key: "aggregatestats.apm";
+        type: "avg";
+      };
+      pps: {
+        key: "aggregatestats.pps";
+        type: "avg";
+      };
+      vsscore: {
+        key: "aggregatestats.vsscore";
+        type: "avg";
+      };
+      garbagesent: {
+        key: "stats.garbage.sent";
+        type: "sum";
+      };
+      garbagereceived: {
+        key: "stats.garbage.received";
+        type: "sum";
+      };
+      kills: {
+        key: "stats.kills";
+        type: "sum";
+      };
+      altitude: {
+        key: "stats.zenith.altitude";
+        type: "sum";
+      };
+      rank: {
+        key: "stats.zenith.rank";
+        type: "sum";
+      };
+      targetingfactor: {
+        key: "stats.zenith.targetingfactor";
+        type: "sum";
+      };
+      targetinggrace: {
+        key: "stats.zenith.targetinggrace";
+        type: "sum";
+      };
+      btb: {
+        key: "stats.btb";
+        type: "sum";
+      };
+      revives: {
+        key: "stats.zenith.revivesMaxOfBoth";
+        type: "sum";
+      };
+      escapeartist: {
+        key: "zenith.escapeartist";
+        type: "sum";
+      };
+      blockrationing_app: {
+        key: "zenith.blockrationing_app";
+        type: "sum";
+      };
+      blockrationing_final: {
+        key: "zenith.blockrationing_final";
+        type: "sum";
+      };
     };
-    extra: object;
   }
 
   export interface SetConfig {

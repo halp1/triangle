@@ -14,7 +14,7 @@ export class Relationship {
   /** Username of the account on the other side of the relationship */
   username: string;
   /** Avatar ID of the account on the other side of the relationship */
-  avatar: number;
+  avatar?: number;
   /** The DMs that have been sent and received. You may need to call `loadDms` to populate this information */
   dms: SocialTypes.DM[];
 
@@ -30,7 +30,7 @@ export class Relationship {
       id: string;
       relationshipID: string;
       username: string;
-      avatar: number;
+      avatar?: number;
     },
     social: Social,
     client: Client,
