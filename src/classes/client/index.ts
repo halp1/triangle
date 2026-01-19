@@ -430,3 +430,5 @@ export class Client {
     if (this.game) delete this.game;
   }
 }
+
+export * from "./hook";

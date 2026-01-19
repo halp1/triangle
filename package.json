@@ -79,18 +79,18 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
-    "@swc/cli": "^0.7.9",
+    "@swc/cli": "^0.7.10",
     "@swc/core": "^1.15.8",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/bun": "1.2.17",
-    "@types/lodash": "^4.17.21",
-    "@types/node": "^24.10.4",
+    "@types/lodash": "^4.17.23",
+    "@types/node": "^24.10.9",
     "@types/ws": "^8.18.1",
     "eslint": "^9.39.2",
-    "eslint-plugin-n": "^17.23.1",
-    "prettier": "^3.7.4",
+    "eslint-plugin-n": "^17.23.2",
+    "prettier": "^3.8.0",
     "typedoc": "^0.26.11",
     "typescript": "~5.6.3",
-    "typescript-eslint": "^8.52.0"
+    "typescript-eslint": "^8.53.0"
   }
 }
