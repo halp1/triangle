@@ -21,7 +21,6 @@
     "format": "prettier --write \"./**/*.ts\"",
     "docs": "typedoc",
     "clean": "rm -rf dist",
-    "prepare": "ts-patch install",
     "build:types": "tsc",
     "build:typia": "typia generate --input src/utils/typia/templates --output src/utils/typia/functional && printf '0a\\n// @ts-nocheck\\n.\\nw\\nq\\n' | ed -s src/utils/typia/functional/*.ts",
     "build:swc": "swc src --strip-leading-paths -d dist -C module.type=es6 --copy-files && bun scripts/renameModules.ts && swc src --strip-leading-paths -d dist --copy-files",
@@ -92,7 +91,6 @@
     "eslint": "^9.39.2",
     "eslint-plugin-n": "^17.23.2",
     "prettier": "^3.8.0",
-    "ts-patch": "^3.3.0",
     "typedoc": "^0.26.11",
     "typescript": "~5.6.3",
     "typescript-eslint": "^8.53.0"
