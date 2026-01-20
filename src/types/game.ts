@@ -495,8 +495,8 @@ export namespace Game {
     killer: { gameid: number; type: "sizzle"; username?: null | string };
     lShift: { held: boolean; arr: number; das: number; dir: -1 };
     lastGenerated: null | number;
-    lastatktime: number;
-    lastcolumn: number;
+    lastatktime: number | null;
+    lastcolumn: number | null;
     lastdoublepiece: null | unknown;
     lastoffensive: {
       x: number;

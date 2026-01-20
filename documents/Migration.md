@@ -85,3 +85,5 @@ Instead of setting `emitter.maxListeners = 20`, you would now do `emitter.setMax
   This means that calling `await client.destroy()` in a room will now result in a `<name> disconnected` message instead of a `<name> left the room` message.
 
 - Engine snapshots now work for bags like `7+x`.
+
+- The `ribbon` object of options in `ClientOptions` now has a `debug` property. When `true`, it logs any messages that don't match known event types to the console for debugging purposes. If you think Triangle.js has a event interface that has missing or incorrect properties, turn on debug mode to verify the issue and then contact `haelp` on discord with the relevant logs.

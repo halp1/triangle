@@ -243,6 +243,8 @@ bun run build
 
 File an issue and make a pull request on GitHub.
 
+When testing, make sure to build the library first to ensure all typia generated files are present.
+
 ### Tests
 
 The `Engine` test suite requires a large number of replays that are not included in the repository. To download the test prerequisites, make sure you have Git LFS, `pv`, and `pigz` installed, then run:
