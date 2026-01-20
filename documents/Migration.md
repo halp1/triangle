@@ -80,7 +80,7 @@ export class EventEmitter<T extends Record<string, any>> {
 
 Instead of setting `emitter.maxListeners = 20`, you would now do `emitter.setMaxListeners(20)` or `emitter.setMaxListeners(event, 20)` to set the max listeners for a specific event.
 
-### Rooom property changes
+### Room property changes
 
 The `Room` class has had some property changes:
 
