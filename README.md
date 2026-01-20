@@ -11,8 +11,12 @@
   <img src="https://cdn.discordapp.com/avatars/1192933531131838544/f45332afa1db00109829b5806d6f2ca4.webp?size=1024&format=webp&width=896&height=896" alt="MinoMuncher" title="MinoMuncher" width=100/></a>
 </div>
 <div align="center">
-  <img alt="NPM Downloads" src="https://img.shields.io/npm/d18m/%40haelp%2Fteto">
-<img alt="NPM Version" src="https://img.shields.io/npm/v/%40haelp%2Fteto">
+	<a href="https://www.npmjs.com/package/@haelp/teto">
+  	<img alt="NPM Downloads" src="https://img.shields.io/npm/d18m/%40haelp%2Fteto">
+	</a>
+	<a href="https://www.npmjs.com/package/@haelp/teto">
+		<img alt="NPM Version" src="https://img.shields.io/npm/v/%40haelp%2Fteto">
+	</a>
 </div>
 
 ## Disclaimer
@@ -26,7 +30,7 @@
 
 Triangle.js was last known to work with TETR.IO Beta version **1.7.6.**
 
-## [>> Quickstart <<](https://triangle.haelp.dev/documents/Quickstart.html)
+### [Gameplay Bot Quickstart](https://triangle.haelp.dev/documents/Quickstart.html)
 
 ## Installation
 
@@ -106,7 +110,7 @@ const client = await Client.create({
   username: "your-username",
   password: "your-password"
 });
-// or {token: "your-token"}
+// or { token: "your-token" }
 ```
 
 ### Creating a room
