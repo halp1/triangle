@@ -24,7 +24,9 @@ export class Room {
   /** UID of the room creator (this person can reclaim host) */
   creator!: string;
   /** The autostart state of the room */
-  autostart!: RoomTypes.Autostart;
+  auto!: RoomTypes.Autostart;
+  /** The autostart config of the room */
+  autoStart!: number;
   /** The match config for the room */
   match!: RoomTypes.Match;
   /** The maxiumum number of players that can play in the room (override by moving as host) */
@@ -39,6 +41,32 @@ export class Room {
   gameStart: number | null = null;
   /** The replay data for the last played game */
   replay: ReplayManager | null = null;
+  /** Whether or not the room allows anonymous users */
+  allowAnonymous!: boolean;
+  /** Whether or not the room allows unranked users */
+  allowUnranked!: boolean;
+  /** Whether or not the room allows users queued for TL */
+  allowQueued!: boolean;
+  /** Whether or not the room allows bots */
+  allowBots!: boolean;
+  /** The user rank limit to play in the room */
+  userRankLimit!: GameTypes.Rank;
+  /** Whether or not to use best rank as limit */
+  useBestRankAsLimit!: boolean;
+  /** The background image of the lobby */
+  lobbybg!: string | null;
+  /** The background music of the lobby */
+  lobbybgm!: string;
+  /** The background music of the game */
+  gamebgm!: string;
+  /** Whether or not to force require XP to chat */
+  forceRequireXPToChat!: boolean;
+  /** The list of available BGMs */
+  bgmList!: unknown[];
+  /** The room constants */
+  constants!: unknown;
+  /** Whether or not chatting is allowed */
+  allowChat!: boolean;
 
   /** Room chat history */
   chats: Events.in.Room["room.chat"][] = [];
@@ -55,7 +83,7 @@ export class Room {
 
   #handleUpdate(data: Events.in.Room["room.update"]) {
     this.id = data.id;
-    this.autostart = data.auto;
+    this.auto = data.auto;
 
     [
       "public",
@@ -65,9 +93,23 @@ export class Room {
       "owner",
       "creator",
       "state",
+      "autoStar",
       "match",
       "players",
-      "userLimit"
+      "userLimit",
+      "allowChat",
+      "allowAnonymous",
+      "allowUnranked",
+      "allowQueued",
+      "allowBots",
+      "userRankLimit",
+      "useBestRankAsLimit",
+      "lobbybg",
+      "lobbybgm",
+      "gamebgm",
+      "forceRequireXPToChat",
+      "bgmList",
+      "constants"
     ].forEach((key) =>
       Object.assign(this, { [key]: data[key as keyof typeof data] })
     );
@@ -91,7 +133,7 @@ export class Room {
     });
 
     this.#hook.on("room.update.auto", (auto) => {
-      this.autostart = auto;
+      this.auto = auto;
     });
 
     this.#hook.on("room.update", this.#handleUpdate.bind(this));

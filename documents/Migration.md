@@ -45,6 +45,7 @@ The `Queue` class (accessible via `engine.queue`) has been changed to extend the
 To get a raw Array instead of a Queue, use `queue.raw()`.
 
 ### The `Board` now holds tile connection data by default
+
 The previous `ConnectedBoard` class has been merged into the main `Board` class. You can now access tile connection data directly from `engine.board`. `engine.board.state` is now a 2D array of `Tile` objects, which contain both the `Mino` (as the `mino` property) and the connection data (as the `connections` property). Similarly to v3 and prior, empty tiles are represented as `null`. The `BoardSquare` type has been removed to prevent confusion.
 
 ### The `client.dm` event has been reworked
@@ -78,6 +79,16 @@ export class EventEmitter<T extends Record<string, any>> {
 ```
 
 Instead of setting `emitter.maxListeners = 20`, you would now do `emitter.setMaxListeners(20)` or `emitter.setMaxListeners(event, 20)` to set the max listeners for a specific event.
+
+### Rooom property changes
+
+The `Room` class has had some property changes:
+
+- The `autostart` property has been split into two properties:
+  - `auto`: The autostart state of the room, of type `RoomTypes.Autostart`.
+  - `autoStart`: The autostart config of the room, representing the time in seconds before autostart triggers.
+
+This has been changed to match the way TETR.IO handles autostart internally.
 
 ### Other changes
 

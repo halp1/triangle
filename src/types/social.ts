@@ -78,7 +78,7 @@ export namespace Social {
     };
     seen: boolean;
     stream: string;
-    ts: string;
+    ts: string | Date;
     type: string;
   }
 
@@ -97,7 +97,7 @@ export namespace Social {
     };
     type: Social.RelationshipType;
     unread: number;
-    updated: string;
+    updated: string | Date;
   }
 
   export interface Blocked {

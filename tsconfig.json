@@ -19,5 +19,5 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["./src/**/*"],
-	"exclude": ["./src/utils/typia/functional/**/*"]
+  "exclude": ["./src/utils/typia/functional/**/*"]
 }

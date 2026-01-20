@@ -16,7 +16,8 @@ export enum BoardConnections {
   RIGHT = 0b0100,
   BOTTOM = 0b0010,
   LEFT = 0b0001,
-  CORNER = 0b1_0000
+  CORNER = 0b1_0000,
+  ALL = TOP | RIGHT | BOTTOM | LEFT
 }
 
 export class Board {
