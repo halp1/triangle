@@ -1,19 +1,14 @@
-import {
-  BoardConnections,
-  Engine,
-  type EngineInitializeParams,
-  type EngineSnapshot,
-  type IncomingGarbage,
-  type Rotation,
-  type Tile
-} from "../../engine";
+import { BoardConnections, Engine, type EngineInitializeParams, type EngineSnapshot, type IncomingGarbage, type Rotation, type Tile } from "../../engine";
 import { constants } from "../../engine/constants";
 import type { Game as GameTypes } from "../../types";
 import { Client } from "../client";
 import { Player, type SpectatingStrategy } from "./player";
 import { Self } from "./self";
 
+
+
 import chalk from "chalk";
+
 
 export const moveElementToFirst = <T>(arr: T[], n: number) => [
   arr[n],
@@ -141,21 +136,25 @@ export class Game {
   }
 
   #spectate(player: Game["players"][number] | number) {
-    (typeof player === "number"
-      ? this.players.find((p) => p.gameid === player)
-      : player
-    )?.spectate();
+    return (
+      (typeof player === "number"
+        ? this.players.find((p) => p.gameid === player)
+        : player
+      )?.spectate() ?? Promise.reject("invalid target:")
+    );
   }
 
   #unspectate(player: Game["players"][number] | number) {
-    (typeof player === "number"
-      ? this.players.find((p) => p.gameid === player)
-      : player
-    )?.unspectate();
+    const target =
+      typeof player === "number"
+        ? this.players.find((p) => p.gameid === player)
+        : player;
+    return target ? (target.unspectate(), true) : false;
   }
 
   /**
    * Spectate one or more players by their game ID or user ID, or spectate all players in the game.
+   * The order of {@link PromiseSettledResult}s is guaranteed to match the order of the `players` property of the `Game`.
    * @param gameid - An array of game IDs to spectate.
    * @example
    * ```ts
@@ -163,19 +162,22 @@ export class Game {
    * client.game!.spectate([12344]);
    * ```
    */
-  spectate(gameid: number[]): void;
+  spectate(gameid: number[]): Promise<PromiseSettledResult<void>[]>;
   /**
    * Spectate one or more players by their game ID or user ID, or spectate all players in the game.
+	 * The order of {@link PromiseSettledResult}s is guaranteed to match the order of the input array.
    * @param targets - The string "all" to spectate all players.
+
    * @example
    * ```ts
    * // Spectate all players in the game
    * client.game!.spectate("all");
    * ```
    */
-  spectate(targets: "all"): void;
+  spectate(targets: "all"): Promise<PromiseSettledResult<void>[]>;
   /**
    * Spectate one or more players by their game ID or user ID, or spectate all players in the game.
+   * The order of {@link PromiseSettledResult}s is guaranteed to match the order of the input array.
    * @param userid - An array of user IDs to spectate.
    * @example
    * ```ts
@@ -184,52 +186,60 @@ export class Game {
    * ```
    */
   // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
-  spectate(userid: String[]): void;
+  spectate(userid: String[]): Promise<PromiseSettledResult<void>[]>;
   // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
   spectate(targets: number[] | "all" | String[]) {
+    let players: (Player | number)[] = [];
     if (targets === "all") {
-      this.players.forEach((p) => this.#spectate(p));
+      players = this.players;
     } else if (Array.isArray(targets)) {
       if (targets.length === 0) return;
       if (typeof targets[0] === "string") {
         const useridTargets = targets as string[];
-        this.players
-          .filter((p) => useridTargets.includes(p.userid))
-          .forEach((p) => this.#spectate(p));
+        players = useridTargets.map(
+          (uid) => this.players.find((p) => p.userid === uid) ?? -1
+        );
       } else {
         const gameidTargets = targets as number[];
-        this.players
-          .filter((p) => gameidTargets.includes(p.gameid))
-          .forEach((p) => this.#spectate(p));
+        players = gameidTargets.map(
+          (gid) => this.players.find((p) => p.gameid === gid) ?? -1
+        );
       }
     } else {
-      throw new Error("Invalid spectate targets");
+      return Promise.reject(
+        'Invalid spectate targets: must be "all" | number[] | string[]'
+      );
     }
+
+    return Promise.allSettled(players.map((p) => this.#spectate(p)));
   }
 
   /**
    * Stop spectating one or more players by their game ID or user ID, or stop spectating all players in the game.
    * @param gameid - An array of game IDs to stop spectating.
+   * @returns {boolean[]} An array representing whether or not each unspectate was successful
    * @example
    * ```ts
    * // Stop spectating a player by game ID
    * client.game!.unspectate([12344]);
    * ```
    */
-  unspectate(gameid: number[]): void;
+  unspectate(gameid: number[]): boolean[];
   /**
    * Stop spectating one or more players by their game ID or user ID, or stop spectating all players in the game.
    * @param userid - The string "all" to stop spectating all players.
+   * @returns {boolean[]} An array representing whether or not each unspectate was successful
    * @example
    * ```ts
    * // Stop spectating all players in the game
    * client.game!.unspectate("all");
    * ```
    */
-  unspectate(userid: "all"): void;
+  unspectate(userid: "all"): boolean[];
   /**
    * Stop spectating one or more players by their game ID or user ID, or stop spectating all players in the game.
    * @param userid - An array of user IDs to stop spectating.
+   * @returns {boolean[]} An array representing whether or not each unspectate was successful
    * @example
    * ```ts
    * // Stop spectating a player by user ID
@@ -237,27 +247,32 @@ export class Game {
    * ```
    */
   // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
-  unspectate(userid: String[]): void;
+  unspectate(userid: String[]): boolean[];
   // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
   unspectate(targets: number[] | "all" | String[]) {
+    let players: (Player | null)[] = [];
     if (targets === "all") {
-      this.players.forEach((p) => this.#unspectate(p));
+      players = this.players;
     } else if (Array.isArray(targets)) {
       if (targets.length === 0) return;
       if (typeof targets[0] === "string") {
         const useridTargets = targets as string[];
-        this.players
-          .filter((p) => useridTargets.includes(p.userid))
-          .forEach((p) => this.#unspectate(p));
+        players = useridTargets.map(
+          (uid) => this.players.find((p) => p.userid === uid) ?? null
+        );
       } else {
         const gameidTargets = targets as number[];
-        this.players
-          .filter((p) => gameidTargets.includes(p.gameid))
-          .forEach((p) => this.#unspectate(p));
+        players = gameidTargets.map(
+          (gid) => this.players.find((p) => p.gameid === gid) ?? null
+        );
       }
     } else {
-      throw new Error("Invalid unspectate targets");
+      throw new Error(
+        'Invalid spectate targets: must be "all" | number[] | string[]'
+      );
     }
+
+    return players.map((p) => (p ? this.#unspectate(p) : false));
   }
 
   /** @internal */

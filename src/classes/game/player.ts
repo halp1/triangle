@@ -1,3 +1,4 @@
+import { reject } from "lodash";
 import { Game } from ".";
 import type { Engine } from "../../engine";
 import type { Game as GameTypes } from "../../types";
@@ -29,7 +30,7 @@ export class Player {
   #client: Client;
   #hook: Hook<Events.in.all>;
   #queue: GameTypes.Replay.Frame[] = [];
-  #resolvers: (() => void)[] = [];
+  #resolvers: [() => void, (error: string) => void][] = [];
 
   #strategy: SpectatingStrategy;
 
@@ -51,7 +52,7 @@ export class Player {
     this.#hook.on("game.replay.state", ({ gameid, data }) => {
       if (gameid !== this.gameid) return;
 
-      this.#resolvers.forEach((r) => r());
+      this.#resolvers.forEach(([r]) => r());
       this.#resolvers = [];
       this.state = SpectatingState.Active;
 
@@ -79,11 +80,11 @@ export class Player {
     return new Promise<void>((resolve) => {
       if (this.state === SpectatingState.Active) return;
       if (this.state === SpectatingState.Waiting)
-        return this.#resolvers.push(() => resolve());
+        return this.#resolvers.push([() => resolve(), (error)=> reject(error)]);
       this.state = SpectatingState.Waiting;
 
       this.#client.emit("game.scope.start", this.gameid);
-      this.#resolvers.push(() => resolve());
+      this.#resolvers.push([() => resolve(), (error) => reject(error)]);
     });
   }
 
@@ -94,7 +95,7 @@ export class Player {
   }
 
   destroy() {
-    this.#resolvers.forEach((r) => r());
+    this.#resolvers.forEach(([_, r]) => r('Game ended before spectating could begin'));
     this.#resolvers = [];
     this.#hook.destroy();
     this.#queue = [];
