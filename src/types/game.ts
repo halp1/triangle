@@ -455,7 +455,7 @@ export namespace Game {
     handling: Handling;
     haschangedcolumn: boolean;
     hesitatedattacks: unknown[];
-    hold: Mino;
+    hold: Mino | null;
     holdlocked: boolean;
     hyperForfeitAllowed: boolean;
     hyperRetryAllowed: boolean;

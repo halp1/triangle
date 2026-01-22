@@ -6,7 +6,8 @@ export namespace User {
     | "halfmod"
     | "mod"
     | "admin"
-    | "sysop";
+    | "sysop"
+    | "anon";
 
   export interface Badge {
     id: string;
