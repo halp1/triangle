@@ -18,7 +18,6 @@ export const moveElementToFirst = <T>(arr: T[], n: number) => [
 
 export class Game {
   #client: Client;
-  #listeners: Parameters<Client["on"]>[] = [];
   #strategy: SpectatingStrategy;
   #spectatingTimeout: NodeJS.Timeout | null = null;
   #spectateWarningCounter = 0;
@@ -79,8 +78,6 @@ export class Game {
    */
   destroy(): undefined {
     this.self?.destroy();
-
-    this.#listeners.forEach((l) => this.#client.off(l[0], l[1]));
 
     this.players.forEach((player) => player.destroy());
 

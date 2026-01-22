@@ -1,10 +1,11 @@
-import { reject } from "lodash";
 import { Game } from ".";
 import type { Engine } from "../../engine";
 import type { Game as GameTypes } from "../../types";
 import type { Events } from "../../types";
 import type { Client } from "../client";
 import type { Hook } from "../client/hook";
+
+import { reject } from "lodash";
 
 export enum SpectatingState {
   Inactive,
@@ -80,7 +81,10 @@ export class Player {
     return new Promise<void>((resolve) => {
       if (this.state === SpectatingState.Active) return;
       if (this.state === SpectatingState.Waiting)
-        return this.#resolvers.push([() => resolve(), (error)=> reject(error)]);
+        return this.#resolvers.push([
+          () => resolve(),
+          (error) => reject(error)
+        ]);
       this.state = SpectatingState.Waiting;
 
       this.#client.emit("game.scope.start", this.gameid);
@@ -89,13 +93,19 @@ export class Player {
   }
 
   unspectate() {
+    if (this.state === SpectatingState.Inactive) return;
     this.#client.emit("game.scope.end", this.gameid);
     this.state = SpectatingState.Inactive;
     this.#queue = [];
   }
 
   destroy() {
-    this.#resolvers.forEach(([_, r]) => r('Game ended before spectating could begin'));
+    this.#resolvers.forEach(([_, r]) =>
+      r("Game ended before spectating could begin")
+    );
+
+    if (this.state !== SpectatingState.Inactive) this.unspectate();
+
     this.#resolvers = [];
     this.#hook.destroy();
     this.#queue = [];

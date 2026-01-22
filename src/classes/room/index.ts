@@ -425,14 +425,15 @@ export class Room {
 
   /**
    * Start spectating a game.
-   * @returns {Promise<SpectateData>} The current state of the game being spectated.
+   * @returns {Promise<SpectateData | void>} The current state of the game being spectated.
    *
    * @example
    * const data = await client.room!.spectate();
    */
-  async spectate(): Promise<SpectateData> {
+  async spectate(): Promise<SpectateData | void> {
     if (this.#client.game) {
       // todo: do something here!
+      return;
     }
 
     const spectateData = await this.#client.wrap(
