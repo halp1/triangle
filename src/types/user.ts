@@ -1,3 +1,5 @@
+import type { Game } from "./game";
+
 export namespace User {
   export type Role =
     | "banned"
@@ -99,17 +101,18 @@ export namespace User {
   }
 
   export interface League {
+    apm: number;
+    decaying: boolean;
     gamesplayed: number;
     gameswon: number;
-    rating: number;
     glicko: number;
-    rd: number;
-    rank: string;
-    apm: number;
+    gxe: number;
     pps: number;
-    vs: number;
-    decaying: boolean;
+    rank: Game.Rank;
+    rd: number;
     standing: number;
     standing_local: number;
+    tr: number;
+    vs: number;
   }
 }

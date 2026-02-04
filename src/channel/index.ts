@@ -1,3 +1,5 @@
+import type { Game } from "../types";
+
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 const NodeError = Error;
 
@@ -877,7 +879,9 @@ export namespace ChannelAPI {
     >("users/history/:leaderboard/:season", "entries");
 
     export namespace PersonalRecords {
-      export type Response = ChannelAPI.Types.Record[];
+      export interface Response {
+        entries: ChannelAPI.Types.Record[];
+      }
 
       export interface Request {
         /**
@@ -1692,7 +1696,14 @@ export namespace ChannelAPI {
       /**
        * Other users mentioned in the Record. Same format as user. If not empty, this is a multiplayer game (this changes the format of results)
        */
-      otherusers: any;
+      otherusers: {
+        avatar_revision: number;
+        banner_revision: number;
+        country: string;
+        id: string;
+        supporter: boolean;
+        username: string;
+      }[];
       /**
        * The leaderboards this Record is mentioned in.
        */
@@ -1708,7 +1719,29 @@ export namespace ChannelAPI {
       /**
        *  Extra metadata for this Record:
        */
-      extras: any;
+      extras:
+        | {}
+        | {
+            league: {
+              [userid: string]: [
+                {
+                  glicko: number;
+                  placement: number;
+                  rank: Game.Rank;
+                  rd: number;
+                  tr: number;
+                },
+                {
+                  glicko: number;
+                  placement: number;
+                  rank: Game.Rank;
+                  rd: number;
+                  tr: number;
+                }
+              ];
+            };
+            result: "victory" | "defeat";
+          };
     }
     /**
      * Achievements may look daunting with their short names, but they are not as difficult as they look. Here's the important parts of the structure:
