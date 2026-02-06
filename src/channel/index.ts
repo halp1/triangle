@@ -1740,7 +1740,12 @@ export namespace ChannelAPI {
                 }
               ];
             };
-            result: "victory" | "defeat";
+            result:
+              | "victory"
+              | "defeat"
+              | "dqvictory"
+              | "dqdefeat"
+              | "nocontest";
           };
     }
     /**
