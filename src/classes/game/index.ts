@@ -1,14 +1,19 @@
-import { BoardConnections, Engine, type EngineInitializeParams, type EngineSnapshot, type IncomingGarbage, type Rotation, type Tile } from "../../engine";
+import {
+  BoardConnections,
+  Engine,
+  type EngineInitializeParams,
+  type EngineSnapshot,
+  type IncomingGarbage,
+  type Rotation,
+  type Tile
+} from "../../engine";
 import { constants } from "../../engine/constants";
 import type { Game as GameTypes } from "../../types";
 import { Client } from "../client";
 import { Player, type SpectatingStrategy } from "./player";
 import { Self } from "./self";
 
-
-
 import chalk from "chalk";
-
 
 export const moveElementToFirst = <T>(arr: T[], n: number) => [
   arr[n],
