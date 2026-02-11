@@ -5,8 +5,6 @@ import type { Events } from "../../types";
 import type { Client } from "../client";
 import type { Hook } from "../client/hook";
 
-import { reject } from "lodash";
-
 export enum SpectatingState {
   Inactive,
   Waiting,
@@ -78,7 +76,7 @@ export class Player {
   }
 
   spectate() {
-    return new Promise<void>((resolve) => {
+    return new Promise<void>((resolve, reject) => {
       if (this.state === SpectatingState.Active) return;
       if (this.state === SpectatingState.Waiting)
         return this.#resolvers.push([
