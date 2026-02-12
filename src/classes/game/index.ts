@@ -1,5 +1,6 @@
 import {
   BoardConnections,
+  deepCopy,
   Engine,
   type EngineInitializeParams,
   type EngineSnapshot,
@@ -386,6 +387,7 @@ export class Game {
           retry: options.can_retry
         },
         infiniteHold: options.infinite_hold,
+        stride: options.stride,
         username: options.username,
         date: new Date()
       },
@@ -399,9 +401,22 @@ export class Game {
   static snapshotFromState(
     frame: number,
     config: EngineInitializeParams,
-    state: GameTypes.State
+    state: GameTypes.State,
+    undoRedoState = false
   ): EngineSnapshot {
+    const queue = {
+      bag: {
+        extra: state.bagex,
+        id: state.bagid,
+        lastGenerated: state.lastGenerated,
+        rng: state.rng
+      },
+      value: [...state.bag]
+    };
     return {
+      __meta: {
+        undoSnapshot: undoRedoState
+      },
       // TODO: actual connected board
       board: state.board.toReversed().map((row) =>
         row.map(
@@ -539,21 +554,36 @@ export class Game {
       stock: state.stock,
       subframe: state.subframe,
       targets: state.targets,
-      queue: {
-        bag: {
-          extra: state.bagex,
-          id: state.bagid,
-          lastGenerated: state.lastGenerated,
-          rng: state.rng
-        },
-        value: [...state.bag]
-      },
+      queue,
+      _queue: deepCopy(queue),
       practice: {
-        undo: state.otherstates.undo,
-        redo: state.otherstates.redo,
+        ...(state.otherstates
+          ? {
+              undo: state.otherstates.undo.map((s) =>
+                Game.snapshotFromState(frame, config, s, true)
+              ),
+              redo: state.otherstates.redo.map((s) =>
+                Game.snapshotFromState(frame, config, s, true)
+              ),
+              lastPiece: state.otherstates.lastpiece
+                ? Game.snapshotFromState(
+                    frame,
+                    config,
+                    state.otherstates.lastpiece,
+                    true
+                  )
+                : null
+            }
+          : {
+              undo: [],
+              redo: [],
+              lastPiece: null
+            }),
         retry: state.retry,
-        retryIter: state.retryiter,
-        lastPiece: state.otherstates.lastpiece
+        retryIter: state.retryiter
+      },
+      time: {
+        frameOffset: state.time.frameoffset
       }
     };
   }

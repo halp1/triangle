@@ -201,7 +201,10 @@ export class Self {
                     "softDrop",
                     "rotateCW",
                     "rotate180",
-                    "rotateCCW"
+                    "rotateCCW",
+                    "undo",
+                    "redo",
+                    "retry"
                   ] satisfies GameTypes.Tick.Keypress["data"]["key"][]
                 ).includes(k.data.key) ||
                 typeof k.data.subframe !== "number" ||

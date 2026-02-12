@@ -277,7 +277,7 @@ export class LegacyGarbageQueue {
     }
   }
 
-	reset() {
-		this.queue = [];
-	}
+  reset() {
+    this.queue = [];
+  }
 }

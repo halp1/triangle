@@ -220,7 +220,9 @@ export namespace tetrio {
         allowed: {
           hardDrop: round.replay.options.allow_harddrop ?? true,
           spin180: round.replay.options.allow180 ?? true,
-          hold: round.replay.options.display_hold ?? true
+          hold: round.replay.options.display_hold ?? true,
+          retry: round.replay.options.can_retry ?? false,
+          undo: round.replay.options.can_undo ?? false
         },
         infiniteHold: round.replay.options.infinite_hold ?? false,
         movement: {
@@ -230,6 +232,7 @@ export namespace tetrio {
           may20G: round.replay.options.gravitymay20g ?? true
         },
         username: round.replay.options.username,
+        stride: round.replay.options.stride ?? false,
         date
       },
       multiplayer: {

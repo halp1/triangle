@@ -514,10 +514,10 @@ export namespace Game {
     lastwasclear: boolean;
     nextwilltank: boolean;
     notyetreceivedattacks: number;
-    otherstates: {
-      lastpiece: null | Mino;
-      undo: Mino[];
-      redo: Mino[];
+    otherstates?: {
+      lastpiece: null | State;
+      undo: State[];
+      redo: State[];
     };
     pause: boolean;
     placement: number;

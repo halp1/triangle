@@ -1212,8 +1212,8 @@ export class Engine {
 
     this.queue.fromSnapshot(this.#queue.snapshot());
 
-		this.board.reset();
-		this.garbageQueue.reset()
+    this.board.reset();
+    this.garbageQueue.reset();
 
     this.stats = {
       combo: -1,

@@ -1,6 +1,6 @@
 {
   "name": "@haelp/teto",
-  "version": "4.0.3",
+  "version": "4.1.0",
   "description": "A typescript-based controllable TETR.IO client.",
   "maintainers": [
     "haelp"
@@ -28,7 +28,7 @@
     "pub": "npm publish --access public",
     "bundle-test-data": "tar -C test/data/replays -cf - . | pv -s $(du -sb test/data/replays | awk '{print $1}') | pigz -9 > test/data/replays.tar.gz",
     "download-test-data": "git lfs fetch --include=\"test/data/**\" --exclude=\"\" && git lfs checkout test/data && bun extract-test-data",
-    "extract-test-data": "mkdir -p test/data/replays && pv test/data/replays.tar.gz | pigz -d | tar -xf - -C test/data/replays"
+    "extract-test-data": "mkdir -p test/data/replays && pv test/data/replays.tar.gz | pigz -d | tar -xf - -C test/data/replays && mv test/data/replays/replays/* test/data/replays/ && rm -rf test/data/replays/replays"
   },
   "files": [
     "dist",

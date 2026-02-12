@@ -57,6 +57,8 @@ export interface VersusReplay {
           b2bchaining: boolean;
           b2bcharging: boolean;
           bgmnoreset: boolean;
+          can_retry: boolean;
+          can_undo: boolean;
           countdown: boolean;
           combotable: Game.ComboTable;
           countdown_count: number;
@@ -116,6 +118,7 @@ export interface VersusReplay {
           slot_counter5?: string;
           song: string;
           spinbonuses: Game.SpinBonuses;
+          stride: boolean;
           usebombs: boolean;
           username: string;
           version: number;
