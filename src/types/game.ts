@@ -515,9 +515,9 @@ export namespace Game {
     nextwilltank: boolean;
     notyetreceivedattacks: number;
     otherstates: {
-      lastpiece: null | unknown;
-      undo: unknown[];
-      redo: unknown[];
+      lastpiece: null | Mino;
+      undo: Mino[];
+      redo: Mino[];
     };
     pause: boolean;
     placement: number;
@@ -860,7 +860,10 @@ export namespace Game {
     | "rotate180"
     | "softDrop"
     | "hardDrop"
-    | "hold";
+    | "hold"
+    | "undo"
+    | "redo"
+    | "retry";
   export namespace Replay {
     export namespace Frames {
       export type all =

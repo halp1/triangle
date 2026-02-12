@@ -381,7 +381,9 @@ export class Game {
         allowed: {
           spin180: options.allow180,
           hardDrop: options.allow_harddrop,
-          hold: options.display_hold
+          hold: options.display_hold,
+          undo: options.can_undo,
+          retry: options.can_retry
         },
         infiniteHold: options.infinite_hold,
         username: options.username,
@@ -545,6 +547,13 @@ export class Game {
           rng: state.rng
         },
         value: [...state.bag]
+      },
+      practice: {
+        undo: state.otherstates.undo,
+        redo: state.otherstates.redo,
+        retry: state.retry,
+        retryIter: state.retryiter,
+        lastPiece: state.otherstates.lastpiece
       }
     };
   }

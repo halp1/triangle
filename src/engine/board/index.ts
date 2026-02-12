@@ -207,6 +207,12 @@ export class Board {
 
     this.state.splice(this.fullHeight - amount - 1, amount);
   }
+
+  reset() {
+    this.state = Array(this.fullHeight)
+      .fill(null)
+      .map(() => Array(this.width).fill(null));
+  }
 }
 
 export * from ".";

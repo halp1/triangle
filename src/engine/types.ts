@@ -19,9 +19,14 @@ export interface IncreasableValue {
 }
 
 export interface EngineSnapshot {
+  /** This data is relevant to the snapshot but not part of the engine's state */
+  __meta: {
+    undoSnapshot: boolean;
+  };
   frame: number;
   subframe: number;
   queue: QueueSnapshot;
+  _queue: QueueSnapshot;
   hold: Mino | null;
   holdLocked: boolean;
   input: Engine["input"];
@@ -36,8 +41,10 @@ export interface EngineSnapshot {
   stock: number;
   state: number;
   spike: Engine["spike"];
+  time: Engine["time"];
   ige: IGEHandlerSnapshot;
   resCache: Engine["resCache"];
+  practice: Engine["practice"];
 }
 
 export interface LockRes {
@@ -118,6 +125,14 @@ export interface Events {
     size: number;
   };
 
+  /** Fires whenever a new piece spawns. */
+  "falling.new": {
+    isHold: boolean;
+    piece: Mino;
+  };
+
+  /** Fires right before a piece locks */
+  "falling.lock.pre": undefined;
   /** Fired whenever a piece locks. */
   "falling.lock": LockRes;
 

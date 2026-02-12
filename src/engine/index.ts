@@ -1,3 +1,4 @@
+import { Hook } from "../classes/client/hook";
 import type { Game } from "../types/game";
 import { EventEmitter } from "../utils/events";
 import {
@@ -75,8 +76,11 @@ export interface MiscellaneousOptions {
     spin180: boolean;
     hardDrop: boolean;
     hold: boolean;
+    undo: boolean;
+    retry: boolean;
   };
   infiniteHold: boolean;
+  stride: boolean;
   username?: string;
   date?: Date;
 }
@@ -97,10 +101,13 @@ export interface EngineInitializeParams {
 
 export class Engine {
   queue!: Queue;
+  // internal queue matching tetrio length for handling resets correctly
+  #queue!: Queue;
   held!: Mino | null;
   holdLocked!: boolean;
   falling!: Tetromino;
   #kickTable!: KickTableName;
+  #undoHook!: Hook<Events>;
   board!: Board;
   lastSpin!: SpinType | null;
   lastWasClear!: boolean;
@@ -144,7 +151,6 @@ export class Engine {
       zero: boolean;
       locked: boolean;
       prev: number;
-      frameoffset: number;
     };
     lastPieceTime: number;
   };
@@ -175,6 +181,20 @@ export class Engine {
 
   state!: number;
   stock!: number;
+
+  practice!: {
+    undo: EngineSnapshot[];
+    redo: EngineSnapshot[];
+
+    retry: boolean;
+    retryIter: number;
+
+    lastPiece: EngineSnapshot | null;
+  };
+
+  time!: {
+    frameOffset: number;
+  };
 
   spike!: {
     count: number;
@@ -208,6 +228,8 @@ export class Engine {
     ]);
 
     this.queue = new Queue(options.queue);
+    this.#queue = new Queue(options.queue);
+    this.#queue.minLength = 14; // Note: becomes 6 if 'zenith' bag is used
 
     this.queue.onRepopulate(this.#onQueueRepopulate.bind(this));
 
@@ -284,6 +306,18 @@ export class Engine {
 
     this.misc = options.misc;
 
+    this.practice = {
+      redo: [],
+      undo: [],
+      retry: false,
+      retryIter: 0,
+      lastPiece: null
+    };
+
+    this.time = {
+      frameOffset: 0
+    };
+
     this.gameOptions = options.options;
     this.handling = options.handling;
     this.input = {
@@ -291,7 +325,7 @@ export class Engine {
       rShift: { held: false, arr: 0, das: 0, dir: 1 },
       lastShift: -1,
       firstInputTime: -1,
-      time: { start: 0, zero: true, locked: false, prev: 0, frameoffset: 0 },
+      time: { start: 0, zero: true, locked: false, prev: 0 },
       lastPieceTime: 0,
       keys: {
         softDrop: false,
@@ -312,6 +346,17 @@ export class Engine {
     };
 
     this.#flushRes();
+
+    if (this.#undoHook) this.#undoHook.destroy();
+    this.#undoHook = new Hook(this.events);
+
+    if (this.misc.allowed.undo) {
+      this.#undoHook.on(
+        "falling.lock.pre",
+        this.#undoPieceLockHandler.bind(this)
+      );
+      this.#undoHook.on("falling.new", this.#undoPieceSpawnHandler.bind(this));
+    }
 
     this.nextPiece();
 
@@ -348,6 +393,9 @@ export class Engine {
     this.rotateCW = this.rotateCW.bind(this);
     this.rotateCCW = this.rotateCCW.bind(this);
     this.rotate180 = this.rotate180.bind(this);
+    this.undo = this.undo.bind(this);
+    this.redo = this.redo.bind(this);
+    this.retry = this.retry.bind(this);
     this.snapshot = this.snapshot.bind(this);
     this.fromSnapshot = this.fromSnapshot.bind(this);
     this.nextPiece = this.nextPiece.bind(this);
@@ -357,8 +405,11 @@ export class Engine {
     this.events.emit("queue.add", pieces);
   }
 
-  snapshot(): EngineSnapshot {
+  snapshot({ undoSnapshot = false } = {}): EngineSnapshot {
     return {
+      __meta: {
+        undoSnapshot
+      },
       board: deepCopy(this.board.state),
       falling: this.falling.snapshot(),
       frame: this.frame,
@@ -368,6 +419,7 @@ export class Engine {
       lastSpin: deepCopy(this.lastSpin),
       lastWasClear: this.lastWasClear,
       queue: this.queue.snapshot(),
+      _queue: this.#queue.snapshot(),
       input: deepCopy(this.input),
       subframe: this.subframe,
       targets: this.multiplayer?.targets,
@@ -377,14 +429,27 @@ export class Engine {
       ige: this.igeHandler.snapshot(),
       state: this.state,
       spike: deepCopy(this.spike),
-      resCache: deepCopy(this.resCache)
+      time: deepCopy(this.time),
+      resCache: deepCopy(this.resCache),
+      practice: undoSnapshot
+        ? {
+            lastPiece: null,
+            redo: [],
+            undo: [],
+            retry: this.practice.retry,
+            retryIter: this.practice.retryIter
+          }
+        : deepCopy(this.practice)
     };
   }
 
   fromSnapshot(snapshot: EngineSnapshot) {
-    const options = deepCopy(this.initializer, [
-      { type: Date, copy: (d) => new Date(d) }
-    ]);
+    // const options = deepCopy(this.initializer, [
+    //   { type: Date, copy: (d) => new Date(d) }
+    // ]);
+
+    const options = this.initializer;
+
     this.board.state = deepCopy(snapshot.board);
     this.falling = new Tetromino({
       boardHeight: this.board.height,
@@ -400,17 +465,20 @@ export class Engine {
       // @ts-expect-error
       this.falling[key] = deepCopy(snapshot.falling[key]);
     }
-    this.frame = snapshot.frame;
-    this.subframe = snapshot.subframe;
+
+    if (!snapshot.__meta.undoSnapshot) {
+      this.frame = snapshot.frame;
+      this.subframe = snapshot.subframe;
+    }
+
     this.garbageQueue.fromSnapshot(snapshot.garbage);
     this.held = snapshot.hold;
     this.holdLocked = snapshot.holdLocked;
     this.lastSpin = deepCopy(snapshot.lastSpin);
     this.lastWasClear = snapshot.lastWasClear;
-    this.queue = new Queue(options.queue);
-    this.queue.fromSnapshot(snapshot.queue);
 
-    this.queue.onRepopulate(this.#onQueueRepopulate.bind(this));
+    this.queue.fromSnapshot(snapshot.queue);
+    this.#queue.fromSnapshot(snapshot._queue);
 
     this.dynamic = {
       gravity: new IncreaseTracker(
@@ -434,9 +502,19 @@ export class Engine {
       for (const key of Object.keys(this.dynamic))
         this.dynamic[key as keyof typeof this.dynamic].tick();
 
-    this.input = deepCopy(snapshot.input);
+    if (!snapshot.__meta.undoSnapshot) {
+      this.input = deepCopy(snapshot.input);
+    } else {
+      this.input.firstInputTime = snapshot.input.firstInputTime;
+      this.input.time = deepCopy(snapshot.input.time);
+      this.input.lastPieceTime = snapshot.input.lastPieceTime;
+      this.input.keys = {
+        ...deepCopy(snapshot.input.keys),
+        softDrop: this.input.keys.softDrop
+      };
+    }
 
-    if (this.multiplayer && snapshot.targets)
+    if (this.multiplayer && snapshot.targets && !snapshot.__meta.undoSnapshot)
       this.multiplayer.targets = [...snapshot.targets];
 
     this.stats = deepCopy(snapshot.stats);
@@ -444,9 +522,23 @@ export class Engine {
     this.stock = snapshot.stock;
     this.state = snapshot.state;
     this.spike = deepCopy(snapshot.spike);
+    this.time = deepCopy(snapshot.time);
     this.igeHandler.fromSnapshot(snapshot.ige);
 
     this.resCache = deepCopy(snapshot.resCache);
+
+    this.practice = {
+      ...deepCopy(snapshot.practice),
+      lastPiece: !snapshot.__meta.undoSnapshot
+        ? snapshot.practice.lastPiece
+        : this.practice.lastPiece,
+      redo: !snapshot.__meta.undoSnapshot
+        ? snapshot.practice.redo
+        : this.practice.redo,
+      undo: !snapshot.__meta.undoSnapshot
+        ? snapshot.practice.undo
+        : this.practice.undo
+    };
   }
 
   get kickTable(): (typeof kicks)[KickTableName] {
@@ -462,12 +554,13 @@ export class Engine {
   }
 
   get dynamicStats() {
+    const frame = this.frame - this.time.frameOffset;
     return {
-      apm: this.stats.garbage.attack / (this.frame / 60 / 60) || 0,
-      pps: this.stats.pieces / (this.frame / 60) || 0,
+      apm: this.stats.garbage.attack / (frame / 60 / 60) || 0,
+      pps: this.stats.pieces / (frame / 60) || 0,
       vs:
         ((this.stats.garbage.attack + this.stats.garbage.cleared) /
-          (this.frame / 60)) *
+          (frame / 60)) *
           100 || 0,
       surgePower: this.b2b.charging
         ? Math.floor(
@@ -828,6 +921,7 @@ export class Engine {
 
   nextPiece(ignoreBlockout = false, isHold = false) {
     const newTetromino = this.queue.shift()!;
+    this.#queue.shift();
 
     this.initiatePiece(newTetromino, ignoreBlockout, isHold);
   }
@@ -910,6 +1004,8 @@ export class Engine {
         }
       }
     }
+
+    this.events.emit("falling.new", { piece: this.falling.symbol, isHold });
   }
 
   #considerBlockout(isSilent: boolean = false) {
@@ -1053,6 +1149,88 @@ export class Engine {
     const res = this.falling.softDrop(this.board.state);
     if (res && this.gameOptions.spinBonuses !== "stupid") this.lastSpin = null;
     return res;
+  }
+
+  #undoPieceSpawnHandler({ isHold }: Events["falling.new"]) {
+    if (isHold) return;
+
+    this.practice.lastPiece = this.snapshot({ undoSnapshot: true });
+  }
+
+  #undoPieceLockHandler() {
+    this.practice.undo.push(this.practice.lastPiece!);
+
+    if (this.practice.undo.length > 100) this.practice.undo.shift();
+    this.practice.redo.length = 0;
+  }
+
+  undo() {
+    if (!this.misc.allowed.undo || this.practice.undo.length === 0)
+      return false;
+
+    this.practice.redo.push(this.practice.lastPiece!);
+
+    this.practice.lastPiece = this.practice.undo.pop()!;
+
+    this.fromSnapshot(this.practice.lastPiece);
+
+    // TODO: something about garbagequeue filter active
+    // (t.impendingdamage = t.impendingdamage.filter((e) => e.active))
+
+    this.practice.retry = false;
+    this.practice.retryIter = 0;
+  }
+
+  redo() {
+    if (!this.misc.allowed.undo || this.practice.redo.length === 0)
+      return false;
+
+    this.practice.undo.push(this.practice.lastPiece!);
+
+    this.practice.lastPiece = this.practice.redo.pop()!;
+
+    this.fromSnapshot(this.practice.lastPiece);
+
+    // TODO: something about garbagequeue filter active
+    // (t.impendingdamage = t.impendingdamage.filter((e) => e.active))
+
+    this.practice.retry = false;
+    this.practice.retryIter = 0;
+  }
+
+  retry() {
+    if (this.misc.allowed.undo) this.#undoPieceLockHandler();
+
+    this.practice.retry = false;
+    this.practice.retryIter = 0;
+
+    this.held = null;
+    this.holdLocked = false;
+
+    this.#queue.clear();
+    this.#queue.repopulateOnce();
+
+    this.queue.fromSnapshot(this.#queue.snapshot());
+
+		this.board.reset();
+		this.garbageQueue.reset()
+
+    this.stats = {
+      combo: -1,
+      b2b: -1,
+      pieces: 0,
+      lines: 0,
+      garbage: {
+        sent: 0,
+        attack: 0,
+        receive: 0,
+        cleared: 0
+      }
+    };
+
+    this.time.frameOffset = this.frame;
+
+    this.nextPiece();
   }
 
   #maxSpin(...spins: SpinType[]) {
@@ -1387,6 +1565,8 @@ export class Engine {
       }
     }
 
+    this.events.emit("falling.lock.pre", undefined);
+
     this.nextPiece();
 
     this.lastSpin = null;
@@ -1435,7 +1615,7 @@ export class Engine {
   #keydown({ data: event }: Game.Replay.Frames.Keypress) {
     this.#processSubframe(event.subframe);
     this.resCache.keys.push(event.key);
-    // TODO: inversion?
+    // TODO: inversion? probably just a qp thing
     // if (this.misc.inverted)
     //   switch (e.key) {
     //     case "moveLeft":
@@ -1466,6 +1646,23 @@ export class Engine {
         this.input.keys.softDrop = true;
         if (this.input.firstInputTime == -1)
           this.input.firstInputTime = this.frame + this.subframe;
+        return;
+
+      // todo: handle exit key somehow?
+      // case "exit":
+      // 	return;
+
+      case "retry":
+        this.practice.retry = true;
+        this.practice.retryIter = 0;
+        return;
+
+      case "undo":
+        this.undo();
+        return;
+
+      case "redo":
+        this.redo();
         return;
 
       case "rotateCCW":
@@ -1559,6 +1756,15 @@ export class Engine {
         this.input.keys.softDrop = false;
         break;
 
+      // todo: handle exit key somehow?
+      // case "exit":
+      // 	return;
+
+      case "retry":
+        this.practice.retry = false;
+        this.practice.retryIter = 0;
+        return;
+
       case "rotateCCW":
         this.input.keys.rotateCCW = false;
         break;
@@ -1595,6 +1801,16 @@ export class Engine {
     this.#processAllShift(delta);
     this.#fall(delta);
     this.subframe = subframe;
+  }
+
+  #processInterrupts() {
+    if (this.misc.allowed.retry && this.practice.retry) {
+      if (this.misc.stride) return this.retry();
+      const tick = this.practice.retryIter++;
+      if (tick > 15) {
+        this.retry();
+      }
+    }
   }
 
   #__internal_shift() {
@@ -1731,6 +1947,7 @@ export class Engine {
     this.frame++;
     this.#processAllShift();
     this.#fall();
+    this.#processInterrupts();
     // TODO: execute waiting frames
     // TODO: process garbage are
 

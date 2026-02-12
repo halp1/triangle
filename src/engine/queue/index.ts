@@ -17,7 +17,7 @@ export class Queue extends Array<Mino> {
   seed: number;
   type: BagType;
   bag!: Bag;
-  _minLength!: number;
+  #minLength!: number;
   repopulateListener: ((pieces: Mino[]) => void) | null = null;
 
   static override get [Symbol.species]() {
@@ -37,15 +37,20 @@ export class Queue extends Array<Mino> {
     this.#repopulate();
   }
 
+  /** @internal */
+  clear() {
+    this.length = 0;
+  }
+
   onRepopulate(listener: NonNullable<typeof this.repopulateListener>) {
     this.repopulateListener = listener;
   }
 
   get minLength() {
-    return this._minLength;
+    return this.#minLength;
   }
   set minLength(val: number) {
-    this._minLength = val;
+    this.#minLength = val;
     this.#repopulate();
   }
 
@@ -54,17 +59,22 @@ export class Queue extends Array<Mino> {
   }
 
   override shift() {
-    const val = super.shift();
     this.#repopulate();
+    const val = super.shift();
     return val;
+  }
+
+  /** @internal */
+  repopulateOnce() {
+    const newValues = this.bag.next();
+    this.push(...newValues);
+    return [...newValues];
   }
 
   #repopulate() {
     const added: Mino[] = [];
     while (this.length < this.minLength) {
-      const newValues = this.bag.next();
-      this.push(...newValues);
-      added.push(...newValues);
+      added.push(...this.repopulateOnce());
     }
 
     if (this.repopulateListener && added.length) {

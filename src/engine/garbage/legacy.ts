@@ -276,4 +276,8 @@ export class LegacyGarbageQueue {
         throw new Error(`Invalid rounding mode ${this.options.rounding}`);
     }
   }
+
+	reset() {
+		this.queue = [];
+	}
 }
