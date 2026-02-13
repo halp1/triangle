@@ -79,6 +79,7 @@ export class Self {
    * Stops the client's gameplay, when it dies. Does not destroy the game. You don't need to call this manually.
    */
   destroy() {
+    this.#over = true;
     this.#hook.destroy();
 
     if (this.#timeout)
