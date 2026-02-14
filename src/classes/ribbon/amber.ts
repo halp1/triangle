@@ -10,7 +10,7 @@ const r = msgpackr();
 const x = 11;
 const y = 19;
 
-class I {
+class T {
   static BagList = [
     "total mayhem",
     "classic",
@@ -3523,7 +3523,7 @@ const w = {
       4,
       "Have no Garbage Lines on\nyour board for 4 seconds",
       4,
-      []
+      ["duo_reversed"]
     ],
     ["B", "rotate", 300, "Rotate 300 times", 2, []],
     ["B", "nocancel", 8, "Don't cancel any\ngarbage for 8 seconds", 3, []],
@@ -3910,16 +3910,486 @@ const w = {
     [43850, [["unclearable"], ["shake", 10]]],
     [43920, [["dim", 1]]]
   ],
+  zenithFatigueRevDuo: [
+    [2880, [["dim", [0.7, 0.6, 0.6]]]],
+    [3e3, [["dim", 0.9]]],
+    [3120, [["dim", [0.5, 0.4, 0.4]]]],
+    [3240, [["dim", 0.8]]],
+    [3360, [["dim", [0.3, 0.2, 0.2]]]],
+    [3480, [["dim", [0.2, 0, 0]]]],
+    [
+      3600,
+      [
+        ["color", 16518753],
+        ["messiness", 0.05],
+        [
+          "waterfall",
+          {
+            msg: 'THE RELATIONSHIP STAGNATES…<br><span style="font-size: 0.8em;">garbage becomes a bit messier</span>',
+            fgcolor: "#ff006f",
+            bgcolor: "#420a25",
+            timeout: 5e3
+          }
+        ]
+      ]
+    ],
+    [3660, [["dim", 1]]],
+    [4680, [["dim", [0.7, 0.6, 0.6]]]],
+    [4800, [["dim", 0.9]]],
+    [4920, [["dim", [0.5, 0.4, 0.4]]]],
+    [5040, [["dim", 0.8]]],
+    [5160, [["dim", [0.3, 0.2, 0.2]]]],
+    [5280, [["dim", [0.2, 0, 0]]]],
+    [
+      5400,
+      [
+        ["color", 16518753],
+        ["messiness", 0.15],
+        [
+          "waterfall",
+          {
+            msg: 'INSECURITIES GROW STRONGER…<br><span style="font-size: 0.8em;">garbage becomes messier</span>',
+            fgcolor: "#ff006f",
+            bgcolor: "#420a25",
+            timeout: 5e3
+          }
+        ]
+      ]
+    ],
+    [5460, [["dim", 1]]],
+    [6480, [["dim", [0.7, 0.6, 0.6]]]],
+    [6600, [["dim", 0.9]]],
+    [6720, [["dim", [0.5, 0.4, 0.4]]]],
+    [6840, [["dim", 0.8]]],
+    [6960, [["dim", [0.3, 0.2, 0.2]]]],
+    [7080, [["dim", [0.2, 0, 0]]]],
+    [
+      7200,
+      [
+        ["color", 16518753],
+        ["messiness", 0.3],
+        [
+          "waterfall",
+          {
+            msg: '%p2 FEELS NEGLECTED…<br><span style="font-size: 0.8em;">garbage becomes much messier</span>',
+            fgcolor: "#ff006f",
+            bgcolor: "#420a25",
+            timeout: 5e3
+          }
+        ]
+      ]
+    ],
+    [7260, [["dim", 1]]],
+    [8280, [["dim", [0.7, 0.6, 0.6]]]],
+    [8400, [["dim", 0.9]]],
+    [8520, [["dim", [0.5, 0.4, 0.4]]]],
+    [8640, [["dim", 0.8]]],
+    [8760, [["dim", [0.3, 0.2, 0.2]]]],
+    [8880, [["dim", [0.2, 0, 0]]]],
+    [
+      9e3,
+      [
+        ["color", 16566784],
+        ["messiness", 0.2],
+        ["rerollcolumn"],
+        [
+          "waterfall",
+          {
+            msg: '%p1 SUCCESSFULLY APOLOGIZES…?<br><span style="font-size: 0.8em;">garbage becomes a bit cleaner</span>',
+            fgcolor: "#ffb700",
+            bgcolor: "#421d04",
+            timeout: 5e3
+          }
+        ]
+      ]
+    ],
+    [9060, [["dim", 1]]],
+    [10080, [["dim", [0.7, 0.6, 0.6]]]],
+    [10200, [["dim", 0.9]]],
+    [10320, [["dim", [0.5, 0.4, 0.4]]]],
+    [10440, [["dim", 0.8]]],
+    [10560, [["dim", [0.3, 0.2, 0.2]]]],
+    [10680, [["dim", [0.2, 0, 0]]]],
+    [
+      10800,
+      [
+        ["color", 16566784],
+        ["messiness", 0],
+        ["rerollcolumn"],
+        [
+          "waterfall",
+          {
+            msg: 'THINGS ARE BACK TO HOW THEY SHOULD BE…!<br><span style="font-size: 0.8em;">garbage becomes much cleaner</span>',
+            fgcolor: "#ffb700",
+            bgcolor: "#421d04",
+            timeout: 5e3
+          }
+        ]
+      ]
+    ],
+    [10860, [["dim", 1]]],
+    [11880, [["dim", [0.7, 0.6, 0.6]]]],
+    [12e3, [["dim", 0.9]]],
+    [12120, [["dim", [0.5, 0.4, 0.4]]]],
+    [12240, [["dim", 0.8]]],
+    [12360, [["dim", [0.3, 0.2, 0.2]]]],
+    [12480, [["dim", [0.2, 0, 0]]]],
+    [
+      12600,
+      [
+        ["color", 16518753],
+        ["messiness", 0.1],
+        [
+          "waterfall",
+          {
+            msg: 'THE WEIGHT OF WORDS UNSPOKEN…<br><span style="font-size: 0.8em;">garbage becomes messier</span>',
+            fgcolor: "#ff006f",
+            bgcolor: "#420a25",
+            timeout: 5e3
+          }
+        ]
+      ]
+    ],
+    [12660, [["dim", 1]]],
+    [13680, [["dim", [0.7, 0.6, 0.6]]]],
+    [13800, [["dim", 0.9]]],
+    [13920, [["dim", [0.5, 0.4, 0.4]]]],
+    [14040, [["dim", 0.8]]],
+    [14160, [["dim", [0.3, 0.2, 0.2]]]],
+    [14280, [["dim", [0.2, 0, 0]]]],
+    [
+      14400,
+      [
+        ["color", 16518753],
+        ["messiness", 0.25],
+        [
+          "waterfall",
+          {
+            msg: '"WHY CAN\'T YOU JUST LISTEN TO ME?"<br><span style="font-size: 0.8em;">garbage becomes much messier</span>',
+            fgcolor: "#ff006f",
+            bgcolor: "#420a25",
+            timeout: 5e3
+          }
+        ]
+      ]
+    ],
+    [14460, [["dim", 1]]],
+    [15480, [["dim", [0.7, 0.6, 0.6]]]],
+    [15600, [["dim", 0.9]]],
+    [15720, [["dim", [0.5, 0.4, 0.4]]]],
+    [15840, [["dim", 0.8]]],
+    [15960, [["dim", [0.3, 0.2, 0.2]]]],
+    [16080, [["dim", [0.2, 0, 0]]]],
+    [
+      16200,
+      [
+        ["color", 16518753],
+        ["revivelevel", 3],
+        [
+          "waterfall",
+          {
+            msg: '"THIS IS ALL YOUR FAULT".<br><span style="font-size: 0.8em;">revive difficulty increased</span>',
+            fgcolor: "#ff006f",
+            bgcolor: "#420a25",
+            timeout: 5e3
+          }
+        ]
+      ]
+    ],
+    [16260, [["dim", 1]]],
+    [17280, [["dim", [0.7, 0.6, 0.6]]]],
+    [17400, [["dim", 0.9]]],
+    [17520, [["dim", [0.5, 0.4, 0.4]]]],
+    [17640, [["dim", 0.8]]],
+    [17760, [["dim", [0.3, 0.2, 0.2]]]],
+    [17880, [["dim", [0.2, 0, 0]]]],
+    [
+      18e3,
+      [
+        ["color", 16566784],
+        ["messiness", 0.1],
+        ["rerollcolumn"],
+        [
+          "waterfall",
+          {
+            msg: '%p2 MAKES THE SAME PROMISE AGAIN…<br><span style="font-size: 0.8em;">garbage becomes cleaner</span>',
+            fgcolor: "#ffb700",
+            bgcolor: "#421d04",
+            timeout: 5e3
+          }
+        ]
+      ]
+    ],
+    [18060, [["dim", 1]]],
+    [19080, [["dim", [0.7, 0.6, 0.6]]]],
+    [19200, [["dim", 0.9]]],
+    [19320, [["dim", [0.5, 0.4, 0.4]]]],
+    [19440, [["dim", 0.8]]],
+    [19560, [["dim", [0.3, 0.2, 0.2]]]],
+    [19680, [["dim", [0.2, 0, 0]]]],
+    [
+      19800,
+      [
+        ["color", 16518753],
+        ["unclearable"],
+        ["shake", 5],
+        [
+          "waterfall",
+          {
+            msg: '"THIS TIME WILL BE DIFFERENT."<br><span style="font-size: 0.8em;">+4 PERMANENT GARBAGE</span>',
+            fgcolor: "#ff006f",
+            bgcolor: "#420a25",
+            timeout: 5e3
+          }
+        ]
+      ]
+    ],
+    [19830, [["unclearable"], ["shake", 5]]],
+    [19860, [["unclearable"], ["shake", 5]]],
+    [19910, [["unclearable"], ["shake", 5]]],
+    [20040, [["dim", 1]]],
+    [20880, [["dim", [0.7, 0.6, 0.6]]]],
+    [21e3, [["dim", 0.9]]],
+    [21120, [["dim", [0.5, 0.4, 0.4]]]],
+    [21240, [["dim", 0.8]]],
+    [21360, [["dim", [0.3, 0.2, 0.2]]]],
+    [21480, [["dim", [0.2, 0, 0]]]],
+    [
+      21600,
+      [
+        ["color", 16518753],
+        ["messiness", 0.3],
+        [
+          "waterfall",
+          {
+            msg: 'SOME HABITS CAN\'T BE BROKEN…<br><span style="font-size: 0.8em;">garbage becomes much messier</span>',
+            fgcolor: "#ff006f",
+            bgcolor: "#420a25",
+            timeout: 5e3
+          }
+        ]
+      ]
+    ],
+    [21660, [["dim", 1]]],
+    [22680, [["dim", [0.7, 0.6, 0.6]]]],
+    [22800, [["dim", 0.9]]],
+    [22920, [["dim", [0.5, 0.4, 0.4]]]],
+    [23040, [["dim", 0.8]]],
+    [23160, [["dim", [0.3, 0.2, 0.2]]]],
+    [23280, [["dim", [0.2, 0, 0]]]],
+    [
+      23400,
+      [
+        ["color", 16518753],
+        ["messiness", 0.4],
+        [
+          "waterfall",
+          {
+            msg: 'ALL TRUST HAS WITHERED AWAY…<br><span style="font-size: 0.8em;">garbage becomes messier</span>',
+            fgcolor: "#ff006f",
+            bgcolor: "#420a25",
+            timeout: 5e3
+          }
+        ]
+      ]
+    ],
+    [23460, [["dim", 1]]],
+    [24480, [["dim", [0.7, 0.6, 0.6]]]],
+    [24600, [["dim", 0.9]]],
+    [24720, [["dim", [0.5, 0.4, 0.4]]]],
+    [24840, [["dim", 0.8]]],
+    [24960, [["dim", [0.3, 0.2, 0.2]]]],
+    [25080, [["dim", [0.2, 0, 0]]]],
+    [
+      25200,
+      [
+        ["color", 16518753],
+        ["messiness", 0.5],
+        [
+          "waterfall",
+          {
+            msg: '%p1 SETS AN ULTIMATUM…<br><span style="font-size: 0.8em;">garbage becomes messier</span>',
+            fgcolor: "#ff006f",
+            bgcolor: "#420a25",
+            timeout: 5e3
+          }
+        ]
+      ]
+    ],
+    [25260, [["dim", 1]]],
+    [26280, [["dim", [0.7, 0.6, 0.6]]]],
+    [26400, [["dim", 0.9]]],
+    [26520, [["dim", [0.5, 0.4, 0.4]]]],
+    [26640, [["dim", 0.8]]],
+    [26760, [["dim", [0.3, 0.2, 0.2]]]],
+    [26880, [["dim", [0.2, 0, 0]]]],
+    [
+      27e3,
+      [
+        ["color", 16518753],
+        ["messiness", 0.6],
+        [
+          "waterfall",
+          {
+            msg: '%p2 CONTEMPLATES THEIR WASTED EFFORT…<br><span style="font-size: 0.8em;">garbage becomes messier</span>',
+            fgcolor: "#ff006f",
+            bgcolor: "#420a25",
+            timeout: 5e3
+          }
+        ]
+      ]
+    ],
+    [27060, [["dim", 1]]],
+    [28080, [["dim", [0.7, 0.6, 0.6]]]],
+    [28200, [["dim", 0.9]]],
+    [28320, [["dim", [0.5, 0.4, 0.4]]]],
+    [28440, [["dim", 0.8]]],
+    [28560, [["dim", [0.3, 0.2, 0.2]]]],
+    [28680, [["dim", [0.2, 0, 0]]]],
+    [
+      28800,
+      [
+        ["color", 16518753],
+        ["receivemultiplier", 0.25],
+        [
+          "waterfall",
+          {
+            msg: 'ONE LAST PAINFUL ARGUMENT…<br><span style="font-size: 0.8em;">receive 25% more garbage</span>',
+            fgcolor: "#ff006f",
+            bgcolor: "#420a25",
+            timeout: 5e3
+          }
+        ]
+      ]
+    ],
+    [28860, [["dim", 1]]],
+    [29400, [["dim", [0.7, 0.6, 0.6]]]],
+    [29520, [["dim", 0.9]]],
+    [29640, [["dim", [0.7, 0.4, 0.4]]]],
+    [29760, [["dim", 0.9]]],
+    [29880, [["dim", [0.5, 0.4, 0.4]]]],
+    [3e4, [["dim", 0.8]]],
+    [30120, [["dim", [0.5, 0.2, 0.2]]]],
+    [30240, [["dim", 0.8]]],
+    [30360, [["dim", [0.3, 0.1, 0.1]]]],
+    [30480, [["dim", [0.2, 0, 0]]]],
+    [30540, [["dim", [0, 0, 0]]]],
+    [
+      30600,
+      [
+        ["color", 16711680],
+        ["norevive"],
+        [
+          "waterfall",
+          {
+            msg: 'GOODBYE.<br><span style="font-size: 0.8em;">you can no longer revive</span>',
+            fgcolor: "#ff2600",
+            bgcolor: "#000000",
+            timeout: 15e3
+          }
+        ]
+      ]
+    ],
+    [30900, [["dim", 1]]],
+    [33480, [["dim", [0.7, 0.6, 0.6]]]],
+    [33600, [["dim", 0.9]]],
+    [33720, [["dim", [0.5, 0.4, 0.4]]]],
+    [33840, [["dim", 0.8]]],
+    [33960, [["dim", [0.3, 0.2, 0.2]]]],
+    [34080, [["dim", [0.2, 0, 0]]]],
+    [
+      34200,
+      [
+        ["color", 16566784],
+        ["messiness", 0.2],
+        ["rerollcolumn"],
+        [
+          "waterfall",
+          {
+            msg: '"I MISS YOU"<br><span style="font-size: 0.8em;">garbage becomes much cleaner</span>',
+            fgcolor: "#ffb700",
+            bgcolor: "#421d04",
+            timeout: 5e3
+          }
+        ]
+      ]
+    ],
+    [34260, [["dim", 1]]],
+    [35280, [["dim", [0.7, 0.6, 0.6]]]],
+    [35400, [["dim", 0.9]]],
+    [35520, [["dim", [0.5, 0.4, 0.4]]]],
+    [35640, [["dim", 0.8]]],
+    [35760, [["dim", [0.3, 0.2, 0.2]]]],
+    [35880, [["dim", [0.2, 0, 0]]]],
+    [
+      36e3,
+      [
+        ["color", 16566784],
+        ["messiness", 0.1],
+        ["rerollcolumn"],
+        [
+          "waterfall",
+          {
+            msg: 'WHAT IF…?<br><span style="font-size: 0.8em;">garbage becomes a bit cleaner</span>',
+            fgcolor: "#ffb700",
+            bgcolor: "#421d04",
+            timeout: 5e3
+          }
+        ]
+      ]
+    ],
+    [36060, [["dim", 1]]],
+    [36600, [["dim", [0.7, 0.6, 0.6]]]],
+    [36720, [["dim", 0.9]]],
+    [36840, [["dim", [0.7, 0.4, 0.4]]]],
+    [36960, [["dim", 0.9]]],
+    [37080, [["dim", [0.5, 0.4, 0.4]]]],
+    [37200, [["dim", 0.8]]],
+    [37320, [["dim", [0.5, 0.2, 0.2]]]],
+    [37440, [["dim", 0.8]]],
+    [37560, [["dim", [0.3, 0.1, 0.1]]]],
+    [37680, [["dim", [0.2, 0, 0]]]],
+    [37740, [["dim", [0, 0, 0]]]],
+    [
+      37800,
+      [
+        ["color", 16711680],
+        ["unclearable"],
+        ["shake", 10],
+        [
+          "waterfall",
+          {
+            msg: '…<br><span style="font-size: 0.8em;">+12 PERMANENT LINES</span>',
+            fgcolor: "#ff2600",
+            bgcolor: "#000000",
+            timeout: 15e3
+          }
+        ]
+      ]
+    ],
+    [37830, [["unclearable"], ["shake", 10]]],
+    [37860, [["unclearable"], ["shake", 10]]],
+    [37910, [["unclearable"], ["shake", 10]]],
+    [37960, [["unclearable"], ["shake", 10]]],
+    [38020, [["unclearable"], ["shake", 10]]],
+    [38080, [["unclearable"], ["shake", 10]]],
+    [38150, [["unclearable"], ["shake", 10]]],
+    [38220, [["unclearable"], ["shake", 10]]],
+    [38300, [["unclearable"], ["shake", 10]]],
+    [38380, [["unclearable"], ["shake", 10]]],
+    [38450, [["unclearable"], ["shake", 10]]],
+    [38520, [["dim", 1]]]
+  ],
   majorShoutStyles: {
     globalbest: () => {
-      Al.play("confetti", { gui: true, count: 30 });
+      Ll.play("confetti", { gui: true, count: 30 });
     },
     personalbest: () => {
-      Al.play("confetti", { gui: true, count: 15, hue: [30, 60] });
+      Ll.play("confetti", { gui: true, count: 15, hue: [30, 60] });
     },
     lg_victory: () => {
       setTimeout(() => {
-        Al.play("confetti", { gui: false, count: 15, hue: [30, 60] });
+        Ll.play("confetti", { gui: false, count: 15, hue: [30, 60] });
       }, 1250);
     }
   },
@@ -4068,7 +4538,8 @@ const w = {
       doublehole_reversed: "Damnation",
       allspin_reversed: "The Warlock",
       gravity_reversed: "Freefall",
-      expert_reversed: "The Tyrant"
+      expert_reversed: "The Tyrant",
+      duo_reversed: "Bleeding Hearts"
     },
     zenithModsShort: {
       invisible: "IN",
@@ -4089,7 +4560,8 @@ const w = {
       doublehole_reversed: "DH-R",
       allspin_reversed: "AS-R",
       gravity_reversed: "GV-R",
-      expert_reversed: "EX-R"
+      expert_reversed: "EX-R",
+      duo_reversed: "2P-R"
     }
   },
   allowedReverseCards: [
@@ -4101,7 +4573,7 @@ const w = {
     "doublehole",
     "invisible",
     "allspin",
-    "snowman"
+    "duo"
   ]
 };
 
@@ -4214,8 +4686,7 @@ class me {
     "allspin",
     "gravity",
     "expert",
-    "duo",
-    "snowman"
+    "duo"
   ];
   static TargetingGraceRevEx = [
     0, 1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1
@@ -4327,7 +4798,7 @@ class ge {
       default: "SRS+",
       possibles: ["none", "SRS", "SRS+", "TETRA-X", "NRS", "ARS", "ASC"]
     },
-    bagtype: { default: "7-bag", allowed: I.BagList },
+    bagtype: { default: "7-bag", allowed: T.BagList },
     messiness_change: { default: 1 },
     messiness_inner: { default: 0 },
     messiness_nosame: { default: false },
@@ -4479,8 +4950,10 @@ class ge {
     zenith_mods: { default: [], allowed: me.Mods },
     zenith_ally: { default: [] },
     zenith_allyexpert: { default: false },
+    zenith_isshadowedside: { default: false },
     TEMP_zenith_rng: { default: false },
-    TEMP_zenith_grace: { default: "" }
+    TEMP_zenith_grace: { default: "" },
+    zenith_lovers: { default: false }
   };
   static DeprecatedOptions = [
     "garbagequadbonus",
@@ -4539,7 +5012,7 @@ class ge {
           (yield [i, o]));
     }
     n > 0 &&
-      Zt({
+      Qt({
         msg: `this replay contains one or more unknown options ${n}`,
         color: "#FFD800",
         icon: "warning",
@@ -4548,6 +5021,7 @@ class ge {
   }
 }
 ge.init();
+
 export class Bits {
   static MAX_BITS = Number.MAX_SAFE_INTEGER.toString(2).length;
 
@@ -4740,12 +5214,12 @@ export class Bits {
 
 const n = Bits;
 ge.init();
-const Ce = {
+const be = {
   int64AsType: "number",
   bundleStrings: false,
   sequential: false
 };
-const ke = new (class {
+const Ae = new (class {
   _commands = new Map();
   _codes = new Map();
   _PACK = null;
@@ -4761,17 +5235,16 @@ const ke = new (class {
     this._UNPACK = t.unpack.bind(t);
   }
   GetHandlers() {
-    const It = [];
-    for (const e of this._commands.values()) {
+    const at = [];
+    for (const e of this._commands.values())
       if (e.flags & this.FLAG.F_HOOK) {
-        It.push(e.name);
+        at.push(e.name);
       }
+    const ct = this._commands.get("__pack__")?.table;
+    if (ct) {
+      at.push.apply(at, Object.keys(ct));
     }
-    const Ft = this._commands.get("__pack__")?.table;
-    if (Ft) {
-      It.push.apply(It, Object.keys(Ft));
-    }
-    return It;
+    return at;
   }
   Add(t, s) {
     this._commands.set(t, s);
@@ -4836,28 +5309,28 @@ const ke = new (class {
   }
 })();
 {
-  const { F_ALLOC: t, F_HOOK: s, F_ID: n } = ke.FLAG,
+  const { F_ALLOC: t, F_HOOK: s, F_ID: n } = Ae.FLAG,
     i = {
       code: 25
     };
   i.flags = t;
-  ke.Add("new", i);
+  Ae.Add("new", i);
   const o = {
     code: 63
   };
   o.flags = t;
-  ke.Add("die", o);
+  Ae.Add("die", o);
   const a = {
     code: 19
   };
   a.flags = s | t;
-  ke.Add("rejected", a);
+  Ae.Add("rejected", a);
   const r = {
     code: 33
   };
   r.flags = s | t;
-  ke.Add("reload", r);
-  ke.Add("ping", {
+  Ae.Add("reload", r);
+  Ae.Add("ping", {
     code: 9,
     flags: s,
     encode({ recvid: t }) {
@@ -4871,7 +5344,7 @@ const ke = new (class {
       };
     }
   });
-  ke.Add("session", {
+  Ae.Add("session", {
     code: 44,
     encode({ ribbonid: t, tokenid: s }) {
       const n = Buffer.allocUnsafe(16);
@@ -4884,7 +5357,7 @@ const ke = new (class {
       tokenid: e.toString("hex", 8, 16)
     })
   });
-  ke.Add("packets", {
+  Ae.Add("packets", {
     code: 7,
     encode({ packets: t }) {
       const s = t.reduce((e, t) => e + t.length, 0),
@@ -4911,7 +5384,7 @@ const ke = new (class {
       };
     }
   });
-  ke.Add("kick", {
+  Ae.Add("kick", {
     table: {
       outdated: 1,
       kick: 2,
@@ -4943,7 +5416,7 @@ const ke = new (class {
       };
     }
   });
-  ke.Add("nope", {
+  Ae.Add("nope", {
     table: {
       "protocol violation": 0,
       "ribbon expired": 1
@@ -4959,7 +5432,7 @@ const ke = new (class {
       };
     }
   });
-  ke.Add("pni", {
+  Ae.Add("pni", {
     table: {
       background: 0,
       split: 1,
@@ -4980,7 +5453,7 @@ const ke = new (class {
       };
     }
   });
-  ke.Add("notify", {
+  Ae.Add("notify", {
     table: {
       deny: 1,
       warm: 2,
@@ -5032,7 +5505,7 @@ const ke = new (class {
       }
     }
   });
-  ke.Add("__pack__", {
+  Ae.Add("__pack__", {
     table: {
       "config.handling": 1,
       "channel.subscribe": 2,
@@ -5128,6 +5601,8 @@ const ke = new (class {
       "server.authorize": 210,
       "server.migrate": 211,
       "server.migrated": 212,
+      "valentine.update": 224,
+      "valentine.sc": 225,
       "xrc.relog": 255
     },
     flags: n,
@@ -5145,13 +5620,13 @@ const ke = new (class {
         n = this.getvk(s),
         i = t(e.subarray(1));
       return {
-        [ke.SymCmd]: n,
+        [Ae.SymCmd]: n,
         data: i
       };
     }
   });
 }
-class Ie {
+class Te {
   static TYPES = {
     Table: 0,
     Array: 1,
@@ -5240,14 +5715,14 @@ class Ie {
       }
       switch (t) {
         case t >>> 0: {
-          const n = Ie.GetIntSize(t);
+          const n = Te.GetIntSize(t);
           e.writeUInt(s.UInt, 3);
           e.writeUInt(n - 1, 3);
           e.writeUInt(t, 4 * n);
           break;
         }
         case t | 0: {
-          const n = Ie.GetIntSize(t);
+          const n = Te.GetIntSize(t);
           e.writeUInt(s.Int, 3);
           e.writeUInt(n - 1, 3);
           e.writeInt(t, 4 * n);
@@ -5283,8 +5758,10 @@ class Ie {
     constructor(e, t = "strict") {
       this._kv = new Map();
       this._vk = new Map();
-      for (const [t, s] of e.entries())
-        (this._kv.set(s, t + 1), this._vk.set(t + 1, s));
+      for (const [t, s] of e.entries()) {
+        this._kv.set(s, t + 1);
+        this._vk.set(t + 1, s);
+      }
       this._mode = t;
       this._size = Math.floor(Math.log2(this._kv.size)) + 1;
       this.has = this._kv.has.bind(this._kv);
@@ -5296,11 +5773,10 @@ class Ie {
       return this._size;
     }
     get struct() {
-      const z = {};
-      for (const [e, t] of this._kv.entries()) {
-        z[e] = "0x" + t.toString(16).padStart(2, "0");
-      }
-      return z;
+      const W = {};
+      for (const [e, t] of this._kv.entries())
+        W[e] = "0x" + t.toString(16).padStart(2, "0");
+      return W;
     }
     getkv(e) {
       return this._kv.get(e);
@@ -5314,7 +5790,7 @@ class Ie {
       this._mode = e;
       switch (e) {
         case "strict":
-          this._table = new Ie.Table(t);
+          this._table = new Te.Table(t);
           break;
         case "flexible":
           throw new Error("Flexible mode is not implemented yet");
@@ -5322,10 +5798,10 @@ class Ie {
       }
       s = s ?? 7;
       n = n ?? 15;
-      const Re = {};
-      Re.min = s;
-      Re.max = n;
-      this._prop = new Ie.DInt(Re);
+      const Fe = {};
+      Fe.min = s;
+      Fe.max = n;
+      this._prop = new Te.DInt(Fe);
     }
     get mode() {
       return this._mode;
@@ -5409,12 +5885,12 @@ class Ie {
         ? (this._insert(null, t.size), this.writeAny(e))
         : this._insert(s, t.size);
     }
-    writeArray(e, t = Ie.DEFAULT_ARRAY) {
+    writeArray(e, t = Te.DEFAULT_ARRAY) {
       return "strict" === t.mode
         ? t.encode(this, e)
         : this.ref.has(e)
           ? (this._insert(true, 1),
-            this.writeDInt(this.ref.get(e), Ie.DEFAULT_PROP))
+            this.writeDInt(this.ref.get(e), Te.DEFAULT_PROP))
           : (this._insert(false, 1),
             this.ref.set(e, this.refid++),
             t.encode(this, e));
@@ -5457,18 +5933,18 @@ class Ie {
       return this._insert(e, 64, t.TYPES.DOUBLE);
     }
     writeNumber(e) {
-      return Ie.Number.encode(this, e);
+      return Te.Number.encode(this, e);
     }
     writeHex(e, s) {
       return this._insert(e, s * 8, t.TYPES.HEX);
     }
     writeAny(e, t) {
       const s = b(e);
-      if (!Ie.SUPPORTED_TYPES.has(s))
+      if (!Te.SUPPORTED_TYPES.has(s))
         throw new TypeError(
           `Type ${s} is not implemented for NetCodec.TYPES.Any`
         );
-      this.writeTable(s, Ie.SUPPORTED_TYPES_TABLE);
+      this.writeTable(s, Te.SUPPORTED_TYPES_TABLE);
       switch (s) {
         case "boolean":
           this.writeBoolean(e);
@@ -5477,7 +5953,7 @@ class Ie {
         case "undefined":
           break;
         case "number":
-          Ie.Number.encode(this, e);
+          Te.Number.encode(this, e);
           break;
         case "string":
           this.writeString(e);
@@ -5487,7 +5963,7 @@ class Ie {
       }
     }
     writeByType(e, t, ...s) {
-      return this[`write${Ie.TYPES_INDEX[e]}`](t, ...s);
+      return this[`write${Te.TYPES_INDEX[e]}`](t, ...s);
     }
     pack(e) {
       this._packr.useBuffer(this._packBuffer);
@@ -5564,9 +6040,9 @@ class Ie {
         ? e.getvk(this._read(t))
         : (this.seek(t, 2), this.readAny());
     }
-    readArray(e = Ie.DEFAULT_ARRAY) {
+    readArray(e = Te.DEFAULT_ARRAY) {
       if ("strict" === e.mode) return e.decode(this);
-      if (this._read(1)) return this.ref.get(this.readDInt(Ie.DEFAULT_PROP));
+      if (this._read(1)) return this.ref.get(this.readDInt(Te.DEFAULT_PROP));
       const t = [];
       this.ref.set(this.refid++, t);
       t.push.apply(t, e.decode(this));
@@ -5629,7 +6105,7 @@ class Ie {
       return this.buffer.readDoubleBE(e);
     }
     readNumber() {
-      return Ie.Number.decode(this);
+      return Te.Number.decode(this);
     }
     readHex(e) {
       const t = this.byteOffset,
@@ -5638,7 +6114,7 @@ class Ie {
       return this.buffer.toString("hex", t, s);
     }
     readAny(e) {
-      switch (this.readTable(Ie.SUPPORTED_TYPES_TABLE)) {
+      switch (this.readTable(Te.SUPPORTED_TYPES_TABLE)) {
         case "boolean":
           return this.readBoolean();
         case "null":
@@ -5646,7 +6122,7 @@ class Ie {
         case "undefined":
           return;
         case "number":
-          return Ie.Number.decode(this);
+          return Te.Number.decode(this);
         case "string":
           return this.readString();
         case "array":
@@ -5654,7 +6130,7 @@ class Ie {
       }
     }
     readByType(e, ...t) {
-      return this[`read${Ie.TYPES_INDEX[e]}`](...t);
+      return this[`read${Te.TYPES_INDEX[e]}`](...t);
     }
     peek(e, t) {
       return this._bits.peek(e, t);
@@ -5688,38 +6164,37 @@ class Fe {
     }
   }
   static AddTable(e, t, s) {
-    this["$$" + e] = new Ie.Table(t, s);
+    this["$$" + e] = new Te.Table(t, s);
   }
   static AddProperty(e, t) {
-    this["$" + e] = new Ie.DInt(t);
+    this["$" + e] = new Te.DInt(t);
   }
   static LoadExtensions(e) {
-    let q = 10;
-    function j(e) {
-      return e.encode.call(e, new Ie.Encoder(this, e.constructor.BUFFER));
+    let U = 10;
+    function q(e) {
+      return e.encode.call(e, new Te.Encoder(this, e.constructor.BUFFER));
     }
-    function K(e, t, s, n) {
-      return e.decode(new Ie.Decoder(t, (e) => s(n + e)));
+    function j(e, t, s, n) {
+      return e.decode(new Te.Decoder(t, (e) => s(n + e)));
     }
-    for (const t of Object.values(this._LIST)) {
-      t.ext_code = q++;
-      e.addExtension({
-        Class: t,
-        type: t.ext_code,
-        pack: j,
-        unpack: K.bind(null, t)
-      });
-    }
+    for (const t of Object.values(this._LIST))
+      ((t.ext_code = U++),
+        e.addExtension({
+          Class: t,
+          type: t.ext_code,
+          pack: q,
+          unpack: j.bind(null, t)
+        }));
   }
 }
-class Te extends Fe {
+class Ie extends Fe {
   static AddStructure(e) {
     this._cstFields = new Map();
     this._fixFields = new Map();
     this._optFields = new Map();
     for (const [t, { mode: s, type: n, size: i, value: o }] of Object.entries(
       e
-    )) {
+    ))
       switch (s) {
         case "static":
           this._cstFields.set(t, o);
@@ -5736,14 +6211,13 @@ class Te extends Fe {
             size: i
           });
       }
-    }
     super.AddTable("prop", Array.from(this._optFields.keys()));
   }
   static encode(e, t) {
     for (const [s, { type: n, size: i }] of this._fixFields.entries())
       e.writeByType(n, t[s], i);
     for (const [s, { type: n, size: i }] of this._optFields.entries())
-      if (undefined !== t[s] && !(n === Ie.TYPES.DInt && null === t[s])) {
+      if (undefined !== t[s] && !(n === Te.TYPES.DInt && null === t[s])) {
         e.writeTable(s, this.$$prop);
         e.writeByType(n, t[s], i);
       }
@@ -5764,7 +6238,7 @@ class Te extends Fe {
     return t;
   }
 }
-class Ee extends Fe {
+class Me extends Fe {
   static init() {
     super.AddExtension(this);
     super.AddProperty("prov", {
@@ -5779,7 +6253,7 @@ class Ee extends Fe {
     super();
     this.gameid = e;
     this.provisioned = t;
-    this.frames = s.map((e) => new Oe(e));
+    this.frames = s.map((e) => new Pe(e));
   }
   encode(e) {
     const t = this.constructor,
@@ -5790,7 +6264,7 @@ class Ee extends Fe {
     return e.finalize();
   }
 }
-class Me extends Fe {
+class De extends Fe {
   static init() {
     super.AddExtension(this);
     super.AddProperty("long", {
@@ -5808,9 +6282,9 @@ class Me extends Fe {
       s.gameid = e.readUInt(13);
       s.board.f = e.readUInt(10);
       s.board.g = e.readDInt(this.$long);
-      s.board.w = e.readUInt(We.MAX_WIDTH);
-      s.board.h = e.readUInt(We.MAX_HEIGHT);
-      s.board.b = e.readStruct(We);
+      s.board.w = e.readUInt(Ne.MAX_WIDTH);
+      s.board.h = e.readUInt(Ne.MAX_HEIGHT);
+      s.board.b = e.readStruct(Ne);
       t[n] = s;
     }
     return new this(t);
@@ -5829,13 +6303,13 @@ class Me extends Fe {
       (e.writeUInt(s, 13),
         e.writeUInt(i, 10),
         e.writeDInt(o, t.$long),
-        e.writeUInt(a, We.MAX_WIDTH),
-        e.writeUInt(r, We.MAX_HEIGHT),
-        e.writeStruct(n, We));
+        e.writeUInt(a, Ne.MAX_WIDTH),
+        e.writeUInt(r, Ne.MAX_HEIGHT),
+        e.writeStruct(n, Ne));
     return e.finalize();
   }
 }
-class De extends Fe {
+class Oe extends Fe {
   static init() {
     super.AddExtension(this);
     super.AddTable("extraStat", [
@@ -5863,6 +6337,7 @@ class De extends Fe {
       s.specCount = e.readUInt(10);
       s.speedrun = e.readBoolean();
       s.nearWR = e.readBoolean();
+      s.lovers = e.readBoolean();
       const i = e.readUInt(3);
       for (let t = 0; t < i; t++) s.allies.push(e.readUInt(13));
       s.stats.revives = 0;
@@ -5904,7 +6379,8 @@ class De extends Fe {
       specCount: o,
       speedrun: a,
       nearWR: r,
-      talentless: l
+      lovers: l,
+      talentless: c
     } of this.sb) {
       e.writeUInt(s, 13);
       e.writeUInt(Math.floor(n.rank), 6);
@@ -5913,28 +6389,29 @@ class De extends Fe {
       e.writeUInt(o, 10);
       e.writeBoolean(a);
       e.writeBoolean(r);
+      e.writeBoolean(l);
       if (i) {
         e.writeUInt(i.length, 3);
         for (const t of i) e.writeUInt(t, 13);
       } else e.writeUInt(0, 3);
-      let c = "none";
+      let p = "none";
       if (n.revives) {
-        c = "revives";
+        p = "revives";
       }
       if (n.escapeartist) {
-        c = "escapeartist";
+        p = "escapeartist";
       }
       if (n.blockrationing_app) {
-        c = "blockrationing_app";
+        p = "blockrationing_app";
       }
       if (n.blockrationing_final) {
-        c = "blockrationing_final";
+        p = "blockrationing_final";
       }
-      if (l) {
-        c = "talentless";
+      if (c) {
+        p = "talentless";
       }
-      e.writeTable(c, t.$$extraStat);
-      switch (c) {
+      e.writeTable(p, t.$$extraStat);
+      switch (p) {
         case "none":
         case "talentless":
           break;
@@ -5954,7 +6431,7 @@ class De extends Fe {
     return e.finalize();
   }
 }
-class Oe extends Fe {
+class Pe extends Fe {
   static init() {
     super.AddExtension(this, {
       ownBuffer: true
@@ -6011,13 +6488,13 @@ class Oe extends Fe {
         t.data = {};
         break;
       case "full":
-        t.data = e.readStruct(Re);
+        t.data = e.readStruct(We);
         break;
       case "end":
         t.data = e.readStruct(et);
         break;
       case "ige":
-        t.data = e.readStruct(Ue);
+        t.data = e.readStruct(qe);
         break;
       case "strategy":
         t.data = e.readUInt(3);
@@ -6053,7 +6530,7 @@ class Oe extends Fe {
       case "start":
         return e.finalize();
       case "full": {
-        e.writeStruct(this.data, Re);
+        e.writeStruct(this.data, We);
         return e.finalize();
       }
       case "end": {
@@ -6061,7 +6538,7 @@ class Oe extends Fe {
         return e.finalize();
       }
       case "ige": {
-        e.writeStruct(this.data, Ue);
+        e.writeStruct(this.data, qe);
         return e.finalize();
       }
       case "strategy": {
@@ -6082,7 +6559,7 @@ class Oe extends Fe {
     }
   }
 }
-class He extends Fe {
+class Re extends Fe {
   static init() {
     super.AddExtension(this);
   }
@@ -6121,7 +6598,7 @@ class He extends Fe {
     return e.finalize();
   }
 }
-class Re extends Fe {
+class We extends Fe {
   static init() {
     super.AddTable("piece", [null, ...Object.keys(w.tetrominoes)], "flexible");
     super.AddTable("ixs", ["off", "hold", "tap"]);
@@ -6136,7 +6613,7 @@ class Re extends Fe {
       l = t.game.handling;
     e.writeUInt(n.length, 12);
     for (const t of n) e.writeTable(t, this.$$piece);
-    e.writeStruct(s, We);
+    e.writeStruct(s, Ne);
     e.writeBoolean(i.locked);
     e.writeTable(i.piece, this.$$piece);
     e.writeDouble(o);
@@ -6149,7 +6626,7 @@ class Re extends Fe {
     e.writeDouble(a.rShift.arr);
     e.writeDouble(a.lShift.das);
     e.writeDouble(a.rShift.das);
-    e.writeStruct(r, Ne);
+    e.writeStruct(r, $e);
     e.writeFloat(l.arr, 6, 10);
     e.writeUInt(l.sdf, 6);
     e.writeBoolean(l.safelock);
@@ -6160,7 +6637,7 @@ class Re extends Fe {
     e.writeFloat(l.dcd, 8, 10);
     e.writeTable(l.irs, this.$$ixs);
     e.writeTable(l.ihs, this.$$ixs);
-    e.writeStruct(t.stats, $e);
+    e.writeStruct(t.stats, Ge);
   }
   static decode(e) {
     const t = {},
@@ -6180,7 +6657,7 @@ class Re extends Fe {
       i = s.handling,
       o = e.readUInt(12);
     for (let t = 0; t < o; t++) s.bag.push(e.readTable(this.$$piece));
-    s.board = e.readStruct(We);
+    s.board = e.readStruct(Ne);
     s.hold = {
       locked: e.readBoolean(),
       piece: e.readTable(this.$$piece)
@@ -6195,7 +6672,7 @@ class Re extends Fe {
     n.rShift.arr = e.readDouble();
     n.lShift.das = e.readDouble();
     n.rShift.das = e.readDouble();
-    s.falling = e.readStruct(Ne);
+    s.falling = e.readStruct($e);
     i.arr = e.readFloat(6, 10);
     i.sdf = e.readUInt(6);
     i.safelock = e.readBoolean();
@@ -6206,12 +6683,12 @@ class Re extends Fe {
     i.dcd = e.readFloat(8, 10);
     i.irs = e.readTable(this.$$ixs);
     i.ihs = e.readTable(this.$$ixs);
-    t.stats = e.readStruct($e);
+    t.stats = e.readStruct(Ge);
     t.game = s;
     return t;
   }
 }
-class We extends Fe {
+class Ne extends Fe {
   static MAX_WIDTH = Math.log2(512);
   static MAX_HEIGHT = Math.log2(512);
   static init() {
@@ -6241,15 +6718,15 @@ class We extends Fe {
     return t;
   }
 }
-class Ne extends Fe {
+class $e extends Fe {
   static init() {
     super.AddTable("piece", [null, ...Object.keys(w.tetrominoes)], "flexible");
   }
   static encode(e, t) {
     e.writeTable(t.type, this.$$piece);
-    e.writeInt(t.x, We.MAX_WIDTH);
+    e.writeInt(t.x, Ne.MAX_WIDTH);
     e.writeUInt(t.r, 2);
-    e.writeUInt(t.hy, We.MAX_HEIGHT);
+    e.writeUInt(t.hy, Ne.MAX_HEIGHT);
     e.writeUInt(t.irs, 2);
     e.writeUInt(t.kick, 5);
     e.writeUInt(t.keys, 16);
@@ -6270,9 +6747,9 @@ class Ne extends Fe {
       skip: []
     };
     t.type = e.readTable(this.$$piece);
-    t.x = e.readInt(We.MAX_WIDTH);
+    t.x = e.readInt(Ne.MAX_WIDTH);
     t.r = e.readUInt(2);
-    t.hy = e.readUInt(We.MAX_HEIGHT);
+    t.hy = e.readUInt(Ne.MAX_HEIGHT);
     t.irs = e.readUInt(2);
     t.kick = e.readUInt(5);
     t.keys = e.readUInt(16);
@@ -6291,7 +6768,7 @@ class Ne extends Fe {
     return t;
   }
 }
-class $e extends Fe {
+class Ge extends Fe {
   static init() {
     super.AddTable("piece", [...Object.keys(w.tetrominoes)], "flexible");
     super.AddProperty("short", {
@@ -6353,7 +6830,7 @@ class $e extends Fe {
     e.writeDInt(i.combo, this.$long);
     e.writeDInt(i.faults, this.$long);
     e.writeDInt(i.perfectpieces, this.$long);
-    e.writeStruct(t.zenith, Ge);
+    e.writeStruct(t.zenith, Xe);
   }
   static decode(e) {
     const t = {
@@ -6390,11 +6867,11 @@ class $e extends Fe {
     t.finesse.combo = e.readDInt(this.$long);
     t.finesse.faults = e.readDInt(this.$long);
     t.finesse.perfectpieces = e.readDInt(this.$long);
-    t.zenith = e.readStruct(Ge);
+    t.zenith = e.readStruct(Xe);
     return t;
   }
 }
-class Ge extends Fe {
+class Xe extends Fe {
   static init() {
     super.AddProperty("long", {
       min: 16,
@@ -6437,7 +6914,7 @@ class Ge extends Fe {
     return t;
   }
 }
-class Ue extends Fe {
+class qe extends Fe {
   static init() {
     super.AddProperty("byte", {
       min: 8,
@@ -6457,7 +6934,8 @@ class Ue extends Fe {
       "zenith.climb_pts",
       "zenith.bonus",
       "zenith.incapacitated",
-      "zenith.revive"
+      "zenith.revive",
+      "zenith.attack"
     ]);
   }
   static encode(e, t) {
@@ -6469,12 +6947,12 @@ class Ue extends Fe {
     e.writeTable(n, this.$$type);
     switch (n) {
       case "interaction":
-        return e.writeStruct(i, qe);
+        return e.writeStruct(i, Ve);
       case "interaction_confirm": {
         e.writeTable(i.type, this.$$int_type);
         switch (i.type) {
           case "garbage":
-            return e.writeStruct(i, qe);
+            return e.writeStruct(i, Ve);
           case "zenith.climb_pts":
           case "zenith.bonus": {
             e.writeUInt(i.gameid, 13);
@@ -6485,6 +6963,11 @@ class Ue extends Fe {
           case "zenith.revive": {
             e.writeUInt(i.gameid, 13);
             return e.writeDInt(i.frame, this.$byte);
+          }
+          case "zenith.attack": {
+            e.writeUInt(i.gameid, 13);
+            e.writeDInt(i.frame, this.$byte);
+            return e.writeUInt(i.amt, 8);
           }
           default:
             throw new Error(`Unknown interaction type received: ${i.type}`);
@@ -6507,7 +6990,6 @@ class Ue extends Fe {
         e.writeUInt(i.killer.gameid, 13);
         e.writeDInt(i.frame, this.$byte);
         e.writeUInt(i.fire, 10);
-        e.writeBoolean(i.wasSnowball);
         break;
       case "custom":
         return e.writeStruct(i, Ke);
@@ -6520,13 +7002,13 @@ class Ue extends Fe {
     t.type = e.readTable(this.$$type);
     e: switch (t.type) {
       case "interaction":
-        t.data = e.readStruct(qe);
+        t.data = e.readStruct(Ve);
         break;
       case "interaction_confirm": {
         const s = e.readTable(this.$$int_type);
         switch (s) {
           case "garbage":
-            t.data = e.readStruct(qe);
+            t.data = e.readStruct(Ve);
             break e;
           case "zenith.climb_pts":
           case "zenith.bonus":
@@ -6543,6 +7025,14 @@ class Ue extends Fe {
               type: s,
               gameid: e.readUInt(13),
               frame: e.readDInt(this.$byte)
+            };
+            break e;
+          case "zenith.attack":
+            t.data = {
+              type: s,
+              gameid: e.readUInt(13),
+              frame: e.readDInt(this.$byte),
+              amt: e.readUInt(8)
             };
             break e;
         }
@@ -6578,8 +7068,7 @@ class Ue extends Fe {
             gameid: e.readUInt(13)
           },
           frame: e.readDInt(this.$byte),
-          fire: e.readUInt(10),
-          wasSnowball: e.readBoolean()
+          fire: e.readUInt(10)
         };
         break;
       case "custom":
@@ -6588,7 +7077,7 @@ class Ue extends Fe {
     return t;
   }
 }
-class qe extends Te {
+class Ve extends Ie {
   static init() {
     super.AddProperty("byte", {
       min: 8,
@@ -6606,140 +7095,135 @@ class qe extends Te {
     super.AddStructure({
       type: {
         mode: "fixed",
-        type: Ie.TYPES.Table,
+        type: Te.TYPES.Table,
         size: this.$$type
       },
       amt: {
         mode: "fixed",
-        type: Ie.TYPES.DInt,
+        type: Te.TYPES.DInt,
         size: this.$byte
       },
       username: {
         mode: "optional",
-        type: Ie.TYPES.String,
+        type: Te.TYPES.String,
         size: true
       },
       gameid: {
         mode: "optional",
-        type: Ie.TYPES.UInt,
+        type: Te.TYPES.UInt,
         size: 13
       },
       position: {
         mode: "optional",
-        type: Ie.TYPES.Table,
+        type: Te.TYPES.Table,
         size: this.$$position
       },
       frame: {
         mode: "optional",
-        type: Ie.TYPES.DInt,
+        type: Te.TYPES.DInt,
         size: this.$byte
       },
       cid: {
         mode: "optional",
-        type: Ie.TYPES.DInt,
+        type: Te.TYPES.DInt,
         size: this.$byte
       },
       iid: {
         mode: "optional",
-        type: Ie.TYPES.DInt,
+        type: Te.TYPES.DInt,
         size: this.$byte
       },
       ackiid: {
         mode: "optional",
-        type: Ie.TYPES.DInt,
+        type: Te.TYPES.DInt,
         size: this.$byte
       },
       x: {
         mode: "optional",
-        type: Ie.TYPES.Int,
-        size: We.MAX_WIDTH
+        type: Te.TYPES.Int,
+        size: Ne.MAX_WIDTH
       },
       y: {
         mode: "optional",
-        type: Ie.TYPES.UInt,
-        size: We.MAX_HEIGHT
+        type: Te.TYPES.UInt,
+        size: Ne.MAX_HEIGHT
       },
       pos: {
         mode: "optional",
-        type: Ie.TYPES.Table,
+        type: Te.TYPES.Table,
         size: this.$$blk
       },
       neg: {
         mode: "optional",
-        type: Ie.TYPES.Table,
+        type: Te.TYPES.Table,
         size: this.$$blk
       },
       color: {
         mode: "optional",
-        type: Ie.TYPES.UInt,
+        type: Te.TYPES.UInt,
         size: 24
       },
       column: {
         mode: "optional",
-        type: Ie.TYPES.UInt,
-        size: We.MAX_WIDTH
+        type: Te.TYPES.UInt,
+        size: Ne.MAX_WIDTH
       },
       delay: {
         mode: "optional",
-        type: Ie.TYPES.UInt,
+        type: Te.TYPES.UInt,
         size: 16
       },
       queued: {
         mode: "optional",
-        type: Ie.TYPES.Boolean
+        type: Te.TYPES.Boolean
       },
       hardened: {
         mode: "optional",
-        type: Ie.TYPES.Boolean
+        type: Te.TYPES.Boolean
       },
       size: {
         mode: "optional",
-        type: Ie.TYPES.UInt,
-        size: We.MAX_WIDTH
+        type: Te.TYPES.UInt,
+        size: Ne.MAX_WIDTH
       },
       zthalt: {
         mode: "optional",
-        type: Ie.TYPES.Double
-      },
-      boardsize: {
-        mode: "optional",
-        type: Ie.TYPES.DInt,
-        size: this.$byte
+        type: Te.TYPES.Double
       },
       actor_neg: {
         mode: "optional",
-        type: Ie.TYPES.String
+        type: Te.TYPES.String
       },
       actor_pos: {
         mode: "optional",
-        type: Ie.TYPES.String
+        type: Te.TYPES.String
       },
       anchor: {
         mode: "optional",
-        type: Ie.TYPES.String
+        type: Te.TYPES.String
       },
       actor_neg_data_type: {
         mode: "optional",
-        type: Ie.TYPES.Table,
+        type: Te.TYPES.Table,
         size: this.$$actorType
       },
       actor_neg_data_amt: {
         mode: "optional",
-        type: Ie.TYPES.Any
+        type: Te.TYPES.Any
       },
       actor_pos_data_type: {
         mode: "optional",
-        type: Ie.TYPES.Table,
+        type: Te.TYPES.Table,
         size: this.$$actorType
       },
       actor_pos_data_amt: {
         mode: "optional",
-        type: Ie.TYPES.Any
+        type: Te.TYPES.Any
       }
     });
   }
 }
-class Ve extends Te {
+class je extends Ie {
   static init() {
     super.AddTable("action", ["add", "remove"]);
     super.AddTable("position", [
@@ -6757,77 +7241,77 @@ class Ve extends Te {
     super.AddStructure({
       action: {
         mode: "fixed",
-        type: Ie.TYPES.Table,
+        type: Te.TYPES.Table,
         size: this.$$action
       },
       amt: {
         mode: "fixed",
-        type: Ie.TYPES.DInt,
+        type: Te.TYPES.DInt,
         size: this.$byte
       },
       size: {
         mode: "fixed",
-        type: Ie.TYPES.UInt,
-        size: We.MAX_WIDTH
+        type: Te.TYPES.UInt,
+        size: Ne.MAX_WIDTH
       },
       pos: {
         mode: "optional",
-        type: Ie.TYPES.Table,
+        type: Te.TYPES.Table,
         size: this.$$blk
       },
       neg: {
         mode: "optional",
-        type: Ie.TYPES.Table,
+        type: Te.TYPES.Table,
         size: this.$$blk
       },
       position: {
         mode: "optional",
-        type: Ie.TYPES.Table,
+        type: Te.TYPES.Table,
         size: this.$$position
       },
       column: {
         mode: "optional",
-        type: Ie.TYPES.UInt,
-        size: We.MAX_WIDTH
+        type: Te.TYPES.UInt,
+        size: Ne.MAX_WIDTH
       },
       slow: {
         mode: "optional",
-        type: Ie.TYPES.UInt,
+        type: Te.TYPES.UInt,
         size: 16
       },
       effect: {
         mode: "optional",
-        type: Ie.TYPES.String
+        type: Te.TYPES.String
       },
       actor_neg: {
         mode: "optional",
-        type: Ie.TYPES.String
+        type: Te.TYPES.String
       },
       actor_pos: {
         mode: "optional",
-        type: Ie.TYPES.String
+        type: Te.TYPES.String
       },
       anchor: {
         mode: "optional",
-        type: Ie.TYPES.String
+        type: Te.TYPES.String
       },
       actor_neg_data_type: {
         mode: "optional",
-        type: Ie.TYPES.Table,
+        type: Te.TYPES.Table,
         size: this.$$actorType
       },
       actor_neg_data_amt: {
         mode: "optional",
-        type: Ie.TYPES.Any
+        type: Te.TYPES.Any
       },
       actor_pos_data_type: {
         mode: "optional",
-        type: Ie.TYPES.Table,
+        type: Te.TYPES.Table,
         size: this.$$actorType
       },
       actor_pos_data_amt: {
         mode: "optional",
-        type: Ie.TYPES.Any
+        type: Te.TYPES.Any
       }
     });
   }
@@ -6852,11 +7336,11 @@ class Ke extends Fe {
     e.writeTable(t, this.$$type);
     switch (t) {
       case "garbage":
-        return e.writeStruct(s, qe);
+        return e.writeStruct(s, Ve);
       case "map": {
         e.writeStruct(s.map, Ye);
-        e.writeUInt(s.w, We.MAX_WIDTH);
-        return e.writeUInt(s.h, We.MAX_HEIGHT);
+        e.writeUInt(s.w, Ne.MAX_WIDTH);
+        return e.writeUInt(s.h, Ne.MAX_HEIGHT);
       }
       case "queue": {
         e.writeBoolean(s.start);
@@ -6865,11 +7349,11 @@ class Ke extends Fe {
       case "piece":
         return e.writeString(s.piece);
       case "lines":
-        return e.writeStruct(s, Ve);
+        return e.writeStruct(s, je);
       case "boardsize":
       case "boardresize": {
-        e.writeUInt(s.w, We.MAX_WIDTH);
-        return e.writeUInt(s.h, We.MAX_HEIGHT);
+        e.writeUInt(s.w, Ne.MAX_WIDTH);
+        return e.writeUInt(s.h, Ne.MAX_HEIGHT);
       }
       case "holderstate":
       case "constants":
@@ -6887,12 +7371,12 @@ class Ke extends Fe {
     t.type = e.readTable(this.$$type);
     switch (t.type) {
       case "garbage":
-        t.data = e.readStruct(qe);
+        t.data = e.readStruct(Ve);
         break;
       case "map":
         t.data.map = e.readStruct(Ye);
-        t.data.w = e.readUInt(We.MAX_WIDTH);
-        t.data.h = e.readUInt(We.MAX_HEIGHT);
+        t.data.w = e.readUInt(Ne.MAX_WIDTH);
+        t.data.h = e.readUInt(Ne.MAX_HEIGHT);
         break;
       case "queue":
         t.data.start = e.readBoolean();
@@ -6902,12 +7386,12 @@ class Ke extends Fe {
         t.data.piece = e.readString();
         break;
       case "lines":
-        t.data = e.readStruct(Ve);
+        t.data = e.readStruct(je);
         break;
       case "boardsize":
       case "boardresize":
-        t.data.w = e.readUInt(We.MAX_WIDTH);
-        t.data.h = e.readUInt(We.MAX_HEIGHT);
+        t.data.w = e.readUInt(Ne.MAX_WIDTH);
+        t.data.h = e.readUInt(Ne.MAX_HEIGHT);
         break;
       case "holderstate":
       case "constants":
@@ -6977,7 +7461,7 @@ class Qe extends Fe {
       e.writeUInt(s.dx, 5);
       e.writeUInt(s.dy, 5);
       e.writeDInt(s.data[0].length, this.$tiny);
-      const [r, l] = [Ie.cla32(s.w - 1), Ie.cla32(s.h - 1)];
+      const [r, l] = [Te.cla32(s.w - 1), Te.cla32(s.h - 1)];
       for (const t of s.data)
         for (const [s, n] of t) (e.writeUInt(s, r), e.writeUInt(n, l));
       e.writeDInt(a.w, this.$tiny);
@@ -7026,7 +7510,7 @@ class Qe extends Fe {
       a.dx = e.readUInt(5);
       a.dy = e.readUInt(5);
       const l = e.readDInt(this.$tiny),
-        [c, p] = [Ie.cla32(a.w - 1), Ie.cla32(a.h - 1)];
+        [c, p] = [Te.cla32(a.w - 1), Te.cla32(a.h - 1)];
       a.data = [];
       for (let t = 0; t < 4; t++) {
         a.data[t] = [];
@@ -7042,16 +7526,16 @@ class Qe extends Fe {
         const [s, n] = [e.readUInt(c), e.readUInt(p)];
         r.data[t] = [s, n];
       }
-      const h = e.readBoolean(),
-        d = e.readBoolean(),
+      const d = e.readBoolean(),
+        h = e.readBoolean(),
         u = e.readBoolean(),
         _ = e.readBoolean(),
         m = e.readBoolean();
       n[i] = e.readTable(this.$$colors);
-      if (h) {
+      if (d) {
         o.weight = e.readDInt(this.$tiny);
       }
-      if (d) {
+      if (h) {
         o.spinbonus_override = {
           rule: e.readTable(this.$$spinbonus),
           mini: e.readBoolean()
@@ -7093,11 +7577,13 @@ class Ze extends Fe {
     );
     super.AddTable("skins", ["tetrio", "_bombs", "connected_test"], "flexible");
     super.AddTable("ixs", ["off", "hold", "tap"]);
-    for (const [e, t] of Object.entries(this.OptsBook))
-      if (t.allowed) super.AddTable("_" + e, t.allowed);
-      else if (t.possibles) {
+    for (const [e, t] of Object.entries(this.OptsBook)) {
+      if (t.allowed) {
+        super.AddTable("_" + e, t.allowed);
+      } else if (t.possibles) {
         super.AddTable("_" + e, t.possibles, "flexible");
       }
+    }
   }
   static *ParseOptions(e) {
     const { TypeOrders: t, OptsBook: s } = this,
@@ -7255,7 +7741,7 @@ class et extends Fe {
       o = "spark" === t.killer.type,
       a = t.killer.username ?? "",
       { apm: r, pps: l, vsscore: c } = t.aggregatestats,
-      { game: p, stats: h, diyusi: d } = t;
+      { game: p, stats: d, diyusi: h } = t;
     e.writeBoolean(s);
     e.writeTable(n, this.$$gor);
     e.writeUInt(i, 13);
@@ -7268,10 +7754,10 @@ class et extends Fe {
     e.writeStruct(
       {
         game: p,
-        stats: h,
-        diyusi: d
+        stats: d,
+        diyusi: h
       },
-      Re
+      We
     );
   }
   static decode(e) {
@@ -7288,29 +7774,29 @@ class et extends Fe {
     t.aggregatestats.apm = e.readDouble();
     t.aggregatestats.pps = e.readDouble();
     t.aggregatestats.vsscore = e.readDouble();
-    Object.assign(t, e.readStruct(Re));
+    Object.assign(t, e.readStruct(We));
     return t;
   }
 }
-Ie.init();
-Ee.init();
+Te.init();
 Me.init();
 De.init();
 Oe.init();
-He.init();
+Pe.init();
 Re.init();
 We.init();
 Ne.init();
 $e.init();
 Ge.init();
-Ue.init();
+Xe.init();
 qe.init();
 Ve.init();
+je.init();
 Ke.init();
 Qe.init();
 Ye.init();
 Ze.init();
 et.init();
 Fe.LoadExtensions(r);
-ke.SetMsgpackr(new r.Packr(Ce), new r.Unpackr(Ce));
-export { ke as Codec };
+Ae.SetMsgpackr(new r.Packr(be), new r.Unpackr(be));
+export { Ae as Codec };

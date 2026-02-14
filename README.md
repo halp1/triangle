@@ -28,7 +28,7 @@
 
 ---
 
-Triangle.js was last known to work with TETR.IO Beta version **1.7.6.**
+Triangle.js was last known to work with TETR.IO Beta version **1.7.7**
 
 ### [Gameplay Bot Quickstart](https://triangle.haelp.dev/documents/Quickstart.html)
 
