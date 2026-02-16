@@ -2,8 +2,8 @@ import { deepCopy } from "../../engine";
 import type { Events, Game } from "../../types";
 import { API, type APITypes, docLink, EventEmitter } from "../../utils";
 import { validateIncomingMessage } from "../../utils/typia/functional";
-import { Codec as Amber } from "./amber";
-import { Bits } from "./amber";
+import { amber } from "./amber-loader";
+import { Bits } from "./bits";
 import type { RibbonEvents, RibbonSnapshot } from "./types";
 import { Buffer } from "buffer/index.js";
 
@@ -28,6 +28,8 @@ interface Codec {
 export type LoggingLevel = "all" | "error" | "none";
 
 export type Packet = RibbonEvents.Raw<Events.in.all> & { id?: number };
+
+
 
 export class Ribbon {
   static CACHE_MAXSIZE = 4096;
@@ -116,7 +118,10 @@ export class Ribbon {
 
   emitter = new EventEmitter<Events.in.all>();
 
-  static #getCodec(transport: Transport): Codec {
+  static async #getCodec(
+    transport: Transport,
+    userAgent: string
+  ): Promise<Codec> {
     switch (transport) {
       case "json":
         return {
@@ -125,12 +130,14 @@ export class Ribbon {
             JSON.stringify(data ? { command: msg, data } : { command: msg }),
           decode: (data) => JSON.parse(data.toString("utf-8"))
         };
-      case "binary":
+      case "binary": {
+        const Amber = await amber(userAgent, { global: true });
         return {
           transport,
           encode: (msg, data) => Amber.Encode(msg, data),
           decode: (data) => Amber.Decode(data)
         };
+      }
       default:
         throw new Error(
           `Invalid transport: ${transport}. Valid transports are: ${transports.join(", ")}. Recommended transport is ${transports[0]}.`
@@ -144,12 +151,12 @@ export class Ribbon {
     token,
     handling,
     userAgent,
-    transport,
     spool,
     api,
     self,
     spooling = true,
-    debug
+    debug,
+    codec
   }: {
     logging: LoggingLevel;
     token: string;
@@ -161,6 +168,7 @@ export class Ribbon {
     self: APITypes.Users.Me;
     spooling?: boolean;
     debug: boolean;
+    codec: Codec;
   }) {
     this.#token = token;
     this.#handling = handling;
@@ -168,7 +176,7 @@ export class Ribbon {
 
     this.#spool = spool;
 
-    this.#codec = Ribbon.#getCodec(transport);
+    this.#codec = codec;
 
     this.#api = api;
 
@@ -218,6 +226,8 @@ export class Ribbon {
 
     const loggingLevel = logging ?? (verbose ? "all" : "error");
 
+    const codec = await this.#getCodec(transport, userAgent);
+
     return new Ribbon({
       logging: loggingLevel,
       token,
@@ -233,7 +243,8 @@ export class Ribbon {
       api,
       self,
       spooling,
-      debug
+      debug,
+      codec
     });
   }
 
@@ -949,7 +960,8 @@ export class Ribbon {
     };
   }
 
-  static fromSnapshot(snapshot: RibbonSnapshot) {
+  static async fromSnapshot(snapshot: RibbonSnapshot) {
+    const codec = await Ribbon.#getCodec(snapshot.transport, snapshot.userAgent);
     const ribbon = new Ribbon({
       logging: snapshot.options.logging,
       token: snapshot.token,
@@ -960,7 +972,8 @@ export class Ribbon {
       api: new API(snapshot.api),
       self: snapshot.self,
       spooling: snapshot.options.spooling,
-      debug: snapshot.options.debug
+      debug: snapshot.options.debug,
+      codec
     });
 
     ribbon.#sentID = snapshot.sentID;

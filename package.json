@@ -58,6 +58,11 @@
       "types": "./dist/utils/index.d.ts",
       "import": "./dist/utils/index.mjs",
       "default": "./dist/utils/index.js"
+    },
+    "./classes": {
+      "types": "./dist/classes/index.d.ts",
+      "import": "./dist/classes/index.mjs",
+      "default": "./dist/classes/index.js"
     }
   },
   "types": "dist/index.d.ts",
@@ -71,9 +76,14 @@
   "author": "halp",
   "license": "MIT",
   "dependencies": {
+    "@typescript-eslint/parser": "^8.44.0",
+    "acorn": "^8.15.0",
+    "acorn-walk": "^8.3.4",
+    "astring": "^1.9.0",
     "buffer": "^6.0.3",
     "chalk": "^5.6.2",
-    "fast-equals": "^5.4.0",
+    "eslint-scope": "^8.4.0",
+    "eslint-utils": "^3.0.0",
     "lodash": "^4.17.21",
     "msgpackr": "^1.11.8",
     "node-fetch": "^2.7.0",
@@ -85,6 +95,8 @@
     "@swc/core": "^1.15.8",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/bun": "1.2.17",
+    "@types/eslint-scope": "^8.3.2",
+    "@types/eslint-utils": "^3.0.5",
     "@types/lodash": "^4.17.23",
     "@types/node": "^24.10.9",
     "@types/ws": "^8.18.1",

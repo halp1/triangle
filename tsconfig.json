@@ -6,7 +6,7 @@
     "lib": ["ESNext"],
     "skipLibCheck": true,
     "target": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "module": "ESNext",
     "strict": true,
     "verbatimModuleSyntax": true,
