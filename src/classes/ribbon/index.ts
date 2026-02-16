@@ -2,7 +2,7 @@ import { deepCopy } from "../../engine";
 import type { Events, Game } from "../../types";
 import { API, type APITypes, docLink, EventEmitter } from "../../utils";
 import { validateIncomingMessage } from "../../utils/typia/functional";
-import { amber } from "./amber-loader";
+import { amber } from "./amber/loader";
 import { Bits } from "./bits";
 import type { RibbonEvents, RibbonSnapshot } from "./types";
 import { Buffer } from "buffer/index.js";
@@ -28,8 +28,6 @@ interface Codec {
 export type LoggingLevel = "all" | "error" | "none";
 
 export type Packet = RibbonEvents.Raw<Events.in.all> & { id?: number };
-
-
 
 export class Ribbon {
   static CACHE_MAXSIZE = 4096;
@@ -866,7 +864,7 @@ export class Ribbon {
           ? chalk.yellow
           : chalk.red;
     console[level === "error" ? "error" : "log"](
-      `${func("[🎀\u2009Ribbon]")}: ${msg}`
+      `${func("[Triangle.js]")}: ${msg}`
     );
   }
 
@@ -961,7 +959,10 @@ export class Ribbon {
   }
 
   static async fromSnapshot(snapshot: RibbonSnapshot) {
-    const codec = await Ribbon.#getCodec(snapshot.transport, snapshot.userAgent);
+    const codec = await Ribbon.#getCodec(
+      snapshot.transport,
+      snapshot.userAgent
+    );
     const ribbon = new Ribbon({
       logging: snapshot.options.logging,
       token: snapshot.token,

@@ -1,5 +1,5 @@
-import { Logger } from "../../../utils";
-import { deobfuscate } from "../amber";
+import { Logger } from "../../../../utils";
+import { deobfuscate } from "../core";
 import {
   buildObjects,
   evalFunctions,
@@ -16,7 +16,7 @@ import {
   swapMembers,
   unwrapBlockStatements,
   unwrapSequences
-} from "../amber/plugins";
+} from "../core/plugins";
 import { bitsText } from "./bits-text";
 import { fastEqualsText } from "./fast-equals-text";
 import { msgpackr } from "./msgpackr-text";
@@ -44,7 +44,7 @@ export const compile = async ({
   versionVar,
   zenithStaticBody
 }: ReturnType<typeof splice>) => {
-  const log = new Logger("🎀\u2009Ribbon");
+  const log = new Logger("Triangle.js");
 
   const context: any = {
     Buffer,
@@ -83,7 +83,7 @@ export const compile = async ({
       ecmaVersion: 2022
     },
     onProgress({ step, total }) {
-      log.progress(`Building Amber (${step} / ${total})`, step / total);
+      log.progress(`Compiling codec (${step} / ${total})`, step / total);
     },
     preRun: true,
     plugins: [
@@ -287,6 +287,11 @@ export const compile = async ({
       unwrapBlockStatements()
     ]
   });
+
+  result = result
+    .split("\n")
+    .filter((line) => line.trim().replaceAll(";", "").length !== 0)
+    .join("\n");
 
   const extensionLoader = ".LoadExtensions(";
   const msgpackrName = result
