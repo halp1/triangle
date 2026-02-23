@@ -56,7 +56,6 @@ export const amber = async (
   let target = path.join(triangleDir, fileName);
 
   if (
-    true ||
     !(await fs
       .access(target, fs.constants.F_OK)
       .then(() => true)
