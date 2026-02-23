@@ -1,4 +1,5 @@
 import type { Plugin } from "..";
+
 import * as walk from "acorn-walk";
 
 export const unwrapBlockStatements = (): Plugin => ({
@@ -10,7 +11,7 @@ export const unwrapBlockStatements = (): Plugin => ({
           // should be self explanatory
           Object.assign(node, node.body[0]);
         }
-      },
+      }
     });
-  },
+  }
 });

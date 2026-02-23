@@ -1,8 +1,6 @@
-import type {
-  BlockStatement,
-  Program,
-} from "acorn";
 import type { Plugin } from "..";
+
+import type { BlockStatement, Program } from "acorn";
 import * as walk from "acorn-walk";
 
 export const unwrapIfStatements = (): Plugin => ({
@@ -17,7 +15,10 @@ export const unwrapIfStatements = (): Plugin => ({
         if (seq.expressions.length <= 1) return;
 
         const parent = ancestryMap.get((node as any)._id)!.at(-2)!;
-        if (!parent || (parent.type !== "BlockStatement" && parent.type !== "Program"))
+        if (
+          !parent ||
+          (parent.type !== "BlockStatement" && parent.type !== "Program")
+        )
           return;
 
         const body =
@@ -31,13 +32,13 @@ export const unwrapIfStatements = (): Plugin => ({
           type: "ExpressionStatement" as const,
           expression: expr,
           start: node.start,
-          end: node.end,
+          end: node.end
         }));
         body.splice(index, 0, ...statements);
 
         // replace the if test with the last expression
         node.test = seq.expressions[seq.expressions.length - 1];
-      },
+      }
     });
-  },
+  }
 });

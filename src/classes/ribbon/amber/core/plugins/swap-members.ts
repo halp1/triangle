@@ -1,23 +1,28 @@
+import type { Plugin } from "..";
+
+import vm from "node:vm";
+
 import { parse } from "@typescript-eslint/parser";
 import type {
   MemberExpression,
   VariableDeclarator,
   CallExpression,
   ReturnStatement,
-  Identifier,
+  Identifier
 } from "acorn";
 import * as walk from "acorn-walk";
 import { generate } from "astring";
 import { findVariable } from "eslint-utils";
-import vm from "node:vm";
-import type { Plugin } from "..";
 
 export const swapMembers = (): Plugin => ({
   name: "Swap Member Expressions",
   apply({ context, ast, ancestryMap, getScope, refresh }) {
     let changed = false;
     const handleMemberExpression = (node: MemberExpression) => {
-      if (node.property.type === "Literal" && typeof node.property.value !== "string")
+      if (
+        node.property.type === "Literal" &&
+        typeof node.property.value !== "string"
+      )
         return;
       if (node.object.type !== "Identifier") return;
 
@@ -53,7 +58,7 @@ export const swapMembers = (): Plugin => ({
         changed = true;
         Object.assign(node, {
           ...node,
-          property: node.property.expressions.at(-1)!,
+          property: node.property.expressions.at(-1)!
         });
       }
 
@@ -76,7 +81,7 @@ export const swapMembers = (): Plugin => ({
           Object.assign(node, {
             type: "Literal",
             value: prop.value.value,
-            raw: JSON.stringify(prop.value.value),
+            raw: JSON.stringify(prop.value.value)
           });
           return;
         } else if (prop && prop.value.type === "FunctionExpression") {
@@ -87,7 +92,11 @@ export const swapMembers = (): Plugin => ({
           if ((parent as CallExpression).callee !== node) return;
 
           const args = (parent as CallExpression).arguments;
-          if (!args.every((a) => a.type === "Literal" || a.type === "MemberExpression")) {
+          if (
+            !args.every(
+              (a) => a.type === "Literal" || a.type === "MemberExpression"
+            )
+          ) {
             const func = prop.value;
 
             if (
@@ -107,7 +116,7 @@ export const swapMembers = (): Plugin => ({
                   const index = paramNames.indexOf(idNode.name);
                   changed = true;
                   Object.assign(idNode, args[index]);
-                },
+                }
               });
             else return;
 
@@ -130,7 +139,9 @@ export const swapMembers = (): Plugin => ({
                 )
                   return;
                 const ret = func.body.body[0] as ReturnStatement;
-                const paramNames = func.params.map((p) => (p as Identifier).name);
+                const paramNames = func.params.map(
+                  (p) => (p as Identifier).name
+                );
 
                 if (ret.argument)
                   walk.simple(ret.argument as any, {
@@ -139,7 +150,7 @@ export const swapMembers = (): Plugin => ({
                       const index = paramNames.indexOf(idNode.name);
                       changed = true;
                       Object.assign(idNode, args[index]);
-                    },
+                    }
                   });
                 else return;
 
@@ -147,7 +158,10 @@ export const swapMembers = (): Plugin => ({
                 Object.assign(parent, ret.argument);
                 return;
               }
-              if (arg.object.type === "ThisExpression" || arg.object.type === "Super")
+              if (
+                arg.object.type === "ThisExpression" ||
+                arg.object.type === "Super"
+              )
                 continue;
 
               handleMemberExpression(arg);
@@ -156,7 +170,7 @@ export const swapMembers = (): Plugin => ({
           const call: CallExpression = {
             type: "CallExpression",
             callee: prop.value,
-            arguments: args,
+            arguments: args
           } as any;
 
           const customContext = vm.createContext(Object.assign({}, context));
@@ -165,7 +179,10 @@ export const swapMembers = (): Plugin => ({
 
             if (typeof val === "function") {
               const src = val.toString();
-              const ast = parse(src, { ecmaVersion: 2022, sourceType: "module" });
+              const ast = parse(src, {
+                ecmaVersion: 2022,
+                sourceType: "module"
+              });
               const node = ast.body[0];
               changed = true;
               Object.assign(parent, node);
@@ -174,12 +191,15 @@ export const swapMembers = (): Plugin => ({
               Object.assign(parent, {
                 type: "Literal",
                 value: val,
-                raw: JSON.stringify(val),
+                raw: JSON.stringify(val)
               });
             }
             return;
           } catch (e) {
-            if (e instanceof ReferenceError || (e as any).name === "ReferenceError")
+            if (
+              e instanceof ReferenceError ||
+              (e as any).name === "ReferenceError"
+            )
               return false;
             throw e;
           }
@@ -190,7 +210,7 @@ export const swapMembers = (): Plugin => ({
     walk.simple(ast as any, {
       BlockStatement(node) {
         node.body = node.body.filter((n) => n.type !== "EmptyStatement");
-      },
+      }
     });
 
     do {
@@ -198,10 +218,10 @@ export const swapMembers = (): Plugin => ({
       walk.simple(ast as any, {
         MemberExpression(node) {
           handleMemberExpression(node);
-        },
+        }
       });
     } while (changed);
 
     return ast;
-  },
+  }
 });

@@ -1,8 +1,10 @@
+import type { Plugin } from "..";
+
+import vm from "node:vm";
+
 import type { Expression } from "acorn";
 import * as walk from "acorn-walk";
 import { generate } from "astring";
-import vm from "node:vm";
-import type { Plugin } from "..";
 
 export const evaluateExpressions = (): Plugin => ({
   name: "Evaluate Expressions",
@@ -19,7 +21,7 @@ export const evaluateExpressions = (): Plugin => ({
         "ParenthesizedExpression",
         "SequenceExpression",
         "UnaryExpression",
-        "ArrayExpression",
+        "ArrayExpression"
         // "ObjectExpression",
       ];
 
@@ -38,20 +40,20 @@ export const evaluateExpressions = (): Plugin => ({
 
       // evaluate!
       try {
-				let str = generate(node);
-				if (node.type === 'ObjectExpression') {
-					str = `(${str})`;
-				}
+        let str = generate(node);
+        if (node.type === "ObjectExpression") {
+          str = `(${str})`;
+        }
         const result: boolean = vm.runInContext(str, context);
 
         Object.assign(node, {
           type: "Literal",
           value: result,
-          raw: JSON.stringify(result, ( _, value) =>
+          raw: JSON.stringify(result, (_, value) =>
             typeof value === "bigint" ? value.toString() + "n" : value
-          ),
+          )
         } as Expression);
       } catch {}
     });
-  },
+  }
 });

@@ -1,4 +1,5 @@
 import type { Plugin } from "..";
+
 import * as walk from "acorn-walk";
 
 export const removeUselessStatements = (): Plugin => ({
@@ -14,10 +15,10 @@ export const removeUselessStatements = (): Plugin => ({
           Object.assign(node, {
             type: "EmptyStatement",
             start: 0,
-            end: 0,
+            end: 0
           });
         }
-      },
+      }
     });
-  },
+  }
 });

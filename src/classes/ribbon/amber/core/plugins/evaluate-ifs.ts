@@ -1,8 +1,10 @@
+import type { Plugin } from "..";
+
+import vm from "node:vm";
+
 import type { BlockStatement, Expression } from "acorn";
 import * as walk from "acorn-walk";
-import type { Plugin } from "..";
 import { generate } from "astring";
-import vm from "node:vm";
 
 export const evaluateIfStatements = (): Plugin => ({
   name: "Evaluate If Statements",
@@ -19,7 +21,7 @@ export const evaluateIfStatements = (): Plugin => ({
           "LogicalExpression",
           "ParenthesizedExpression",
           "SequenceExpression",
-          "UnaryExpression",
+          "UnaryExpression"
         ];
 
         let valid = true;
@@ -40,7 +42,7 @@ export const evaluateIfStatements = (): Plugin => ({
             type: "BlockStatement",
             body: [node.consequent],
             start: 0,
-            end: 0,
+            end: 0
           } satisfies BlockStatement);
         } else {
           // check for an else/else if
@@ -50,7 +52,7 @@ export const evaluateIfStatements = (): Plugin => ({
             Object.assign(node, {
               type: "EmptyStatement",
               start: 0,
-              end: 0,
+              end: 0
             });
           }
         }
@@ -65,7 +67,7 @@ export const evaluateIfStatements = (): Plugin => ({
           "LogicalExpression",
           "ParenthesizedExpression",
           "SequenceExpression",
-          "UnaryExpression",
+          "UnaryExpression"
         ];
 
         let valid = true;
@@ -87,7 +89,7 @@ export const evaluateIfStatements = (): Plugin => ({
           // check for an else/else if
           Object.assign(node, node.alternate);
         }
-      },
+      }
     });
-  },
+  }
 });

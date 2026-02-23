@@ -1,4 +1,5 @@
 import type { Plugin } from "..";
+
 import * as walk from "acorn-walk";
 
 export const simplifyIfStatements = (): Plugin => ({
@@ -12,7 +13,8 @@ export const simplifyIfStatements = (): Plugin => ({
         ExpressionStatement(node) {
           if (
             node.expression.type === "LogicalExpression" &&
-            (node.expression.operator === "&&" || node.expression.operator === "||")
+            (node.expression.operator === "&&" ||
+              node.expression.operator === "||")
           ) {
             const logExp = node.expression;
             Object.assign(node, {
@@ -26,7 +28,7 @@ export const simplifyIfStatements = (): Plugin => ({
                       argument: logExp.left,
                       prefix: true,
                       start: 0,
-                      end: 0,
+                      end: 0
                     },
               consequent: {
                 type: "BlockStatement",
@@ -35,19 +37,19 @@ export const simplifyIfStatements = (): Plugin => ({
                     type: "ExpressionStatement",
                     expression: logExp.right,
                     start: 0,
-                    end: 0,
-                  },
+                    end: 0
+                  }
                 ],
                 start: 0,
-                end: 0,
+                end: 0
               },
               alternate: null,
               start: 0,
-              end: 0,
+              end: 0
             });
             changed = true;
           }
-        },
+        }
       });
     } while (changed);
 
@@ -71,17 +73,17 @@ export const simplifyIfStatements = (): Plugin => ({
                 left: node.test,
                 right: innerIf.test,
                 start: 0,
-                end: 0,
+                end: 0
               },
               consequent: innerIf.consequent,
               alternate: innerIf.alternate,
               start: 0,
-              end: 0,
+              end: 0
             });
             changed = true;
           }
-        },
+        }
       });
     } while (changed);
-  },
+  }
 });

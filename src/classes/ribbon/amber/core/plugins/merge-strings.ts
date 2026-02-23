@@ -1,5 +1,6 @@
-import * as walk from "acorn-walk";
 import type { Plugin } from "..";
+
+import * as walk from "acorn-walk";
 
 export const mergeStrings = (): Plugin => ({
   name: "Merge Strings",
@@ -12,18 +13,21 @@ export const mergeStrings = (): Plugin => ({
               ? node.left
               : null;
           const right =
-            node.right.type === "Literal" && typeof node.right.value === "string"
+            node.right.type === "Literal" &&
+            typeof node.right.value === "string"
               ? node.right
               : null;
           if (left && right) {
             Object.assign(node, {
               type: "Literal",
               value: ((left.value as string) + right.value) as string,
-              raw: JSON.stringify(((left.value as string) + right.value) as string),
+              raw: JSON.stringify(
+                ((left.value as string) + right.value) as string
+              )
             });
           }
         }
-      },
+      }
     });
-  },
+  }
 });

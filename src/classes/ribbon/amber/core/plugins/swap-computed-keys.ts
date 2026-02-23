@@ -1,4 +1,5 @@
 import type { Plugin } from "..";
+
 import * as walk from "acorn-walk";
 
 export const swapComputedKeys = (): Plugin => ({
@@ -46,7 +47,7 @@ export const swapComputedKeys = (): Plugin => ({
             node.computed = false;
           }
         }
-      },
+      }
     });
-  },
+  }
 });

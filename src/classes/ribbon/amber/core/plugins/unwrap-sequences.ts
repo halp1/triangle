@@ -1,5 +1,13 @@
-import type { BlockStatement, ExpressionStatement, Program, ReturnStatement, SwitchCase, ThrowStatement } from "acorn";
 import type { Plugin } from "..";
+
+import type {
+  BlockStatement,
+  ExpressionStatement,
+  Program,
+  ReturnStatement,
+  SwitchCase,
+  ThrowStatement
+} from "acorn";
 import * as walk from "acorn-walk";
 
 export const unwrapSequences = (): Plugin => ({
@@ -20,7 +28,10 @@ export const unwrapSequences = (): Plugin => ({
 
         if (parent.type === "Program") {
           body = (parent as Program).body;
-        } else if (parent.type === "BlockStatement" || parent.type === "SwitchCase") {
+        } else if (
+          parent.type === "BlockStatement" ||
+          parent.type === "SwitchCase"
+        ) {
           body = (parent as Program).body ?? (parent as SwitchCase).consequent;
         } else {
           return;
@@ -33,12 +44,12 @@ export const unwrapSequences = (): Plugin => ({
           type: "ExpressionStatement",
           expression: expr,
           start: node.start,
-          end: node.end,
+          end: node.end
         }));
 
         // 🔥 splice instead of wrap
         body.splice(index, 1, ...statements);
-      },
+      }
     });
 
     // case 2: sequences in a return
@@ -48,19 +59,18 @@ export const unwrapSequences = (): Plugin => ({
           const seq = node.argument;
           if (seq.expressions.length > 1) {
             // turn into multiple expression statements, with the last one being the return value
-            const statements: (ExpressionStatement | ReturnStatement)[] = seq.expressions
-              .slice(0, -1)
-              .map((expr) => ({
+            const statements: (ExpressionStatement | ReturnStatement)[] =
+              seq.expressions.slice(0, -1).map((expr) => ({
                 type: "ExpressionStatement" as const,
                 expression: expr,
                 start: 0,
-                end: 0,
+                end: 0
               }));
             statements.push({
               type: "ReturnStatement",
               argument: seq.expressions.at(-1)!,
               start: 0,
-              end: 0,
+              end: 0
             });
             const parent = ancestryMap.get(node._id!)!.at(-2)!;
             if (parent.type !== "BlockStatement") {
@@ -69,7 +79,7 @@ export const unwrapSequences = (): Plugin => ({
                 type: "BlockStatement",
                 body: statements,
                 start: 0,
-                end: 0,
+                end: 0
               };
               Object.assign(node, block);
             } else {
@@ -79,7 +89,7 @@ export const unwrapSequences = (): Plugin => ({
             }
           }
         }
-      },
+      }
     });
 
     // case 2.5: sequences in a throw
@@ -89,19 +99,18 @@ export const unwrapSequences = (): Plugin => ({
           const seq = node.argument;
           if (seq.expressions.length > 1) {
             // turn into multiple expression statements, with the last one being the return value
-            const statements: (ExpressionStatement | ThrowStatement)[] = seq.expressions
-              .slice(0, -1)
-              .map((expr) => ({
+            const statements: (ExpressionStatement | ThrowStatement)[] =
+              seq.expressions.slice(0, -1).map((expr) => ({
                 type: "ExpressionStatement" as const,
                 expression: expr,
                 start: 0,
-                end: 0,
+                end: 0
               }));
             statements.push({
               type: "ThrowStatement",
               argument: seq.expressions.at(-1)!,
               start: 0,
-              end: 0,
+              end: 0
             });
             const parent = ancestryMap.get(node._id!)!.at(-2)!;
             if (parent.type !== "BlockStatement") {
@@ -110,7 +119,7 @@ export const unwrapSequences = (): Plugin => ({
                 type: "BlockStatement",
                 body: statements,
                 start: 0,
-                end: 0,
+                end: 0
               };
               Object.assign(node, block);
             } else {
@@ -120,7 +129,7 @@ export const unwrapSequences = (): Plugin => ({
             }
           }
         }
-      },
+      }
     });
 
     // case 3: sequences in an if statement.
@@ -137,7 +146,7 @@ export const unwrapSequences = (): Plugin => ({
                 type: "ExpressionStatement" as const,
                 expression: expr,
                 start: 0,
-                end: 0,
+                end: 0
               }));
             const newIfTest = seq.expressions.at(-1)!;
             const parent = ancestryMap.get(node._id!)!.at(-2)!;
@@ -151,11 +160,11 @@ export const unwrapSequences = (): Plugin => ({
                     ...node,
                     test: newIfTest,
                     start: 0,
-                    end: 0,
-                  },
+                    end: 0
+                  }
                 ],
                 start: 0,
-                end: 0,
+                end: 0
               };
               Object.assign(node, block);
             } else {
@@ -165,12 +174,12 @@ export const unwrapSequences = (): Plugin => ({
                 ...node,
                 test: newIfTest,
                 start: 0,
-                end: 0,
+                end: 0
               });
             }
           }
         }
-      },
+      }
     });
 
     // case 4: sequences in a switch statement
@@ -186,7 +195,7 @@ export const unwrapSequences = (): Plugin => ({
                 type: "ExpressionStatement" as const,
                 expression: expr,
                 start: 0,
-                end: 0,
+                end: 0
               }));
             const newSwitchDiscriminant = seq.expressions.at(-1)!;
             const parent = ancestryMap.get(node._id!)!.at(-2)!;
@@ -200,11 +209,11 @@ export const unwrapSequences = (): Plugin => ({
                     ...node,
                     discriminant: newSwitchDiscriminant,
                     start: 0,
-                    end: 0,
-                  },
+                    end: 0
+                  }
                 ],
                 start: 0,
-                end: 0,
+                end: 0
               };
               Object.assign(node, block);
             } else {
@@ -214,12 +223,12 @@ export const unwrapSequences = (): Plugin => ({
                 ...node,
                 discriminant: newSwitchDiscriminant,
                 start: 0,
-                end: 0,
+                end: 0
               });
             }
           }
         }
-      },
+      }
     });
-  },
+  }
 });

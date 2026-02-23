@@ -1,5 +1,6 @@
-import * as walk from "acorn-walk";
 import type { Plugin } from "..";
+
+import * as walk from "acorn-walk";
 
 export const simplifySequences = (): Plugin => ({
   name: "Simplify Sequences",
@@ -27,7 +28,7 @@ export const simplifySequences = (): Plugin => ({
         ) {
           Object.assign(node, node.expressions.at(-1));
         }
-      },
+      }
     });
-  },
+  }
 });
