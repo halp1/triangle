@@ -7,4 +7,5 @@ export * from "./constants";
 export * from "./docs";
 export * from "./events";
 export * from "./jwt";
+export * from "./logger";
 export * from "./version";

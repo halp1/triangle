@@ -5,8 +5,10 @@ import chalk from "chalk";
 export { CH, ch, ChannelAPI } from "./channel";
 export * as Utils from "./utils";
 export * as Types from "./types";
-export { Client } from "./classes";
+export { Client } from "./classes/client";
+/** @deprecated */
 export * as Classes from "./classes";
+/** @deprecated */
 export * as Engine from "./engine";
 export { version } from "./utils";
 

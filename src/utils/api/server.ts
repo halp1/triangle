@@ -145,7 +145,7 @@ export const server = (get: Get, _: Post, options: APIDefaults) => {
       );
     } catch {
       console.log(
-        `${chalk.yellow("[🎀\u2009Ribbon]")}: All spools down or recently restarted (unstable). Falling back to root TETR.IO host.`
+        `${chalk.yellow("[Triangle.js]")}: All spools down or recently restarted (unstable). Falling back to root TETR.IO host.`
       );
     }
     return {
