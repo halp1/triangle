@@ -228,7 +228,7 @@ export namespace tetrio {
         movement: {
           infinite: false,
           lockResets: round.replay.options.lockresets ?? 15,
-          lockTime: 30,
+          lockTime: round.replay.options.locktime ?? 30,
           may20G: round.replay.options.gravitymay20g ?? true
         },
         username: round.replay.options.username,

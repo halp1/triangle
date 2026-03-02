@@ -21,7 +21,7 @@ export interface IncreasableValue {
 export interface EngineSnapshot {
   /** This data is relevant to the snapshot but not part of the engine's state */
   __meta: {
-    undoSnapshot: boolean;
+    isUndoRedo: boolean;
   };
   frame: number;
   subframe: number;

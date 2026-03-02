@@ -92,6 +92,7 @@ export interface VersusReplay {
           kickset: KickTable;
           latencymode?: string;
           lockresets: number;
+					locktime: number;
           manual_allowed: boolean;
           messiness_change: number;
           messiness_nosame: boolean;

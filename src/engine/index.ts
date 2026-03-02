@@ -405,10 +405,10 @@ export class Engine {
     this.events.emit("queue.add", pieces);
   }
 
-  snapshot({ undoSnapshot = false } = {}): EngineSnapshot {
+  snapshot({ isUndoRedo = false } = {}): EngineSnapshot {
     return {
       __meta: {
-        undoSnapshot
+        isUndoRedo
       },
       board: deepCopy(this.board.state),
       falling: this.falling.snapshot(),
@@ -431,7 +431,7 @@ export class Engine {
       spike: deepCopy(this.spike),
       time: deepCopy(this.time),
       resCache: deepCopy(this.resCache),
-      practice: undoSnapshot
+      practice: isUndoRedo
         ? {
             lastPiece: null,
             redo: [],
@@ -466,7 +466,7 @@ export class Engine {
       this.falling[key] = deepCopy(snapshot.falling[key]);
     }
 
-    if (!snapshot.__meta.undoSnapshot) {
+    if (!snapshot.__meta.isUndoRedo) {
       this.frame = snapshot.frame;
       this.subframe = snapshot.subframe;
     }
@@ -502,7 +502,7 @@ export class Engine {
       for (const key of Object.keys(this.dynamic))
         this.dynamic[key as keyof typeof this.dynamic].tick();
 
-    if (!snapshot.__meta.undoSnapshot) {
+    if (!snapshot.__meta.isUndoRedo) {
       this.input = deepCopy(snapshot.input);
     } else {
       this.input.firstInputTime = snapshot.input.firstInputTime;
@@ -514,7 +514,7 @@ export class Engine {
       };
     }
 
-    if (this.multiplayer && snapshot.targets && !snapshot.__meta.undoSnapshot)
+    if (this.multiplayer && snapshot.targets && !snapshot.__meta.isUndoRedo)
       this.multiplayer.targets = [...snapshot.targets];
 
     this.stats = deepCopy(snapshot.stats);
@@ -528,15 +528,16 @@ export class Engine {
     this.resCache = deepCopy(snapshot.resCache);
 
     this.practice = {
-      ...deepCopy(snapshot.practice),
-      lastPiece: !snapshot.__meta.undoSnapshot
-        ? snapshot.practice.lastPiece
+      retry: snapshot.practice.retry,
+      retryIter: snapshot.practice.retryIter,
+      lastPiece: !snapshot.__meta.isUndoRedo
+        ? deepCopy(snapshot.practice.lastPiece)
         : this.practice.lastPiece,
-      redo: !snapshot.__meta.undoSnapshot
-        ? snapshot.practice.redo
+      redo: !snapshot.__meta.isUndoRedo
+        ? deepCopy(snapshot.practice.redo)
         : this.practice.redo,
-      undo: !snapshot.__meta.undoSnapshot
-        ? snapshot.practice.undo
+      undo: !snapshot.__meta.isUndoRedo
+        ? deepCopy(snapshot.practice.undo)
         : this.practice.undo
     };
   }
@@ -1154,7 +1155,7 @@ export class Engine {
   #undoPieceSpawnHandler({ isHold }: Events["falling.new"]) {
     if (isHold) return;
 
-    this.practice.lastPiece = this.snapshot({ undoSnapshot: true });
+    this.practice.lastPiece = this.snapshot({ isUndoRedo: true });
   }
 
   #undoPieceLockHandler() {
