@@ -2,7 +2,7 @@ import type { Game as GameTypes } from "../..";
 
 export interface Game {
   "game.ready": GameTypes.Ready;
-  "game.abort": void;
+  "game.abort": null | undefined;
   "game.match": {
     gamemode: GameTypes.GameMode;
     modename: string;
