@@ -126,8 +126,7 @@ export const amber = async (
     }
   }
 
-	/* @vite-ignore */
-  const { Codec } = await import(target);
+  const { Codec } = await import(/* @vite-ignore */ target);
 
   Amber = Codec;
 
