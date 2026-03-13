@@ -3,7 +3,6 @@ export {
   type ClientSnapshot,
   type ClientUser,
   type GameOptions,
-  Hook
 } from "./client";
 export * from "./game";
 export * from "./ribbon";

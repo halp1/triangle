@@ -1,6 +1,5 @@
-import { Hook } from "../classes/client/hook";
 import type { Game } from "../types/game";
-import { EventEmitter } from "../utils/events";
+import { EventEmitter, Hook } from "../utils/events";
 import {
   Board,
   BoardConnections,
@@ -353,9 +352,9 @@ export class Engine {
     if (this.misc.allowed.undo) {
       this.#undoHook.on(
         "falling.lock.pre",
-        this.#undoPieceLockHandler.bind(this)
+        this.undoPieceLockHandler.bind(this)
       );
-      this.#undoHook.on("falling.new", this.#undoPieceSpawnHandler.bind(this));
+      this.#undoHook.on("falling.new", this.undoPieceSpawnHandler.bind(this));
     }
 
     this.nextPiece();
@@ -1152,13 +1151,13 @@ export class Engine {
     return res;
   }
 
-  #undoPieceSpawnHandler({ isHold }: Events["falling.new"]) {
+  undoPieceSpawnHandler({ isHold }: { isHold: boolean }) {
     if (isHold) return;
 
     this.practice.lastPiece = this.snapshot({ isUndoRedo: true });
   }
 
-  #undoPieceLockHandler() {
+  undoPieceLockHandler() {
     this.practice.undo.push(this.practice.lastPiece!);
 
     if (this.practice.undo.length > 100) this.practice.undo.shift();
@@ -1200,7 +1199,7 @@ export class Engine {
   }
 
   retry() {
-    if (this.misc.allowed.undo) this.#undoPieceLockHandler();
+    if (this.misc.allowed.undo) this.undoPieceLockHandler();
 
     this.practice.retry = false;
     this.practice.retryIter = 0;
