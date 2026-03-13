@@ -10,11 +10,10 @@ import {
 } from "../../engine";
 import { constants } from "../../engine/constants";
 import type { Game as GameTypes } from "../../types";
+import { Logger } from "../../utils";
 import { Client } from "../client";
 import { Player, type SpectatingStrategy } from "./player";
 import { Self } from "./self";
-
-import chalk from "chalk";
 
 export const moveElementToFirst = <T>(arr: T[], n: number) => [
   arr[n],
@@ -23,6 +22,8 @@ export const moveElementToFirst = <T>(arr: T[], n: number) => [
 ];
 
 export class Game {
+  static #logger = new Logger("Triangle.js");
+
   #client: Client;
   #strategy: SpectatingStrategy;
   #spectatingTimeout: NodeJS.Timeout | null = null;
@@ -57,25 +58,6 @@ export class Game {
     this.rawPlayers = players;
 
     this.#init();
-  }
-
-  /**
-   * @internal
-   * For internal use only.
-   */
-  static log(
-    msg: string,
-    { level = "info" }: { level: "info" | "warning" | "error" } = {
-      level: "info"
-    }
-  ) {
-    const func =
-      level === "info"
-        ? chalk.blue
-        : level === "warning"
-          ? chalk.yellow
-          : chalk.red;
-    console.log(`${func("[Triangle.JS]")}: ${msg}`);
   }
 
   /**
@@ -124,7 +106,7 @@ export class Game {
 
     if (performance.now() - tickStart > 1000 / Game.fps - 1) {
       if (this.#spectateWarningCounter++ === 5) {
-        Game.log(
+        Game.#logger.warn(
           "Spectating is falling behind! You are spectating too many players. Consider reducing the number of players you are spectating to improve performance."
         );
       }
@@ -415,7 +397,7 @@ export class Game {
     };
     return {
       __meta: {
-        undoSnapshot: undoRedoState
+        isUndoRedo: undoRedoState
       },
       // TODO: actual connected board
       board: state.board.toReversed().map((row) =>

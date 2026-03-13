@@ -3,7 +3,7 @@ export const splice = (input: string) => {
     input.indexOf("this.self.iom.SetScoped(!0))}}") +
     "this.self.iom.SetScoped(!0))}}".length;
 
-  const end = input.search(/class\s[a-z]{2}{/);
+  const end = input.search(/class\s[a-z]{2}{static _CACHE_MAXSIZE/);
 
   const content = input.slice(start, end);
 

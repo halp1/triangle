@@ -2,120 +2,12 @@ import { Engine } from "../src/engine";
 import type { EngineInitializeParams } from "../src/engine";
 import type * as Types from "../src/types";
 import type { Replay } from "../src/types";
+import { Logger } from "../src/utils";
 
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { expect, test } from "bun:test";
-import chalk from "chalk";
-
-namespace _console {
-  const _logger = (() => {
-    let lastProgress = false;
-    return (name: string) => {
-      const log = (
-        level: "info" | "warning" | "error" | "success" | "progress",
-        name: string,
-        newline: boolean = true,
-        ...messages: any[]
-      ) => {
-        const func =
-          level === "info"
-            ? chalk.blue
-            : level === "warning"
-              ? chalk.yellow
-              : level === "success"
-                ? chalk.greenBright
-                : level === "progress"
-                  ? chalk.magenta
-                  : chalk.red;
-
-        const output = `${func(`[${name}]`)} ${messages
-          .map((m) => (typeof m === "string" ? m : JSON.stringify(m)))
-          .join(" ")}`;
-
-        if (newline) {
-          console.log(`${lastProgress ? "\n" : ""}${output}`);
-          lastProgress = false;
-        } else {
-          process.stdout.write(`${lastProgress ? "\r" : ""}${output}`);
-          lastProgress = true;
-        }
-      };
-
-      return {
-        log: (...messages: any[]) => log("info", name, true, ...messages),
-        warn: (...messages: any[]) => log("warning", name, true, ...messages),
-        error: (...messages: any[]) => log("error", name, true, ...messages),
-        success: (...messages: any[]) =>
-          log("success", name, true, ...messages),
-        info: (...messages: any[]) => log("info", name, true, ...messages),
-
-        progress: (message: string, progress: number) => {
-          const cols = process.stdout.columns || 80;
-          const namePlain = `[${name}]`;
-          const prefixPlain = `${namePlain} ${message}`;
-          const contentPlain =
-            prefixPlain.length >= cols
-              ? prefixPlain.slice(0, cols)
-              : prefixPlain + " ".repeat(cols - prefixPlain.length);
-
-          const p = Math.max(0, Math.min(1, progress));
-          const filledLength = Math.round(p * cols);
-
-          const nameLen = namePlain.length + 0;
-          const nameFilledOverlap = Math.max(
-            0,
-            Math.min(filledLength, nameLen)
-          );
-          const nameEmptyOverlap = Math.max(0, nameLen - nameFilledOverlap);
-
-          const filledRaw = contentPlain.slice(0, filledLength);
-          const emptyRaw = contentPlain.slice(filledLength);
-
-          let filledRendered = "";
-          if (filledLength === 0) {
-            filledRendered = "";
-          } else {
-            if (nameFilledOverlap > 0) {
-              const namePart = filledRaw.slice(0, nameFilledOverlap);
-              const rest = filledRaw.slice(nameFilledOverlap);
-              filledRendered =
-                chalk.bgWhite.magenta(namePart) + chalk.bgWhite(rest);
-            } else {
-              filledRendered = chalk.bgWhite(filledRaw);
-            }
-          }
-
-          let emptyRendered = "";
-          if (emptyRaw.length === 0) {
-            emptyRendered = "";
-          } else {
-            if (nameEmptyOverlap > 0) {
-              const namePart = emptyRaw.slice(0, nameEmptyOverlap);
-              const rest = emptyRaw.slice(nameEmptyOverlap);
-              emptyRendered = chalk.magenta(namePart) + rest;
-            } else {
-              emptyRendered = emptyRaw;
-            }
-          }
-
-          process.stdout.write("\r" + filledRendered + emptyRendered);
-          lastProgress = true;
-        }
-      };
-    };
-  })();
-
-  export const logger = _logger;
-  const defaultLogger = _logger("Triangle.js");
-  export const log = defaultLogger.log;
-  export const warn = defaultLogger.warn;
-  export const error = defaultLogger.error;
-  export const success = defaultLogger.success;
-  export const info = defaultLogger.info;
-  export const progress = defaultLogger.progress;
-}
+const logger = new Logger("Triangle.js");
 
 export namespace tetrio {
   export namespace replays {
@@ -306,7 +198,11 @@ export namespace tester {
       type: "step",
       data: "Running replays..."
     });
-    for (let i = 0; i < files.length; i++) {
+
+		const length = Math.min(files.length, 100);
+    console.time("Run through 100 files");
+
+    for (let i = 0; i < length; i++) {
       const raw = {
         id: files[i].split("/").at(-1)?.split(".").at(0) ?? "<unknown>",
         replay: JSON.parse(await fs.readFile(files[i], "utf-8")) as {
@@ -331,11 +227,14 @@ export namespace tester {
           );
         }
       }
+
       onProgress({
         type: "progress",
-        data: (i + 1) / files.length
+        data: (i + 1) / length
       });
     }
+		
+    console.timeEnd("Run through 100 files");
 
     return true;
   };
@@ -343,38 +242,28 @@ export namespace tester {
 
 let currentLog: string;
 
-test(
-  "Replay test",
-  async () => {
-    const p = "./data/replays";
-    const files = await fs
-      .readdir(path.join(__dirname, p))
-      .then((r) => r.map((v) => path.join(__dirname, p, v)));
-    if (files.length === 0)
-      throw new Error(
-        "No replays found. Refer to the contributing section of the documentation for information on how to load and extract the Triangle.js replay set."
-      );
+const p = "../test/data/replays";
+const files = await fs
+  .readdir(path.join(__dirname, p))
+  .then((r) => r.map((v) => path.join(__dirname, p, v)));
+if (files.length === 0)
+  throw new Error(
+    "No replays found. Refer to the contributing section of the documentation for information on how to load and extract the Triangle.js replay set."
+  );
 
-    _console.info(`Testing against ${files.length} replays...`);
+logger.info(`Testing against ${files.length} replays...`);
 
-    const res = await tester.runFiles(files, (event) => {
-      if (event.type === "step") {
-        if (currentLog) {
-          _console.progress(currentLog, 1);
-          console.log();
-        }
-        currentLog = event.data;
-        _console.progress(currentLog, 0);
-      } else if (event.type === "progress") {
-        if (currentLog) _console.progress(currentLog, event.data);
-      } else if (event.type === "info") {
-        _console.info(event.message);
-      }
-    });
-
-    expect(res).toBeTrue();
-  },
-  {
-    timeout: 10 * 60 * 1000
+await tester.runFiles(files, (event) => {
+  if (event.type === "step") {
+    if (currentLog) {
+      logger.progress(currentLog, 1);
+      console.log();
+    }
+    currentLog = event.data;
+    logger.progress(currentLog, 0);
+  } else if (event.type === "progress") {
+    if (currentLog) logger.progress(currentLog, event.data);
+  } else if (event.type === "info") {
+    logger.info(event.message);
   }
-);
+});
