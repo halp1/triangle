@@ -2,8 +2,8 @@ import { Game } from ".";
 import type { Engine } from "../../engine";
 import type { Game as GameTypes } from "../../types";
 import type { Events } from "../../types";
+import type { Hook } from "../../utils";
 import type { Client } from "../client";
-import type { Hook } from "../client/hook";
 
 export enum SpectatingState {
   Inactive,
