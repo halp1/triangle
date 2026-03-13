@@ -8,12 +8,18 @@ export type KickTable = keyof typeof kicks;
 
 export const legal = (blocks: [number, number][], board: Tile[][]) => {
   if (board.length === 0) return false;
-  for (const block of blocks) {
-    if (block[0] < 0) return false;
-    if (block[0] >= board[0].length) return false;
-    if (block[1] < 0) return false;
-    if (block[1] >= board.length) return false;
-    if (board[block[1]][block[0]]) return false;
+  const boardWidth = board[0].length;
+  const boardHeight = board.length;
+
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+    const x = block[0];
+    const y = block[1];
+    if (x < 0) return false;
+    if (x >= boardWidth) return false;
+    if (y < 0) return false;
+    if (y >= boardHeight) return false;
+    if (board[y][x]) return false;
   }
 
   return true;
@@ -38,16 +44,17 @@ export const performKick = (
     }
   | boolean => {
   try {
-    if (
-      legal(
-        blocks.map((block) => [
-          pieceLocation[0] + block[0] - ao[0],
-          Math.floor(pieceLocation[1]) - block[1] - ao[1]
-        ]),
-        board
-      )
-    )
-      return true;
+    const floorPieceY = Math.floor(pieceLocation[1]);
+    const baseX = pieceLocation[0] - ao[0];
+    const baseY = floorPieceY - ao[1];
+
+    const initialBlocks: [number, number][] = new Array(blocks.length);
+    for (let i = 0; i < blocks.length; i++) {
+      const block = blocks[i];
+      initialBlocks[i] = [baseX + block[0], baseY - block[1]];
+    }
+
+    if (legal(initialBlocks, board)) return true;
 
     const kickID = `${startRotation}${endRotation}`;
     const table = kicks[kicktable];
@@ -63,6 +70,8 @@ export const performKick = (
             number
           ][]);
 
+    const testBlocks: [number, number][] = new Array(blocks.length);
+
     for (let i = 0; i < kickset.length; i++) {
       const [dx, dy] = kickset[i];
 
@@ -70,15 +79,15 @@ export const performKick = (
         ? pieceLocation[1] - dy - ao[1]
         : Math.ceil(pieceLocation[1]) - 0.1 - dy - ao[1];
 
-      if (
-        legal(
-          blocks.map((block) => [
-            pieceLocation[0] + block[0] + dx - ao[0],
-            Math.floor(newY) - block[1]
-          ]),
-          board
-        )
-      ) {
+      const floorNewY = Math.floor(newY);
+      const movedBaseX = baseX + dx;
+
+      for (let j = 0; j < blocks.length; j++) {
+        const block = blocks[j];
+        testBlocks[j] = [movedBaseX + block[0], floorNewY - block[1]];
+      }
+
+      if (legal(testBlocks, board)) {
         return {
           newLocation: [pieceLocation[0] + dx - ao[0], newY],
           kick: [dx, -dy],

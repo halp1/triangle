@@ -2,12 +2,10 @@ import { Engine } from "../src/engine";
 import type { EngineInitializeParams } from "../src/engine";
 import type * as Types from "../src/types";
 import type { Replay } from "../src/types";
+import { Logger } from "../src/utils";
 
 import fs from "node:fs/promises";
 import path from "node:path";
-
-import { expect, test } from "bun:test";
-import { Logger } from "../src/utils";
 
 const logger = new Logger("Triangle.js");
 
@@ -200,7 +198,11 @@ export namespace tester {
       type: "step",
       data: "Running replays..."
     });
-    for (let i = 0; i < files.length; i++) {
+
+		const length = Math.min(files.length, 100);
+    console.time("Run through 100 files");
+
+    for (let i = 0; i < length; i++) {
       const raw = {
         id: files[i].split("/").at(-1)?.split(".").at(0) ?? "<unknown>",
         replay: JSON.parse(await fs.readFile(files[i], "utf-8")) as {
@@ -225,11 +227,14 @@ export namespace tester {
           );
         }
       }
+
       onProgress({
         type: "progress",
-        data: (i + 1) / files.length
+        data: (i + 1) / length
       });
     }
+		
+    console.timeEnd("Run through 100 files");
 
     return true;
   };
@@ -237,38 +242,28 @@ export namespace tester {
 
 let currentLog: string;
 
-test(
-  "Replay test",
-  async () => {
-    const p = "./data/replays";
-    const files = await fs
-      .readdir(path.join(__dirname, p))
-      .then((r) => r.map((v) => path.join(__dirname, p, v)));
-    if (files.length === 0)
-      throw new Error(
-        "No replays found. Refer to the contributing section of the documentation for information on how to load and extract the Triangle.js replay set."
-      );
+const p = "../test/data/replays";
+const files = await fs
+  .readdir(path.join(__dirname, p))
+  .then((r) => r.map((v) => path.join(__dirname, p, v)));
+if (files.length === 0)
+  throw new Error(
+    "No replays found. Refer to the contributing section of the documentation for information on how to load and extract the Triangle.js replay set."
+  );
 
-    logger.info(`Testing against ${files.length} replays...`);
+logger.info(`Testing against ${files.length} replays...`);
 
-    const res = await tester.runFiles(files, (event) => {
-      if (event.type === "step") {
-        if (currentLog) {
-          logger.progress(currentLog, 1);
-          console.log();
-        }
-        currentLog = event.data;
-        logger.progress(currentLog, 0);
-      } else if (event.type === "progress") {
-        if (currentLog) logger.progress(currentLog, event.data);
-      } else if (event.type === "info") {
-        logger.info(event.message);
-      }
-    });
-
-    expect(res).toBeTrue();
-  },
-  {
-    timeout: 10 * 60 * 1000
+await tester.runFiles(files, (event) => {
+  if (event.type === "step") {
+    if (currentLog) {
+      logger.progress(currentLog, 1);
+      console.log();
+    }
+    currentLog = event.data;
+    logger.progress(currentLog, 0);
+  } else if (event.type === "progress") {
+    if (currentLog) logger.progress(currentLog, event.data);
+  } else if (event.type === "info") {
+    logger.info(event.message);
   }
-);
+});

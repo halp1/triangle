@@ -113,7 +113,9 @@ export class GarbageQueue {
   }
 
   get size() {
-    return this.queue.reduce((a, b) => a + b.amount, 0);
+    let total = 0;
+    for (let i = 0; i < this.queue.length; i++) total += this.queue[i].amount;
+    return total;
   }
 
   resetReceivedCount() {
@@ -121,14 +123,25 @@ export class GarbageQueue {
   }
 
   receive(...args: IncomingGarbage[]) {
-    this.queue.push(...args.filter((arg) => arg.amount > 0));
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i];
+      if (arg.amount > 0) this.queue.push(arg);
+    }
 
-    while (this.size > this.options.cap.absolute) {
-      const total = this.size;
-      if (this.queue.at(-1)!.amount <= total - this.options.cap.absolute) {
+    const cap = this.options.cap.absolute;
+    let total = 0;
+    for (let i = 0; i < this.queue.length; i++) total += this.queue[i].amount;
+
+    while (total > cap) {
+      const excess = total - cap;
+      const lastIndex = this.queue.length - 1;
+      const last = this.queue[lastIndex];
+      if (last.amount <= excess) {
+        total -= last.amount;
         this.queue.pop();
       } else {
-        this.queue.at(-1)!.amount -= total - this.options.cap.absolute;
+        last.amount -= excess;
+        total -= excess;
       }
     }
   }
@@ -150,14 +163,18 @@ export class GarbageQueue {
       cancel = 0;
 
     const cancelled: IncomingGarbage[] = [];
+    let currentSize = 0;
+    for (let i = 0; i < this.queue.length; i++)
+      currentSize += this.queue[i].amount;
     if (
       pieceCount + 1 <=
         this.options.openerPhase - (legacy.openerPhase ? 1 : 0) &&
-      this.size >= this.sent
+      currentSize >= this.sent
     )
       cancel += amount;
-    while ((send > 0 || cancel > 0) && this.size > 0) {
+    while ((send > 0 || cancel > 0) && this.queue.length > 0) {
       this.queue[0].amount--;
+      currentSize--;
       if (
         cancelled.length === 0 ||
         cancelled[cancelled.length - 1].cid !== this.queue[0].cid

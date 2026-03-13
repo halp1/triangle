@@ -363,7 +363,19 @@ export class Engine {
   }
 
   #flushRes() {
-    const res = this.resCache ? deepCopy(this.resCache) : null;
+    let res = null;
+    if (this.resCache) {
+      res = {
+        pieces: this.resCache.pieces,
+        garbage: {
+          sent: [...this.resCache.garbage.sent],
+          received: [...this.resCache.garbage.received]
+        },
+        keys: [...this.resCache.keys],
+        lastLock: this.resCache.lastLock
+      };
+    }
+
     this.resCache = {
       pieces: 0,
       garbage: {
@@ -497,9 +509,11 @@ export class Engine {
       )
     };
 
-    for (let i = 0; i < this.frame; i++)
-      for (const key of Object.keys(this.dynamic))
-        this.dynamic[key as keyof typeof this.dynamic].tick();
+    for (let i = 0; i < this.frame; i++) {
+      this.dynamic.gravity.tick();
+      this.dynamic.garbageMultiplier.tick();
+      this.dynamic.garbageCap.tick();
+    }
 
     if (!snapshot.__meta.isUndoRedo) {
       this.input = deepCopy(snapshot.input);
@@ -1234,10 +1248,19 @@ export class Engine {
   }
 
   #maxSpin(...spins: SpinType[]) {
-    const score = (spin: SpinType) => ["none", "mini", "normal"].indexOf(spin);
-    return spins.reduce((a, b) => {
-      return score(a) > score(b) ? a : b;
-    });
+    let best = spins[0];
+    let bestScore = best === "normal" ? 2 : best === "mini" ? 1 : 0;
+
+    for (let i = 1; i < spins.length; i++) {
+      const spin = spins[i];
+      const score = spin === "normal" ? 2 : spin === "mini" ? 1 : 0;
+      if (score >= bestScore) {
+        best = spin;
+        bestScore = score;
+      }
+    }
+
+    return best;
   }
 
   #detectSpin(finOrTst: boolean): SpinType {
@@ -1304,16 +1327,17 @@ export class Engine {
   }
 
   #detectSpinFromCorners(finOrTst: boolean): SpinType {
-    if (
-      legal(
-        this.falling.blocks.map((block) => [
-          block[0] + this.falling.location[0],
-          -block[1] + this.falling.y - 1
-        ]),
-        this.board.state
-      )
-    )
-      return "none";
+    const blocks = this.falling.blocks;
+    const absolute: [number, number][] = new Array(blocks.length);
+    for (let i = 0; i < blocks.length; i++) {
+      const block = blocks[i];
+      absolute[i] = [
+        block[0] + this.falling.location[0],
+        -block[1] + this.falling.y - 1
+      ];
+    }
+
+    if (legal(absolute, this.board.state)) return "none";
 
     let corners = 0;
     let frontCorners = 0;
@@ -1363,29 +1387,34 @@ export class Engine {
 
     // TODO: ARE (line clear, garbage)
 
-    const placed = this.falling.blocks.map(
-      (block) =>
-        [
-          this.falling.symbol,
-          this.falling.location[0] + block[0],
-          this.falling.y - block[1]
-        ] as [Mino, number, number]
-    );
+    const blocks = this.falling.blocks;
+    const placed: [Mino, number, number][] = new Array(blocks.length);
+    const placedPos: [number, number][] = new Array(blocks.length);
+    const connectInput: [number, number][] = new Array(blocks.length);
 
-    this.board.add(
-      ...this.connect(placed.map(([_, x, y]) => [x, -y])).map(
-        ([x, y, s]) =>
-          [{ mino: this.falling.symbol, connections: s }, x, -y] as [
-            { mino: Mino; connections: number },
-            number,
-            number
-          ]
-      )
-    );
+    for (let i = 0; i < blocks.length; i++) {
+      const block = blocks[i];
+      const x = this.falling.location[0] + block[0];
+      const y = this.falling.y - block[1];
+      placed[i] = [this.falling.symbol, x, y];
+      placedPos[i] = [x, y];
+      connectInput[i] = [x, -y];
+    }
 
-    const { lines, garbageCleared } = this.board.clearBombsAndLines(
-      placed.map((b) => [b[1], b[2]])
-    );
+    const connected = this.connect(connectInput);
+    const boardAddParams = new Array(connected.length);
+    for (let i = 0; i < connected.length; i++) {
+      const c = connected[i];
+      boardAddParams[i] = [
+        { mino: this.falling.symbol, connections: c[2] },
+        c[0],
+        -c[1]
+      ];
+    }
+
+    this.board.add(...boardAddParams);
+
+    const { lines, garbageCleared } = this.board.clearBombsAndLines(placedPos);
     const pc = this.board.perfectClear;
 
     this.stats.garbage.cleared += garbageCleared;
@@ -1472,13 +1501,19 @@ export class Engine {
       );
     }
 
+    const filteredGarbage: number[] = [];
+    for (let i = 0; i < gEvents.length; i++) {
+      const g = gEvents[i];
+      if (g > 0) filteredGarbage.push(g);
+    }
+
     const res: LockRes = {
       mino: this.falling.symbol,
       garbageCleared,
       lines,
       spin: this.lastSpin ? this.lastSpin : "none",
-      garbage: gEvents.filter((g) => g > 0),
-      rawGarbage: gEvents.filter((g) => g > 0),
+      garbage: filteredGarbage,
+      rawGarbage: [...filteredGarbage],
       surge: surged,
       stats: this.stats,
       garbageAdded: false,
@@ -1506,13 +1541,14 @@ export class Engine {
             openerPhase: (this.misc.date ?? new Date()) < new Date(2025, 1, 16)
           }
         );
-        cancelEvents.push(
-          ...cancelled.map((c) => ({
+        for (let i = 0; i < cancelled.length; i++) {
+          const c = cancelled[i];
+          cancelEvents.push({
             iid: c.cid,
             amount: c.amount,
             size: c.size
-          }))
-        );
+          });
+        }
 
         if (r === 0) res.garbage.shift();
         else {
@@ -1521,9 +1557,9 @@ export class Engine {
         }
       }
 
-      cancelEvents.forEach((event) => {
-        this.events.emit("garbage.cancel", event);
-      });
+      for (let i = 0; i < cancelEvents.length; i++) {
+        this.events.emit("garbage.cancel", cancelEvents[i]);
+      }
     } else {
       this.lastWasClear = false;
       const garbages = this.garbageQueue.tank(
@@ -1535,7 +1571,8 @@ export class Engine {
 
       if (res.garbageAdded) {
         const tankEvent: Events["garbage.tank"][] = [];
-        garbages.forEach((garbage, idx) => {
+        for (let idx = 0; idx < garbages.length; idx++) {
+          const garbage = garbages[idx];
           this.board.insertGarbage({
             ...garbage,
             bombs: this.garbageQueue.options.bombs,
@@ -1557,11 +1594,11 @@ export class Engine {
           } else {
             tankEvent[tankEvent.length - 1].amount += garbage.amount;
           }
-        });
+        }
 
-        tankEvent.forEach((event) => {
-          this.events.emit("garbage.tank", event);
-        });
+        for (let i = 0; i < tankEvent.length; i++) {
+          this.events.emit("garbage.tank", tankEvent[i]);
+        }
       }
     }
 
@@ -1578,15 +1615,22 @@ export class Engine {
       res.topout = true;
     }
 
-    if (res.garbage.length > 0)
-      if (this.multiplayer)
-        this.multiplayer.targets.forEach((target) =>
-          res.garbage.forEach((g) =>
-            this.igeHandler.send({ amount: g, playerID: target })
-          )
-        );
+    if (res.garbage.length > 0) {
+      if (this.multiplayer) {
+        for (let i = 0; i < this.multiplayer.targets.length; i++) {
+          const target = this.multiplayer.targets[i];
+          for (let j = 0; j < res.garbage.length; j++) {
+            this.igeHandler.send({ amount: res.garbage[j], playerID: target });
+          }
+        }
+      }
+    }
 
-    const sent = res.garbage.reduce((a, b) => a + b, 0);
+    let sent = 0;
+    for (let i = 0; i < res.garbage.length; i++) {
+      sent += res.garbage[i];
+    }
+
     this.stats.garbage.sent += sent;
 
     if (sent > 0) {
@@ -1868,8 +1912,8 @@ export class Engine {
   }
 
   #processAllShift(subFrameDiff = 1 - this.subframe) {
-    for (const shift of ["lShift", "rShift"] as const)
-      this.#processShift(shift, subFrameDiff);
+    this.#processShift("lShift", subFrameDiff);
+    this.#processShift("rShift", subFrameDiff);
   }
 
   #tickSpike() {
@@ -1879,8 +1923,9 @@ export class Engine {
     }
   }
 
-  #run(...frames: Game.Replay.Frame[]) {
-    frames.forEach((frame) => {
+  #run(frames: Game.Replay.Frame[]) {
+    for (let i = 0; i < frames.length; i++) {
+      const frame = frames[i];
       switch (frame.type) {
         case "keydown":
           this.#keydown(frame);
@@ -1936,13 +1981,13 @@ export class Engine {
           }
           break;
       }
-    });
+    }
   }
 
   tick(frames: Game.Replay.Frame[]) {
     this.subframe = 0;
 
-    this.#run(...frames);
+    if (frames.length > 0) this.#run(frames);
 
     this.frame++;
     this.#processAllShift();
@@ -1953,11 +1998,11 @@ export class Engine {
 
     this.#tickSpike();
 
-    Object.keys(this.dynamic).forEach((key) =>
-      this.dynamic[key as keyof typeof this.dynamic].tick()
-    );
+    this.dynamic.gravity.tick();
+    this.dynamic.garbageMultiplier.tick();
+    this.dynamic.garbageCap.tick();
 
-    return { ...this.#flushRes() };
+    return this.#flushRes();
   }
 
   receiveGarbage(...garbage: IncomingGarbage[]) {
@@ -1969,10 +2014,18 @@ export class Engine {
   }
 
   connect(blocks: [x: number, y: number][]) {
-    const exists = (x: number, y: number) =>
-      !!blocks.find(([a, b]) => a === x && y === b);
+    const exists = (x: number, y: number) => {
+      for (let i = 0; i < blocks.length; i++) {
+        const block = blocks[i];
+        if (block[0] === x && block[1] === y) return true;
+      }
+      return false;
+    };
 
-    return blocks.map(([x, y]) => {
+    const out = new Array(blocks.length);
+    for (let i = 0; i < blocks.length; i++) {
+      const x = blocks[i][0];
+      const y = blocks[i][1];
       let state = 0;
       if (!exists(x, y - 1)) state |= BoardConnections.TOP;
       if (!exists(x + 1, y)) state |= BoardConnections.RIGHT;
@@ -2003,8 +2056,10 @@ export class Engine {
         state |= BoardConnections.CORNER;
       }
 
-      return [x, y, state] as const;
-    });
+      out[i] = [x, y, state] as const;
+    }
+
+    return out;
   }
 
   getConnectedPreview(piece: Mino) {
