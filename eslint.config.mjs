@@ -64,7 +64,7 @@ export default tseslint.config(
       "docs/**",
       "test/data/**",
       "src/utils/typia/functional/**",
-			"src/classes/ribbon/amber/**"
+      "src/classes/ribbon/amber/**"
     ]
   }
 );

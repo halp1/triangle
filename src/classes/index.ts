@@ -2,7 +2,7 @@ export {
   type ClientOptions,
   type ClientSnapshot,
   type ClientUser,
-  type GameOptions,
+  type GameOptions
 } from "./client";
 export * from "./game";
 export * from "./ribbon";

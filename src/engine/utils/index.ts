@@ -21,7 +21,7 @@ export function deepCopy<T>(obj: T, handlers?: readonly Handler<any>[]): T {
     return obj;
   }
 
-	// structured clone is actually slow
+  // structured clone is actually slow
   // if (handlers === undefined) {
   // 	return structuredClone(obj);
   // }
