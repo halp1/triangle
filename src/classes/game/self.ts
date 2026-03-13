@@ -2,9 +2,8 @@ import { Game, moveElementToFirst } from ".";
 import type { Engine } from "../../engine";
 import type { Game as GameTypes } from "../../types";
 import type { Events } from "../../types";
-import { Logger, type BotWrapper } from "../../utils";
+import { type BotWrapper, type Hook, Logger } from "../../utils";
 import type { Client } from "../client";
-import type { Hook } from "../client/hook";
 import { getFullFrame } from "./utils";
 
 export class Self {

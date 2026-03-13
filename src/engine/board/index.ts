@@ -31,9 +31,12 @@ export class Board {
     this.#width = options.width;
     this.#height = options.height;
     this.#buffer = options.buffer;
-    this.state = Array(this.fullHeight)
-      .fill(null)
-      .map(() => Array(this.width).fill(null));
+    const fullHeight = this.fullHeight;
+    const width = this.width;
+    this.state = new Array(fullHeight);
+    for (let y = 0; y < fullHeight; y++) {
+      this.state[y] = new Array(width).fill(null);
+    }
   }
 
   get height(): number {
@@ -75,76 +78,107 @@ export class Board {
   }
 
   add(...blocks: [Tile, number, number][]) {
-    blocks.forEach(([item, x, y]) => {
-      if (y < 0 || y >= this.fullHeight || x < 0 || x >= this.width) return;
+    for (let i = 0; i < blocks.length; i++) {
+      const [item, x, y] = blocks[i];
+      if (y < 0 || y >= this.fullHeight || x < 0 || x >= this.width) continue;
       this.state[y][x] = item;
-    });
+    }
   }
 
   clearLines() {
     let garbageCleared = 0;
     const lines: number[] = [];
-    this.state.forEach((row, idx) => {
-      if (row.every((block) => block !== null && block.mino !== Mino.BOMB)) {
+    const fullHeight = this.fullHeight;
+    const width = this.width;
+
+    for (let idx = 0; idx < fullHeight; idx++) {
+      const row = this.state[idx];
+
+      let isFullLine = true;
+      let hasGarbage = false;
+      for (let x = 0; x < width; x++) {
+        const block = row[x];
+        if (block === null || block.mino === Mino.BOMB) {
+          isFullLine = false;
+          break;
+        }
+        if (block.mino === Mino.GARBAGE) hasGarbage = true;
+      }
+
+      if (isFullLine) {
         lines.push(idx);
         if (idx > 0) {
-          this.state[idx - 1].forEach((block) => {
+          const rowAbove = this.state[idx - 1];
+          for (let x = 0; x < width; x++) {
+            const block = rowAbove[x];
             if (block) {
               block.connections |= 0b1000;
               if (block.connections & 0b0010) block.connections &= 0b0_1111;
             }
-          });
+          }
         }
-        if (idx < this.fullHeight - 1) {
-          this.state[idx + 1].forEach((block) => {
+        if (idx < fullHeight - 1) {
+          const rowBelow = this.state[idx + 1];
+          for (let x = 0; x < width; x++) {
+            const block = rowBelow[x];
             if (block) {
               block.connections |= 0b0010;
               if (block.connections & 0b1000) block.connections &= 0b0_1111;
             }
-          });
+          }
         }
-        if (row.some((block) => block?.mino === Mino.GARBAGE)) garbageCleared++;
+        if (hasGarbage) garbageCleared++;
       }
-    });
+    }
 
-    [...lines].reverse().forEach((line) => {
+    for (let i = lines.length - 1; i >= 0; i--) {
+      const line = lines[i];
       this.state.splice(line, 1);
       this.state.push(new Array(this.width).fill(null));
-    });
+    }
     return { lines: lines.length, garbageCleared };
   }
 
   clearBombs(placedBlocks: [number, number][]) {
-    let lowestY = placedBlocks.reduce(
-      (acc, [_, y]) => Math.min(acc, y),
-      this.fullHeight
-    );
+    let lowestY = this.fullHeight;
+    for (let i = 0; i < placedBlocks.length; i++) {
+      const y = placedBlocks[i][1];
+      if (y < lowestY) lowestY = y;
+    }
     if (lowestY === 0) return { lines: 0, garbageCleared: 0 };
 
-    const lowestBlocks = placedBlocks.filter(([_, y]) => y === lowestY);
-
-    const bombColumns = lowestBlocks
-      .filter(([x, y]) => this.state[y - 1][x]?.mino === Mino.BOMB)
-      .map(([x, _]) => x);
+    const bombColumns: number[] = [];
+    for (let i = 0; i < placedBlocks.length; i++) {
+      const [x, y] = placedBlocks[i];
+      if (y === lowestY && this.state[y - 1][x]?.mino === Mino.BOMB) {
+        bombColumns.push(x);
+      }
+    }
     if (bombColumns.length === 0) return { lines: 0, garbageCleared: 0 };
 
     const lines: number[] = [];
 
-    while (
-      lowestY > 0 &&
-      bombColumns.some(
-        (col) => this.state[lowestY - 1][col]?.mino === Mino.BOMB
-      )
-    ) {
+    while (lowestY > 0) {
+      let hasBomb = false;
+      for (let i = 0; i < bombColumns.length; i++) {
+        const col = bombColumns[i];
+        if (this.state[lowestY - 1][col]?.mino === Mino.BOMB) {
+          hasBomb = true;
+          break;
+        }
+      }
+
+      if (!hasBomb) break;
       lines.push(--lowestY);
     }
 
     if (lines.length === 0) return { lines: 0, garbageCleared: 0 };
 
-    lines.forEach((line) => {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
       this.state.splice(line, 1);
       this.state.push(new Array(this.width).fill(null));
-    });
+    }
 
     return { lines: lines.length, garbageCleared: lines.length };
   }
@@ -177,41 +211,39 @@ export class Board {
     isBeginning: boolean;
     isEnd: boolean;
   }) {
-    this.state.splice(
-      0,
-      0,
-      ...Array.from({ length: amount }, (_, y) =>
-        Array.from({ length: this.width }, (_, x) =>
-          x >= column && x < column + size
-            ? bombs
-              ? { mino: Mino.BOMB, connections: 0 }
-              : null
-            : {
-                mino: Mino.GARBAGE,
-                connections: (() => {
-                  let connection = 0;
+    const width = this.width;
+    const rows = new Array(amount);
+    for (let y = 0; y < amount; y++) {
+      const row = new Array(width);
+      for (let x = 0; x < width; x++) {
+        if (x >= column && x < column + size) {
+          row[x] = bombs ? { mino: Mino.BOMB, connections: 0 } : null;
+        } else {
+          let connection = 0;
+          if (isEnd && y === 0) connection |= 0b0010;
+          if (isBeginning && y === amount - 1) connection |= 0b1000;
+          if (x === 0) connection |= 0b0001;
+          if (x === width - 1) connection |= 0b0100;
+          if (x === column - 1) connection |= 0b0100;
+          if (x === column + size) connection |= 0b0001;
+          row[x] = { mino: Mino.GARBAGE, connections: connection };
+        }
+      }
+      rows[y] = row;
+    }
 
-                  if (isEnd && y === 0) connection |= 0b0010;
-                  if (isBeginning && y === amount - 1) connection |= 0b1000;
-                  if (x === 0) connection |= 0b0001;
-                  if (x === this.width - 1) connection |= 0b0100;
-                  if (x === column - 1) connection |= 0b0100;
-                  if (x === column + size) connection |= 0b0001;
-
-                  return connection;
-                })()
-              }
-        )
-      )
-    );
+    this.state.splice(0, 0, ...rows);
 
     this.state.splice(this.fullHeight - amount - 1, amount);
   }
 
   reset() {
-    this.state = Array(this.fullHeight)
-      .fill(null)
-      .map(() => Array(this.width).fill(null));
+    const fullHeight = this.fullHeight;
+    const width = this.width;
+    this.state = new Array(fullHeight);
+    for (let y = 0; y < fullHeight; y++) {
+      this.state[y] = new Array(width).fill(null);
+    }
   }
 }
 

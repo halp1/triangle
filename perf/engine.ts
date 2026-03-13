@@ -7,6 +7,12 @@ import { Logger } from "../src/utils";
 import fs from "node:fs/promises";
 import path from "node:path";
 
+<<<<<<<< HEAD:perf/engine.ts
+========
+import { expect, test } from "bun:test";
+import { Logger } from "../src/utils";
+
+>>>>>>>> 16b8e608a524eeb541e52ccdd74c38f3c62bc267:test/engine.test.ts
 const logger = new Logger("Triangle.js");
 
 export namespace tetrio {
@@ -251,6 +257,7 @@ if (files.length === 0)
     "No replays found. Refer to the contributing section of the documentation for information on how to load and extract the Triangle.js replay set."
   );
 
+<<<<<<<< HEAD:perf/engine.ts
 logger.info(`Testing against ${files.length} replays...`);
 
 await tester.runFiles(files, (event) => {
@@ -265,5 +272,28 @@ await tester.runFiles(files, (event) => {
     if (currentLog) logger.progress(currentLog, event.data);
   } else if (event.type === "info") {
     logger.info(event.message);
+========
+    logger.info(`Testing against ${files.length} replays...`);
+
+    const res = await tester.runFiles(files, (event) => {
+      if (event.type === "step") {
+        if (currentLog) {
+          logger.progress(currentLog, 1);
+          console.log();
+        }
+        currentLog = event.data;
+        logger.progress(currentLog, 0);
+      } else if (event.type === "progress") {
+        if (currentLog) logger.progress(currentLog, event.data);
+      } else if (event.type === "info") {
+        logger.info(event.message);
+      }
+    });
+
+    expect(res).toBeTrue();
+  },
+  {
+    timeout: 10 * 60 * 1000
+>>>>>>>> 16b8e608a524eeb541e52ccdd74c38f3c62bc267:test/engine.test.ts
   }
 });

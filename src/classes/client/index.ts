@@ -5,7 +5,6 @@ import { Game, type SpectatingStrategy } from "../game";
 import { Ribbon } from "../ribbon";
 import { Room } from "../room";
 import { Social } from "../social";
-import { Hook } from "./hook";
 import type { ClientOptions, ClientUser, GameOptions } from "./types";
 
 export type * from "./types";
@@ -293,7 +292,7 @@ export class Client {
   }
 
   hook() {
-    return new Hook(this.ribbon.emitter);
+    return this.ribbon.emitter.hook();
   }
 
   /** @hidden */
@@ -430,5 +429,3 @@ export class Client {
     if (this.game) delete this.game;
   }
 }
-
-export * from "./hook";

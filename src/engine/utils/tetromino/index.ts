@@ -50,6 +50,18 @@ export class Tetromino {
   aoy: number;
   keys: number;
 
+  #legalAt(board: Tile[][], x: number, y: number) {
+    const blocks = this.blocks;
+    const abs: [number, number][] = new Array(blocks.length);
+
+    for (let i = 0; i < blocks.length; i++) {
+      const block = blocks[i];
+      abs[i] = [block[0] + x, -block[1] + y];
+    }
+
+    return legal(abs, board);
+  }
+
   constructor(options: TetrominoInitializeParams) {
     this.rotation = options.initialRotation;
     this.symbol = options.symbol;
@@ -82,10 +94,17 @@ export class Tetromino {
   }
 
   get absoluteBlocks() {
-    return this.blocks.map((block): [number, number] => [
-      block[0] + this.location[0],
-      -block[1] + this.y
-    ]);
+    const blocks = this.blocks;
+    const abs: [number, number][] = new Array(blocks.length);
+    const x = this.location[0];
+    const y = this.y;
+
+    for (let i = 0; i < blocks.length; i++) {
+      const block = blocks[i];
+      abs[i] = [block[0] + x, -block[1] + y];
+    }
+
+    return abs;
   }
 
   absoluteAt({
@@ -97,17 +116,18 @@ export class Tetromino {
     y?: number;
     rotation?: number;
   }) {
-    const currentState = [this.location[0], this.location[1], this.rotation];
+    const normalizedRotation = ((((rotation as number) % 4) + 4) %
+      4) as Rotation;
+    const state = this.states[normalizedRotation];
+    const abs: [number, number][] = new Array(state.length);
+    const yFloor = Math.floor(y);
 
-    this.location = [x, y];
-    this.rotation = rotation;
+    for (let i = 0; i < state.length; i++) {
+      const block = state[i];
+      abs[i] = [block[0] + x, -block[1] + yFloor];
+    }
 
-    const res = this.absoluteBlocks;
-
-    this.location = [currentState[0], currentState[1]];
-    this.rotation = currentState[2];
-
-    return res;
+    return abs;
   }
 
   get rotation(): Rotation {
@@ -135,45 +155,15 @@ export class Tetromino {
   }
 
   isStupidSpinPosition(board: Tile[][]) {
-    return !legal(
-      this.blocks.map((block) => [
-        block[0] + this.location[0],
-        -block[1] + this.y - 1
-      ]),
-      board
-    );
+    return !this.#legalAt(board, this.location[0], this.y - 1);
   }
 
   isAllSpinPosition(board: Tile[][]) {
     return (
-      !legal(
-        this.blocks.map((block) => [
-          block[0] + this.location[0] - 1,
-          -block[1] + this.y
-        ]),
-        board
-      ) &&
-      !legal(
-        this.blocks.map((block) => [
-          block[0] + this.location[0] + 1,
-          -block[1] + this.y
-        ]),
-        board
-      ) &&
-      !legal(
-        this.blocks.map((block) => [
-          block[0] + this.location[0],
-          -block[1] + this.y + 1
-        ]),
-        board
-      ) &&
-      !legal(
-        this.blocks.map((block) => [
-          block[0] + this.location[0],
-          -block[1] + this.y - 1
-        ]),
-        board
-      )
+      !this.#legalAt(board, this.location[0] - 1, this.y) &&
+      !this.#legalAt(board, this.location[0] + 1, this.y) &&
+      !this.#legalAt(board, this.location[0], this.y + 1) &&
+      !this.#legalAt(board, this.location[0], this.y - 1)
     );
   }
 
@@ -209,30 +199,14 @@ export class Tetromino {
   }
 
   moveRight(board: Tile[][]) {
-    if (
-      legal(
-        this.blocks.map((block) => [
-          block[0] + this.location[0] + 1,
-          -block[1] + this.y
-        ]),
-        board
-      )
-    ) {
+    if (this.#legalAt(board, this.location[0] + 1, this.y)) {
       this.location[0]++;
       return true;
     }
     return false;
   }
   moveLeft(board: Tile[][]) {
-    if (
-      legal(
-        this.blocks.map((block) => [
-          block[0] + this.location[0] - 1,
-          -block[1] + this.y
-        ]),
-        board
-      )
-    ) {
+    if (this.#legalAt(board, this.location[0] - 1, this.y)) {
       this.location[0]--;
       return true;
     }
@@ -262,15 +236,7 @@ export class Tetromino {
 
   softDrop(board: Tile[][]) {
     const start = this.location[1];
-    while (
-      legal(
-        this.blocks.map((block) => [
-          block[0] + this.location[0],
-          -block[1] + this.y - 1
-        ]),
-        board
-      )
-    ) {
+    while (this.#legalAt(board, this.location[0], this.y - 1)) {
       this.location[1]--;
     }
 
