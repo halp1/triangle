@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+		"rootDir": "./src",
+		"types": ["node", "bun"],
     "outDir": "dist",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,

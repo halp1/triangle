@@ -393,7 +393,7 @@ export class Game {
         lastGenerated: state.lastGenerated,
         rng: state.rng
       },
-      value: [...state.bag]
+      value: [...(state.bag || [])]
     };
     return {
       __meta: {
