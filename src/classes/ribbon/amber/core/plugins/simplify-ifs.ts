@@ -5,6 +5,37 @@ import * as walk from "acorn-walk";
 export const simplifyIfStatements = (): Plugin => ({
   name: "Simplify If Statements",
   apply({ ast }) {
+		// safety measure: wrap if statements in blocks so we can safely modify them without worrying about scope issues
+    walk.simple(ast as any, {
+      IfStatement(node) {
+        if (node.consequent.type !== "BlockStatement") {
+          Object.assign(node, {
+            type: "IfStatement",
+            test: node.test,
+            consequent: {
+              type: "BlockStatement",
+              body: [node.consequent],
+              start: 0,
+              end: 0,
+            },
+            alternate:
+              node.alternate && node.alternate.type === "BlockStatement"
+                ? node.alternate
+                : node.alternate
+                  ? {
+                      type: "BlockStatement",
+                      body: [node.alternate],
+                      start: 0,
+                      end: 0,
+                    }
+                  : null,
+            start: 0,
+            end: 0,
+          });
+        }
+      },
+    });
+
     // match expressions that are x && something and replace it with an if
     let changed = false;
     do {
