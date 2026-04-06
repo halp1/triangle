@@ -1,13 +1,13 @@
 {
   "name": "@haelp/teto",
-  "version": "4.2.2",
+  "version": "4.2.3",
   "description": "A typescript-based controllable TETR.IO client.",
   "maintainers": [
     "haelp"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/halp1/triangle"
+    "url": "git+https://github.com/halp1/triangle.git"
   },
   "displayName": "Triangle.js",
   "private": false,

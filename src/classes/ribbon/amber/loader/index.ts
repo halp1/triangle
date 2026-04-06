@@ -10,6 +10,7 @@ import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 let Amber: Awaited<ReturnType<typeof amber>> | null = null;
 
@@ -126,7 +127,12 @@ export const amber = async (
     }
   }
 
-  const { Codec } = await import(/* @vite-ignore */ target);
+  const resolved = path.resolve(target);
+
+  const specifier =
+    typeof require === "undefined" ? pathToFileURL(resolved).href : resolved;
+
+  const { Codec } = await import(/* @vite-ignore */ specifier);
 
   Amber = Codec;
 

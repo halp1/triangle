@@ -340,7 +340,11 @@ export class Ribbon {
 
         socket.onerror = (error) => {
           this.#onError(
-            error instanceof Error ? error : error instanceof ErrorEvent ? error.error : new Error(String(error))
+            error instanceof Error
+              ? error
+              : error instanceof ErrorEvent
+                ? error.error
+                : new Error(String(error))
           );
         };
 

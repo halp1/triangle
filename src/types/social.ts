@@ -52,7 +52,7 @@ export namespace Social {
         role: User.Role;
         supporter: boolean;
         supporter_tier: number;
-        verified: boolean;
+        verified?: boolean;
       };
       system: boolean;
     };
