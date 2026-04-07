@@ -1,6 +1,6 @@
 {
   "name": "@haelp/teto",
-  "version": "4.2.4",
+  "version": "4.2.5",
   "description": "A typescript-based controllable TETR.IO client.",
   "maintainers": [
     "haelp"
@@ -63,6 +63,11 @@
       "types": "./dist/classes/index.d.ts",
       "import": "./dist/classes/index.mjs",
       "default": "./dist/classes/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/types/index.mjs",
+      "default": "./dist/types/index.js"
     }
   },
   "types": "dist/index.d.ts",
