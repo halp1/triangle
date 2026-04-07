@@ -93,7 +93,8 @@ export const simplifyIfStatements = (): Plugin => ({
             node.consequent.type === "BlockStatement" &&
             node.consequent.body.length === 1 &&
             node.consequent.body[0].type === "IfStatement" &&
-            !node.alternate
+            !node.alternate &&
+            !node.consequent.body?.[0]?.alternate
           ) {
             const innerIf = node.consequent.body[0];
             Object.assign(node, {

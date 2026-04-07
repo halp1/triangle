@@ -115,12 +115,12 @@ export const amber = async (
 
       if (!backup) {
         throw new Error(
-          'No backup codec found. Try temporarily switching your transport to "json":\nawait Client.create({ ribbon: { transport: "json" } })'
+          'No backup codec found. Try temporarily switching your transport to "json":\nawait Client.create({ ribbon: { transport: "json" } })\nThis issue will likely be resolved in a future update.'
         );
       }
 
       logger.warn(
-        `Using backup codec from version ${backup.split("-")[2]}. This may cause issues if the server update included codec changes.\nIf you encounter issues, try temporarily switching your transport to "json":\nawait Client.create({ ribbon: { transport: "json" } })`
+        `Using backup codec from version ${backup.split("-")[2]}. This may cause issues if the server update included codec changes.\nIf you encounter issues, try temporarily switching your transport to "json":\nawait Client.create({ ribbon: { transport: "json" } })\nThis issue will likely be resolved in a future update.`
       );
 
       target = path.join(triangleDir, backup);
@@ -131,12 +131,20 @@ export const amber = async (
 
   const specifier =
     typeof require === "undefined" ? pathToFileURL(resolved).href : resolved;
+  try {
+    const { Codec } = await import(/* @vite-ignore */ specifier);
 
-  const { Codec } = await import(/* @vite-ignore */ specifier);
+    Amber = Codec;
 
-  Amber = Codec;
-
-  // @ts-expect-error it thinks resolveInProgress is always null, but it's not (assigned in Promise constructor)
-  resolveInProgress?.();
-  return Amber!;
+    // @ts-expect-error it thinks resolveInProgress is always null, but it's not (assigned in Promise constructor)
+    resolveInProgress?.();
+    return Amber!;
+  } catch (e) {
+    logger.error(
+      `Failed to load codec from ${target}: ${(e as Error).message}`
+    );
+    throw new Error(
+      `Failed to load codec. Try temporarily switching your transport to "json":\nawait Client.create({ ribbon: { transport: "json" } }).\nThis issue will likely be resolved in a future update.`
+    );
+  }
 };
