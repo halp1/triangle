@@ -333,6 +333,10 @@ export class Social {
     userID: string,
     message: string
   ): Promise<SocialTypes.DM | Events.in.all["social.dm.fail"]> {
+    if (userID === this.#client.user.id) {
+      throw new Error("You can't DM yourself.");
+    }
+
     try {
       const res = await this.#client.wrap(
         "social.dm",
