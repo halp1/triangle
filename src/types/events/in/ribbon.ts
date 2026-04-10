@@ -42,9 +42,11 @@ export interface Ribbon {
   "server.migrated": Record<string, unknown>;
 
   "server.announcement": {
-    type: string;
+    // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
+    type: "maintenance" | String;
     msg: string;
     ts: number;
+    reason?: string;
   };
 
   "server.maintenance": Record<string, unknown>;
