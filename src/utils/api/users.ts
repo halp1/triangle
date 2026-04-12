@@ -75,7 +75,6 @@ export const users = (get: Get, post: Post, __: APIDefaults) => {
   /** Checks whethere a user exists */
   const exists = async (username: string): Promise<boolean> => {
     const res = await get<{ exists: boolean }>({
-      token: null,
       uri: `users/${username}/exists`
     });
     if (res.success === false) throw new Error(res.error.msg);
