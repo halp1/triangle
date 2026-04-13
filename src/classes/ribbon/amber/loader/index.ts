@@ -12,7 +12,7 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-let Amber: Awaited<ReturnType<typeof amber>> | null = null;
+let Amber: Codec | null = null;
 
 let inProgress: null | Promise<void> = null;
 

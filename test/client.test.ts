@@ -8,4 +8,6 @@ test("Client connect", async () => {
   });
 
   expect(client.user).toBeDefined();
+
+	await client.destroy();
 });

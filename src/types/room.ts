@@ -4,7 +4,7 @@ import type { User } from "./user";
 import type { Utils } from "./utils";
 
 export namespace Room {
-  export type Type = "custom";
+  export type Type = "custom" | "system";
 
   export type State = "ingame" | "lobby";
 

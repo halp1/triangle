@@ -41,6 +41,8 @@ export type ClientOptions = (
   ribbon?: Partial<RibbonOptions>;
   /** The `Social` config */
   social?: Partial<Social.Config>;
+	/** The warnings the client should suppress */
+  suppressWarnings?: Warning[];
 };
 
 export interface ClientUser {
@@ -61,3 +63,5 @@ export interface ClientSnapshot {
   game: GameSnapshot;
   api: APIDefaults;
 }
+
+export type Warning = "maintenance" | "rate-limit";

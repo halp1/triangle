@@ -2,6 +2,7 @@ import { Engine } from "../../src/engine";
 import type { EngineInitializeParams } from "../../src/engine";
 import type * as Types from "../../src/types";
 import type { Replay } from "../../src/types";
+import { pack } from "../../src/utils/theorypack";
 
 import fs from "node:fs/promises";
 
@@ -10,13 +11,15 @@ const findRounds = (replay: Replay, uid: string) =>
     .map((round) => ({
       ...round.find((r) => r.id === uid)!,
       opponents: round
-        .map((item) => item.replay.options.gameid)
+        .map((item) => (item.active ? item.replay.options.gameid : null))
         .filter(
-          (item) =>
+          (item): item is number =>
+            item !== null &&
             item !== round.find((r) => r.id === uid)!.replay.options.gameid
         )
     }))
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter((round) => round.active && round.opponents.length > 0);
 
 const convert = (
   round: ReturnType<typeof findRounds>[number],
@@ -164,9 +167,10 @@ const runThrough = (round: {
 };
 
 export const runReplayFile = async (file: string) => {
+  const buffer = await fs.readFile(file);
   const raw = {
     id: file.split("/").at(-1)?.split(".").at(0) ?? "<unknown>",
-    replay: JSON.parse(await fs.readFile(file, "utf-8")) as {
+    replay: pack.unpack(buffer) as {
       replay: Replay;
       user: { id: string };
     }

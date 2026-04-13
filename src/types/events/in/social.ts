@@ -4,6 +4,7 @@ export interface Social {
   "social.online": number;
 
   "social.dm": Omit<SocialTypes.DM, "ts"> & { ts: string };
+  "unsafe__social.dm": Omit<SocialTypes.DM, "ts"> & { ts: string };
   "social.dm.fail": "they.fail" | "they.ban" | "you.fail" | "you.ban" | string;
 
   "social.presence": {
