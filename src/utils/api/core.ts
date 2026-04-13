@@ -102,7 +102,7 @@ export const core = (defaults: APIDefaults) => {
       headers = {},
       json = false
     }: {
-      token?: string;
+      token?: string | null;
       uri: string;
       body: Record<string, any>;
       headers?: Record<string, string>;
