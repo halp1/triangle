@@ -38,6 +38,6 @@ export interface Social {
     sender: string;
     roomid: string;
     roomname: string;
-    roomname_safe: string;
+    roomname_safe?: string;
   };
 }

@@ -406,7 +406,7 @@ export namespace Game {
     bagex: Mino[];
     bagid: number;
     /** Note: `board` is reversed compared to triangle */
-    board: BoardSquare[][];
+    board?: BoardSquare[][];
     /** 0 to 255 */
     boardedges: number[][];
     cancelstreak: number;

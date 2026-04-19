@@ -400,21 +400,25 @@ export class Game {
         isUndoRedo: undoRedoState
       },
       // TODO: actual connected board
-      board: state.board.toReversed().map((row) =>
-        row.map(
-          (square): Tile =>
-            square
-              ? {
-                  mino: square,
-                  connections:
-                    BoardConnections.TOP |
-                    BoardConnections.RIGHT |
-                    BoardConnections.BOTTOM |
-                    BoardConnections.LEFT
-                }
-              : null
-        )
-      ),
+      board:
+        state.board?.toReversed().map((row) =>
+          row.map(
+            (square): Tile =>
+              square
+                ? {
+                    mino: square,
+                    connections:
+                      BoardConnections.TOP |
+                      BoardConnections.RIGHT |
+                      BoardConnections.BOTTOM |
+                      BoardConnections.LEFT
+                  }
+                : null
+          )
+        ) ??
+        Array.from({ length: config.board.height }, () =>
+          Array.from({ length: config.board.width }, () => null)
+        ),
       falling: {
         aox: 0,
         aoy: 0,

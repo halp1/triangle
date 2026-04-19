@@ -41,7 +41,7 @@ export type ClientOptions = (
   ribbon?: Partial<RibbonOptions>;
   /** The `Social` config */
   social?: Partial<Social.Config>;
-	/** The warnings the client should suppress */
+  /** The warnings the client should suppress */
   suppressWarnings?: Warning[];
 };
 

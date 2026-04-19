@@ -133,7 +133,7 @@ export class Social {
   }
 
   #init() {
-		this._dmListener = this._dmListener.bind(this);
+    this._dmListener = this._dmListener.bind(this);
 
     if (this.config.autoProcessNotifications) {
       setTimeout(() => {
@@ -341,7 +341,11 @@ export class Social {
   async dm(
     userID: string,
     message: string
-  ): Promise<SocialTypes.DM | Events.in.all["social.dm.fail"] | Events.in.all['staff.spam']> {
+  ): Promise<
+    | SocialTypes.DM
+    | Events.in.all["social.dm.fail"]
+    | Events.in.all["staff.spam"]
+  > {
     if (userID === this.#client.user.id) {
       throw new Error("You can't DM yourself.");
     }
@@ -360,7 +364,9 @@ export class Social {
       };
     } catch (e) {
       if (this.config.suppressDMErrors)
-        return e as Events.in.all["social.dm.fail"] | Events.in.all['staff.spam'];
+        return e as
+          | Events.in.all["social.dm.fail"]
+          | Events.in.all["staff.spam"];
       throw e;
     }
   }
