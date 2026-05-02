@@ -102,7 +102,7 @@ export class Social {
     this.notifications = init.notifications;
   }
 
-  static async create(
+  static create(
     client: Client,
     config: Partial<SocialTypes.Config>,
     initData: Events.in.Client["client.ready"]["social"]

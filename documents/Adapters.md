@@ -52,7 +52,7 @@ The base class provides three helper methods that extract relevant data from the
 
 - Board dimensions (`boardWidth`, `boardHeight`)
 - Game rules (`kicks`, `spins`, `comboTable`)
-- Back-to-back settings (`b2bCharing`, `b2bChargeAt`, etc.)
+- Back-to-back settings (`b2bCharging`, `b2bChargeAt`, etc.)
 - Garbage mechanics (`garbageMultiplier`, `garbageCap`, etc.)
 - Perfect clear bonuses (`pcB2b`, `pcGarbage`)
 - Initial piece queue

@@ -46,7 +46,7 @@ export namespace Outgoing {
     spins: Game.SpinBonuses;
     comboTable: Game.ComboTable;
 
-    b2bCharing: boolean;
+    b2bCharging: boolean;
     b2bChargeAt: number;
     b2bChargeBase: number;
     b2bChaining: boolean;
