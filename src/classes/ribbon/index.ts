@@ -827,7 +827,7 @@ export class Ribbon {
   }
 
   get #connected() {
-    return !!this.#socket && this.#socket.readyState === 1; // WebSocket.OPEN
+    return !!this.#socket && this.#socket.readyState === WebSocket.OPEN;
   }
 
   emit<T extends keyof Events.out.all>(
