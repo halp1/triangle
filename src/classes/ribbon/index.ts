@@ -342,7 +342,7 @@ export class Ribbon {
           this.#onError(
             error instanceof Error
               ? error
-              : error instanceof ErrorEvent
+              : typeof ErrorEvent !== "undefined" && error instanceof ErrorEvent // this is a bun thing
                 ? error.error
                 : new Error(String(error))
           );
