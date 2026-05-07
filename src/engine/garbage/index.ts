@@ -174,7 +174,6 @@ export class GarbageQueue {
       cancel += amount;
     while ((send > 0 || cancel > 0) && this.queue.length > 0) {
       this.queue[0].amount--;
-      currentSize--;
       if (
         cancelled.length === 0 ||
         cancelled[cancelled.length - 1].cid !== this.queue[0].cid
