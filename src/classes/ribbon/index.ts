@@ -342,7 +342,7 @@ export class Ribbon {
           this.#onError(
             error instanceof Error
               ? error
-              : error instanceof ErrorEvent
+              : typeof ErrorEvent !== "undefined" && error instanceof ErrorEvent // this is a bun thing
                 ? error.error
                 : new Error(String(error))
           );
@@ -827,7 +827,7 @@ export class Ribbon {
   }
 
   get #connected() {
-    return !!this.#socket && this.#socket.readyState === 1; // WebSocket.OPEN
+    return !!this.#socket && this.#socket.readyState === WebSocket.OPEN;
   }
 
   emit<T extends keyof Events.out.all>(

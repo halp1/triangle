@@ -60,9 +60,7 @@ export namespace Game {
   export type GarbageBlocking = "combo blocking" | "limited blocking" | "none";
   /** Garbage target bonus not yet supported. Used in royale mode */
   export type GarbageTargetBonus = "offensive" | "defensive" | "none";
-  /** Only `zero` passthrough supported */
   export type Passthrough = "zero" | "limited" | "consistent" | "full";
-  /** Only `T-spins` supported */
   export type SpinBonuses =
     | "T-spins"
     | "T-spins+"

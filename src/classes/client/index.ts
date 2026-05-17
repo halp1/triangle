@@ -248,7 +248,7 @@ export class Client {
       )?.warning;
 
       this.#logger.warn(
-        `You just tried to bind an event listener to the "social.dm" event. ${warning}`
+        `You just tried to bind an event listener to the ${event} event. ${warning}`
       );
     }
 

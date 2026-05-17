@@ -422,5 +422,7 @@ export class Self {
         data: strategyMap[t.strategy]
       });
     }
+
+		this.#target = t;
   }
 }

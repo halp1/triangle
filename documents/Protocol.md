@@ -33,7 +33,7 @@ Sent once at the beginning to configure the game rules and settings.
     "all": { "mini": 100, "full": 400 }
   },
   "comboTable": [0, 0, 1, 1, 1, 2, 2, 3, 3, 4, 4, 4, 5],
-  "b2bCharing": false,
+  "b2bCharging": false,
   "b2bChargeAt": 0,
   "b2bChargeBase": 0,
   "b2bChaining": true,
@@ -55,7 +55,7 @@ Sent once at the beginning to configure the game rules and settings.
 - `kicks`: Kick table name (e.g., "SRS", "SRS+", etc)
 - `spins`: Spin detection settings for T-spins and other piece spins
 - `comboTable`: Array defining combo multipliers
-- `b2bCharing`: Whether back-to-back bonus charging is enabled
+- `b2bCharging`: Whether back-to-back bonus charging is enabled
 - `b2bChargeAt`: Frame count when B2B charging begins
 - `b2bChargeBase`: Base value for B2B charging
 - `b2bChaining`: Whether back-to-back chaining is enabled
