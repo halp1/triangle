@@ -760,6 +760,9 @@ export class Ribbon {
       }
       case "server.migrated":
         break;
+      case "social.dm": {
+        this.emitter.emit("unsafe__social.dm", (msg as any).data)
+      }
     }
 
     this.emitter.emit(msg.command, (msg as any).data);
