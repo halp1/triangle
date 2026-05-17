@@ -354,7 +354,7 @@ export class Social {
       const res = await this.#client.wrap(
         "social.dm",
         { recipient: userID, msg: message },
-        "social.dm",
+        "unsafe__social.dm",
         ["social.dm.fail", "staff.spam", "client.error"]
       );
 
