@@ -2,6 +2,7 @@ import {
   BoardConnections,
   deepCopy,
   Engine,
+  Mino,
   type EngineInitializeParams,
   type EngineSnapshot,
   type IncomingGarbage,
@@ -395,6 +396,24 @@ export class Game {
       },
       value: [...(state.bag || [])]
     };
+
+    state.falling ??= {
+      type: Mino.I,
+      x: 0,
+      y: 0,
+      r: 0,
+      hy: 0,
+      irs: 0,
+      kick: 0,
+      keys: 0,
+      flags: 0,
+      safelock: 0,
+      locking: 0,
+      lockresets: 0,
+      rotresets: 0,
+      skip: []
+    };
+
     return {
       __meta: {
         isUndoRedo: undoRedoState
