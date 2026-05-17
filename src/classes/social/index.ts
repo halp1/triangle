@@ -133,8 +133,6 @@ export class Social {
   }
 
   #init() {
-    this._dmListener = this._dmListener.bind(this);
-
     if (this.config.autoProcessNotifications) {
       setTimeout(() => {
         this.notifications.forEach((n) => {
@@ -196,13 +194,13 @@ export class Social {
       }
     });
 
-    this.#hook.on("social.dm", this._dmListener);
+    this.#hook.on("unsafe__social.dm", this.#dmListener.bind(this));
   }
 
   /**
    * @internal
    */
-  async _dmListener(raw: Omit<SocialTypes.DM, "ts"> & { ts: string }) {
+  async #dmListener(raw: Omit<SocialTypes.DM, "ts"> & { ts: string }) {
     const dm: SocialTypes.DM = { ...raw, ts: new Date(raw.ts) };
 
     let target = dm.data.user;
@@ -354,7 +352,7 @@ export class Social {
       const res = await this.#client.wrap(
         "social.dm",
         { recipient: userID, msg: message },
-        "social.dm",
+        "unsafe__social.dm",
         ["social.dm.fail", "staff.spam", "client.error"]
       );
 
