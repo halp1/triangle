@@ -250,8 +250,7 @@ export class Social {
         `${chalk.yellowBright("[Triangle.js]")}: Failed to load user data for ${target}. 'client.dm' event discareded.`
       );
 
-      user = this.get({ id: dm.data.user })!;
-      if (this.config.autoLoadDMs) await user.loadDms();
+			return;
     }
 
     // don't trigger client.dm for messages sent by the client itself

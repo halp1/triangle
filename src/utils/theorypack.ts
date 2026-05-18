@@ -4,13 +4,13 @@ const msgpackr = m();
 
 // require theorypack extensions
 msgpackr.addExtension({
-  Class: undefined!,
+  Class: undefined,
   type: 1,
   read: (e) => (null === e ? { success: true } : { success: true, ...e })
 });
 
 msgpackr.addExtension({
-  Class: undefined!,
+  Class: undefined,
   type: 2,
   read: (e) => (null === e ? { success: false } : { success: false, error: e })
 });
