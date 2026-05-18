@@ -43,7 +43,7 @@ export const evalFunctions = (): Plugin => ({
           const def = findVariable((scope as any)!, idNode);
 
           // global scope things are already defined
-          const defNode = def?.defs?.[0]?.node as Node;
+          const defNode = def?.defs?.[0]?.node as unknown as Node;
           if (!defNode) return;
           if (ancestryMap.get((defNode as any)._id)?.length === 2) return;
 
@@ -80,7 +80,7 @@ export const evalFunctions = (): Plugin => ({
         const scope = getScope(node);
         const def = findVariable((scope as any)!, node);
 
-        const defNode = def?.defs?.[0]?.node as Node;
+        const defNode = def?.defs?.[0]?.node as unknown as Node;
 
         if (!defNode) return;
 

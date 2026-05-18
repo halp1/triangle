@@ -423,6 +423,6 @@ export class Self {
       });
     }
 
-		this.#target = t;
+    this.#target = t;
   }
 }

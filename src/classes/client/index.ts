@@ -21,11 +21,6 @@ export class Client {
     }
   ];
 
-  #eventWarningOverrides = new Map<
-    keyof Events.in.all,
-    ((data: any) => any)[]
-  >();
-
   #logger = new Logger("Triangle.js");
 
   /** User information */
@@ -219,13 +214,7 @@ export class Client {
       { handling, spectatingStrategy: "instant", ...options.game }
     );
 
-    client.social = await Social.create(
-      client,
-      options.social || {},
-      data.social
-    );
-
-    client.#eventWarningOverrides.set("social.dm", [client.social._dmListener]);
+    client.social = Social.create(client, options.social || {}, data.social);
 
     return client;
   }
@@ -239,16 +228,13 @@ export class Client {
     event: K,
     cb: (data: Events.in.all[K]) => void
   ): this {
-    if (
-      Client.#eventWarnings.some((w) => w.event === event) &&
-      !this.#eventWarningOverrides.get(event)?.includes(cb)
-    ) {
+    if (Client.#eventWarnings.some((w) => w.event === event)) {
       const warning = Client.#eventWarnings.find(
         (w) => w.event === event
       )?.warning;
 
       this.#logger.warn(
-        `You just tried to bind an event listener to the ${event} event. ${warning}`
+        `You just tried to bind an event listener to the ${event} event. ${warning}.\nStack trace for the above warning:\n${new Error().stack}`
       );
     }
 
@@ -424,6 +410,10 @@ export class Client {
       this.disconnected = true;
       this.room?.destroy();
     });
+
+    this.ribbon.emitter.on("social.dm", (data) => {
+      this.ribbon.emitter.emit("unsafe__social.dm", data);
+    });
   }
 
   /**
@@ -454,9 +444,7 @@ export class Client {
       }
     );
     delete this.room;
-    this.social = await Social.create(this, this.social.config, data.social);
-
-    this.#eventWarningOverrides.set("social.dm", [this.social._dmListener]);
+    this.social = Social.create(this, this.social.config, data.social);
   }
 
   /** The client's current handling. Do not change the client's handling while in a room. */
@@ -497,7 +485,5 @@ export class Client {
     await this.ribbon.destroy();
     if (this.room) delete this.room;
     if (this.game) delete this.game;
-
-    this.#eventWarningOverrides.clear();
   }
 }

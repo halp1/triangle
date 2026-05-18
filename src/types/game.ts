@@ -418,7 +418,7 @@ export namespace Game {
     esc: boolean;
     escAllowed: boolean;
     esciter: number;
-    falling: {
+    falling?: {
       flags: number;
       hy: number;
       irs: number;
