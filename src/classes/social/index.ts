@@ -215,7 +215,8 @@ export class Social {
 
     let user = this.get({ id: target });
     if (user) {
-      if (!user.dmsLoaded && this.config.autoLoadDMs) await user.loadDms().catch(() => {});
+      if (!user.dmsLoaded && this.config.autoLoadDMs)
+        await user.loadDms().catch(() => {});
       else user.dms.push({ ...dm, ts: new Date(dm.ts) });
     } else {
       try {
@@ -245,8 +246,7 @@ export class Social {
         `${chalk.yellowBright("[Triangle.js]")}: Failed to load user data for ${target}. 'client.dm' event discareded.`
       );
 
-      user = this.get({ id: dm.data.user })!;
-      if (this.config.autoLoadDMs) await user.loadDms().catch(() => {});
+      return;
     }
 
     // don't trigger client.dm for messages sent by the client itself
