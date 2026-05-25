@@ -50,6 +50,7 @@ export interface VersusReplay {
           allclear_b2b_sends: boolean;
           allclear_garbage: number;
           allow180: boolean;
+          b2bcharge_at: number;
           b2bcharge_base: number;
           boardheight: number;
           boardwidth: number;

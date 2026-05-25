@@ -95,7 +95,7 @@ const convert = (
     chaining: !round.replay.options.b2bcharging ? true : false,
     charging: round.replay.options.b2bcharging
       ? {
-          at: 4,
+          at: round.replay.options.b2bcharge_at ?? 4,
           base: round.replay.options.b2bcharge_base ?? 3
         }
       : false

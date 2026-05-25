@@ -48,7 +48,7 @@ export class Relationship {
 
     this.ready = lazyLoad
       ? new Promise<never>(() => {})
-      : this.loadDms().then(() => {});
+      : this.loadDms().then(() => {}).catch(() => {});
   }
 
   /**

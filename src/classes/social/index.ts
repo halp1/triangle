@@ -197,9 +197,6 @@ export class Social {
     this.#hook.on("unsafe__social.dm", this.#dmListener.bind(this));
   }
 
-  /**
-   * @internal
-   */
   async #dmListener(raw: Omit<SocialTypes.DM, "ts"> & { ts: string }) {
     const dm: SocialTypes.DM = { ...raw, ts: new Date(raw.ts) };
 
@@ -218,7 +215,7 @@ export class Social {
 
     let user = this.get({ id: target });
     if (user) {
-      if (!user.dmsLoaded && this.config.autoLoadDMs) await user.loadDms();
+      if (!user.dmsLoaded && this.config.autoLoadDMs) await user.loadDms().catch(() => {});
       else user.dms.push({ ...dm, ts: new Date(dm.ts) });
     } else {
       try {
@@ -237,7 +234,7 @@ export class Social {
         );
 
         user = this.get({ id: target })!;
-        if (this.config.autoLoadDMs) await user.loadDms();
+        if (this.config.autoLoadDMs) await user.loadDms().catch(() => {});
       } catch {
         /* empty */
       }
@@ -249,7 +246,7 @@ export class Social {
       );
 
       user = this.get({ id: dm.data.user })!;
-      if (this.config.autoLoadDMs) await user.loadDms();
+      if (this.config.autoLoadDMs) await user.loadDms().catch(() => {});
     }
 
     // don't trigger client.dm for messages sent by the client itself
