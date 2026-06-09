@@ -1,5 +1,7 @@
 import type { Social } from "../../social";
+
 import type { Client } from "./client";
+
 import { Buffer } from "buffer/index.js";
 
 export interface Ribbon {

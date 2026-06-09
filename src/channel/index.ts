@@ -1161,12 +1161,10 @@ export namespace ChannelAPI {
            * The timestamp offset. Add startTime to get the true timestamp.
            */
           number,
-          (
-            /**
-             *  Whether the score set was a PB. 0 = not a PB, 1 = PB.
-             */
-            0 | 1
-          ),
+          /**
+           *  Whether the score set was a PB. 0 = not a PB, 1 = PB.
+           */
+          0 | 1,
           /**
            * The score achieved. (For 40 LINES, this is negative.)
            */
@@ -1205,19 +1203,17 @@ export namespace ChannelAPI {
            * The timestamp offset. Add startTime to get the true timestamp.
            */
           number,
-          (
-            /**
-             *  The result of the match, where:
-             * 1 = victory,
-             * 2 = defeat,
-             * 3 = victory by disqualification,
-             * 4 = defeat by disqualification,
-             * 5 = tie,
-             * 6 = no contest,
-             * 7 = match nullified.
-             */
-            1 | 2 | 3 | 4 | 5 | 6 | 7
-          ),
+          /**
+           *  The result of the match, where:
+           * 1 = victory,
+           * 2 = defeat,
+           * 3 = victory by disqualification,
+           * 4 = defeat by disqualification,
+           * 5 = tie,
+           * 6 = no contest,
+           * 7 = match nullified.
+           */
+          1 | 2 | 3 | 4 | 5 | 6 | 7,
           /**
            * The user's TR after the match.
            */
@@ -1781,63 +1777,63 @@ export namespace ChannelAPI {
        */
       rt:
         | /**
-         *PERCENTILE — ranked by percentile cutoffs (5% Diamond, 10% Platinum, 30% Gold, 50% Silver, 70% Bronze)
-         */
-        1 /**
-         *ISSUE — always has the ISSUED rank
-         */
+           *PERCENTILE — ranked by percentile cutoffs (5% Diamond, 10% Platinum, 30% Gold, 50% Silver, 70% Bronze)
+           */
+          1 /**
+           *ISSUE — always has the ISSUED rank
+           */
         | 2 /**
-         * ZENITH — ranked by QUICK PLAY floors
-         */
+           * ZENITH — ranked by QUICK PLAY floors
+           */
         | 3 /**
-         * PERCENTILELAX — ranked by percentile cutoffs (5% Diamond, 20% Platinum, 60% Gold, 100% Silver)
-         */
+           * PERCENTILELAX — ranked by percentile cutoffs (5% Diamond, 20% Platinum, 60% Gold, 100% Silver)
+           */
         | 4 /**
-         * PERCENTILEVLAX — ranked by percentile cutoffs (20% Diamond, 50% Platinum, 100% Gold)
-         */
+           * PERCENTILEVLAX — ranked by percentile cutoffs (20% Diamond, 50% Platinum, 100% Gold)
+           */
         | 5 /**
-         * PERCENTILEMLAX — ranked by percentile cutoffs (10% Diamond, 20% Platinum, 50% Gold, 100% Silver)
-         */
+           * PERCENTILEMLAX — ranked by percentile cutoffs (10% Diamond, 20% Platinum, 50% Gold, 100% Silver)
+           */
         | 6;
       /**
        * The value type of this achievement:
        */
       vt:
         | /**
-         * NONE — no value
-         */
-        0 /**
-         *  NUMBER — V is a positive number
-         */
+           * NONE — no value
+           */
+          0 /**
+           *  NUMBER — V is a positive number
+           */
         | 1 /**
-         *  TIME — V is a positive amount of milliseconds
-         */
+           *  TIME — V is a positive amount of milliseconds
+           */
         | 2 /**
-         *  TIME_INV — V is a negative amount of milliseconds; negate it before displaying
-         */
+           *  TIME_INV — V is a negative amount of milliseconds; negate it before displaying
+           */
         | 3 /**
-         * FLOOR — V is an altitude, A is a floor number
-         */
+           * FLOOR — V is an altitude, A is a floor number
+           */
         | 4 /**
-         * ISSUE — V is the negative time of issue
-         */
+           * ISSUE — V is the negative time of issue
+           */
         | 5 /**
-         * NUMBER_INV — V is a negative number; negate it before displaying
-         */
+           * NUMBER_INV — V is a negative number; negate it before displaying
+           */
         | 6;
       /**
        * The AR type of this achievement:
        */
       art:
         | /**
-         * UNRANKED — no AR is given
-         */
-        0 /**
-         *  RANKED — AR is given for medal ranks
-         */
+           * UNRANKED — no AR is given
+           */
+          0 /**
+           *  RANKED — AR is given for medal ranks
+           */
         | 1 /**
-         *  COMPETITIVE — AR is given for medal ranks and leaderboard positions
-         */
+           *  COMPETITIVE — AR is given for medal ranks and leaderboard positions
+           */
         | 2;
       /**
        *  The minimum score required to obtain the achievement.

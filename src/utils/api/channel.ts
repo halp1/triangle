@@ -1,4 +1,5 @@
 import { type APIDefaults } from ".";
+
 import type { Get, Post } from "./core";
 
 export const channel = (get: Get, _: Post, __: APIDefaults) => {

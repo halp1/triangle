@@ -1,8 +1,9 @@
 import type { Plugin } from "..";
 
-import type { Identifier, VariableDeclaration } from "acorn";
 import * as walk from "acorn-walk";
 import { findVariable } from "eslint-utils";
+
+import type { Identifier, VariableDeclaration } from "acorn";
 
 export const removeUnusedDeclarations = (): Plugin => ({
   name: "Remove Unused Declarations",

@@ -1,5 +1,6 @@
-import { type APIDefaults } from ".";
 import { pack } from "..";
+
+import { type APIDefaults } from ".";
 
 import fs from "node:fs/promises";
 import os from "node:os";

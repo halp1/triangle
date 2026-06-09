@@ -1,5 +1,5 @@
-import type { Game } from "../types/game";
 import { EventEmitter, Hook } from "../utils/events";
+
 import {
   Board,
   BoardConnections,
@@ -17,13 +17,6 @@ import {
 import { IGEHandler, type MultiplayerOptions } from "./multiplayer";
 import { Queue, type QueueInitializeParams } from "./queue";
 import { Mino } from "./queue/types";
-import type {
-  EngineSnapshot,
-  Events,
-  IncreasableValue,
-  LockRes,
-  SpinType
-} from "./types";
 import { IncreaseTracker, deepCopy } from "./utils";
 import { garbageCalcV2, garbageData } from "./utils/damageCalc";
 import { type KickTable, legal, performKick } from "./utils/kicks";
@@ -34,6 +27,16 @@ import {
   spinbonusRules
 } from "./utils/kicks/data";
 import { Tetromino, tetrominoes } from "./utils/tetromino";
+
+import type { Game } from "../types/game";
+
+import type {
+  EngineSnapshot,
+  Events,
+  IncreasableValue,
+  LockRes,
+  SpinType
+} from "./types";
 import type { Rotation } from "./utils/tetromino/types";
 
 import chalk from "chalk";

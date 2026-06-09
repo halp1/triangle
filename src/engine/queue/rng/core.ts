@@ -1,4 +1,5 @@
 import { RNG } from "../../utils";
+
 import type { Mino } from "../types";
 
 export interface BagSnapshot {

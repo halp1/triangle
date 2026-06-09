@@ -3,6 +3,10 @@ import type { Plugin } from "..";
 import { randomUUID } from "node:crypto";
 import vm from "node:vm";
 
+import * as walk from "acorn-walk";
+import { generate } from "astring";
+import { findVariable } from "eslint-utils";
+
 import type {
   AssignmentExpression,
   CallExpression,
@@ -11,9 +15,6 @@ import type {
   Node,
   VariableDeclarator
 } from "acorn";
-import * as walk from "acorn-walk";
-import { generate } from "astring";
-import { findVariable } from "eslint-utils";
 
 export const evalFunctions = (): Plugin => ({
   name: "Eval Functions",

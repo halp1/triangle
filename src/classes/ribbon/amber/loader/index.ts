@@ -1,16 +1,19 @@
 import { Logger, version } from "../../../../utils";
 import { core } from "../../../../utils/api/core";
 import { type Server } from "../../../../utils/api/server";
+
 import { compile } from "./compile";
 import { splice } from "./splice";
+
 import type { Codec } from "./types";
-import { Buffer } from "buffer/index.js";
 
 import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+
+import { Buffer } from "buffer/index.js";
 
 let Amber: Codec | null = null;
 

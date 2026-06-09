@@ -1,7 +1,8 @@
-import type { AdapterKey } from ".";
 import type { EngineSnapshot, Mino } from "../../../engine";
 import type { KickTableName } from "../../../engine/utils/kicks/data";
 import type { Game } from "../../../types";
+
+import type { AdapterKey } from ".";
 
 export interface CustomMessageData {
   info: void;

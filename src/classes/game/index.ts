@@ -10,11 +10,13 @@ import {
   type Tile
 } from "../../engine";
 import { constants } from "../../engine/constants";
-import type { Game as GameTypes } from "../../types";
 import { Logger } from "../../utils";
 import { Client } from "../client";
+
 import { Player, type SpectatingStrategy } from "./player";
 import { Self } from "./self";
+
+import type { Game as GameTypes } from "../../types";
 
 export const moveElementToFirst = <T>(arr: T[], n: number) => [
   arr[n],

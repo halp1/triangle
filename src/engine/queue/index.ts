@@ -1,6 +1,7 @@
 import { type BagType, rngMap } from "./rng";
-import type { Bag, BagSnapshot } from "./rng";
 import { Mino } from "./types";
+
+import type { Bag, BagSnapshot } from "./rng";
 
 export interface QueueInitializeParams {
   seed: number;

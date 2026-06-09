@@ -1,8 +1,9 @@
 import { Engine } from "../../src/engine";
+import { pack } from "../../src/utils/theorypack";
+
 import type { EngineInitializeParams } from "../../src/engine";
 import type * as Types from "../../src/types";
 import type { Replay } from "../../src/types";
-import { pack } from "../../src/utils/theorypack";
 
 import fs from "node:fs/promises";
 

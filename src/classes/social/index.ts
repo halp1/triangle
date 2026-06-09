@@ -1,8 +1,11 @@
 import { deepCopy } from "../../engine";
 import { Events, type Social as SocialTypes } from "../../types";
 import { APITypes, Hook } from "../../utils";
-import type { Client } from "../client";
+
 import { Relationship } from "./relationship";
+
+import type { Client } from "../client";
+
 import type { SocialSnapshot } from "./types";
 
 import chalk from "chalk";

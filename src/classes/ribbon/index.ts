@@ -1,12 +1,15 @@
 import { deepCopy } from "../../engine";
-import type { Events, Game } from "../../types";
 import { API, type APITypes, docLink, EventEmitter } from "../../utils";
 import { validateIncomingMessage } from "../../utils/typia/functional";
+
 import { amber } from "./amber/loader";
 import { Bits } from "./bits";
-import type { RibbonEvents, RibbonSnapshot } from "./types";
-import { Buffer } from "buffer/index.js";
 
+import type { Events, Game } from "../../types";
+
+import type { RibbonEvents, RibbonSnapshot } from "./types";
+
+import { Buffer } from "buffer/index.js";
 import chalk from "chalk";
 
 export const transports = ["binary", "json"] as const;
@@ -372,7 +375,10 @@ export class Ribbon {
           (error as any).errors.forEach((err: any, idx: number) => {
             this.log(
               `  [${idx + 1}] ${err?.stack || err?.message || err?.toString?.() || err}`,
-              { force: true, level: "error" }
+              {
+                force: true,
+                level: "error"
+              }
             );
           });
         } else {

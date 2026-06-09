@@ -23,13 +23,17 @@ export interface Social {
     from: {
       _id: string;
       username: string;
-      avatar_revision: string | null;
+      avatar_revision: number | null;
     };
     to: {
       _id: string;
       username: string;
-      avatar_revision: string | null;
+      avatar_revision: number | null;
     };
+    // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
+    type: "friend" | String;
+    unread: number;
+    updated: Date | string;
   };
 
   "social.notification": SocialTypes.Notification;

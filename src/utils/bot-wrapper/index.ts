@@ -1,6 +1,7 @@
+import { adapters } from "../adapters";
+
 import type { Engine } from "../../engine";
 import type { Game } from "../../types";
-import { adapters } from "../adapters";
 
 export interface BotWrapperConfig {
   pps: number;

@@ -1,10 +1,11 @@
+import { deepCopy, RNG } from "../utils";
+
 import {
   type GarbageQueueInitializeParams,
   type IncomingGarbage,
   type GarbageQueueSnapshot,
   type OutgoingGarbage
 } from ".";
-import { deepCopy, RNG } from "../utils";
 
 const columnWidth = (width: number, garbageHoleSize: number) => {
   return Math.max(0, width - (garbageHoleSize - 1));

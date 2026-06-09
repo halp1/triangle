@@ -1,3 +1,7 @@
+import { type IGEHandlerSnapshot } from "./multiplayer";
+
+import type { Game } from "../types";
+
 import type {
   Board,
   Engine,
@@ -7,8 +11,6 @@ import type {
   QueueSnapshot,
   TetrominoSnapshot
 } from ".";
-import type { Game } from "../types";
-import { type IGEHandlerSnapshot } from "./multiplayer";
 
 export type SpinType = "none" | "mini" | "normal";
 

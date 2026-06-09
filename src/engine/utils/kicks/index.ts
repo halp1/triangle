@@ -1,7 +1,9 @@
-import type { Tile } from "../..";
 import { Mino } from "../../queue/types";
-import type { Rotation } from "../tetromino/types";
+
 import { kicks } from "./data";
+
+import type { Tile } from "../..";
+import type { Rotation } from "../tetromino/types";
 
 export { kicks as kickData };
 export type KickTable = keyof typeof kicks;

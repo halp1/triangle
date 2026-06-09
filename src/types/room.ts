@@ -1,4 +1,5 @@
 import type { BagType, KickTable } from "../engine";
+
 import type { Game } from "./game";
 import type { User } from "./user";
 import type { Utils } from "./utils";

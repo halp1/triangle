@@ -1,10 +1,11 @@
 import vm, { type Context } from "node:vm";
 
 import { parse } from "@typescript-eslint/parser";
-import type { Node } from "acorn";
 import * as walk from "acorn-walk";
 import { generate } from "astring";
 import { analyze, Reference, Scope, Variable } from "eslint-scope";
+
+import type { Node } from "acorn";
 
 declare module "acorn" {
   interface Node {

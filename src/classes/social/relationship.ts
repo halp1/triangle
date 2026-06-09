@@ -1,7 +1,9 @@
-import { Social, type RelationshipSnapshot } from ".";
 import { deepCopy } from "../../engine";
-import type { Social as SocialTypes } from "../../types";
 import { Client } from "../client";
+
+import { Social, type RelationshipSnapshot } from ".";
+
+import type { Social as SocialTypes } from "../../types";
 
 export class Relationship {
   #social: Social;
@@ -48,7 +50,9 @@ export class Relationship {
 
     this.ready = lazyLoad
       ? new Promise<never>(() => {})
-      : this.loadDms().then(() => {}).catch(() => {});
+      : this.loadDms()
+          .then(() => {})
+          .catch(() => {});
   }
 
   /**

@@ -2,6 +2,7 @@ import type { Events, Game, Room } from "../..";
 import type { Relationship, Room as RoomClass } from "../../../classes";
 import type { Engine } from "../../../engine";
 import type { Social } from "../../social";
+
 import type { Game as GameEvents } from "./game";
 import type { Ribbon } from "./ribbon";
 

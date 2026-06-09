@@ -1,8 +1,9 @@
 import { Engine } from "../src/engine";
+import { Logger } from "../src/utils";
+
 import type { EngineInitializeParams } from "../src/engine";
 import type * as Types from "../src/types";
 import type { Replay } from "../src/types";
-import { Logger } from "../src/utils";
 
 import fs from "node:fs/promises";
 import path from "node:path";

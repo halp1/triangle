@@ -17,9 +17,11 @@ import {
   unwrapBlockStatements,
   unwrapSequences
 } from "../core/plugins";
+
 import { bitsText } from "./bits-text";
 import { fastEqualsText } from "./fast-equals-text";
 import { msgpackr } from "./msgpackr-text";
+
 import type { splice } from "./splice";
 
 import vm from "node:vm";

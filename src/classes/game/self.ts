@@ -1,10 +1,12 @@
+import { type BotWrapper, type Hook, Logger } from "../../utils";
+
 import { Game, moveElementToFirst } from ".";
+import { getFullFrame } from "./utils";
+
 import type { Engine } from "../../engine";
 import type { Game as GameTypes } from "../../types";
 import type { Events } from "../../types";
-import { type BotWrapper, type Hook, Logger } from "../../utils";
 import type { Client } from "../client";
-import { getFullFrame } from "./utils";
 
 export class Self {
   static #logger = new Logger("Triangle.js");

@@ -2,9 +2,10 @@ import type { Plugin } from "..";
 
 import vm from "node:vm";
 
-import type { Expression } from "acorn";
 import * as walk from "acorn-walk";
 import { generate } from "astring";
+
+import type { Expression } from "acorn";
 
 export const evaluateExpressions = (): Plugin => ({
   name: "Evaluate Expressions",

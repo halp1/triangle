@@ -1,6 +1,7 @@
-import { Room } from ".";
 import { Events, type Game, type VersusReplay } from "../../types";
 import { Game as GameClass } from "../game";
+
+import { Room } from ".";
 
 export class ReplayManager {
   #replay: VersusReplay;

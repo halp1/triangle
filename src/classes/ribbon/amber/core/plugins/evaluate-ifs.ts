@@ -2,9 +2,10 @@ import type { Plugin } from "..";
 
 import vm from "node:vm";
 
-import type { BlockStatement, Expression } from "acorn";
 import * as walk from "acorn-walk";
 import { generate } from "astring";
+
+import type { BlockStatement, Expression } from "acorn";
 
 export const evaluateIfStatements = (): Plugin => ({
   name: "Evaluate If Statements",

@@ -1,5 +1,8 @@
 import type { Plugin } from "..";
 
+import * as walk from "acorn-walk";
+import { findVariable } from "eslint-utils";
+
 import type {
   AssignmentExpression,
   Expression,
@@ -9,8 +12,6 @@ import type {
   SequenceExpression,
   VariableDeclarator
 } from "acorn";
-import * as walk from "acorn-walk";
-import { findVariable } from "eslint-utils";
 
 export const buildObjects = (): Plugin => ({
   name: "Build Objects",

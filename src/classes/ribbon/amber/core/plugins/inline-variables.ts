@@ -1,12 +1,13 @@
 import type { Plugin } from "..";
 
+import * as walk from "acorn-walk";
+import { findVariable } from "eslint-utils";
+
 import type {
   Identifier,
   VariableDeclaration,
   VariableDeclarator
 } from "acorn";
-import * as walk from "acorn-walk";
-import { findVariable } from "eslint-utils";
 
 export const inlineVariables = (): Plugin => ({
   name: "Inline Single-Use Variables",

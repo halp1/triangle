@@ -1,5 +1,7 @@
 import type { Plugin } from "..";
 
+import * as walk from "acorn-walk";
+
 import type {
   BlockStatement,
   ExpressionStatement,
@@ -8,7 +10,6 @@ import type {
   SwitchCase,
   ThrowStatement
 } from "acorn";
-import * as walk from "acorn-walk";
 
 export const unwrapSequences = (): Plugin => ({
   name: "Unwrap Sequences",

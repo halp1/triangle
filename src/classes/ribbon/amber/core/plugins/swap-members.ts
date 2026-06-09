@@ -3,6 +3,10 @@ import type { Plugin } from "..";
 import vm from "node:vm";
 
 import { parse } from "@typescript-eslint/parser";
+import * as walk from "acorn-walk";
+import { generate } from "astring";
+import { findVariable } from "eslint-utils";
+
 import type {
   MemberExpression,
   VariableDeclarator,
@@ -10,9 +14,6 @@ import type {
   ReturnStatement,
   Identifier
 } from "acorn";
-import * as walk from "acorn-walk";
-import { generate } from "astring";
-import { findVariable } from "eslint-utils";
 
 export const swapMembers = (): Plugin => ({
   name: "Swap Member Expressions",

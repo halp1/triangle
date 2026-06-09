@@ -1,5 +1,6 @@
 import type { Events } from "../../../../types";
 import type { RibbonEvents } from "../../types";
+
 import type { Buffer } from "buffer/index.js";
 
 export interface Codec {

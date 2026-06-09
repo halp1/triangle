@@ -1,8 +1,11 @@
 import { deepCopy } from "..";
-import type { Tile } from "../..";
 import { Mino } from "../../queue/types";
 import { type KickTable, legal, performKick } from "../kicks";
+
 import { tetrominoes } from "./data";
+
+import type { Tile } from "../..";
+
 import type { Rotation } from "./types";
 
 export interface TetrominoInitializeParams {

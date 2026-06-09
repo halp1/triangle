@@ -1,10 +1,9 @@
 import { Logger } from "../../src/utils";
 
+import { expect, test } from "bun:test";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-
-import { expect, test } from "bun:test";
 
 export namespace tester {
   type WorkerInput = {

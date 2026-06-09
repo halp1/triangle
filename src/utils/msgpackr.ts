@@ -328,8 +328,7 @@ export default () =>
             }
           case 213:
             return (
-              (e = r[l]),
-              114 == e ? (l++, j(63 & r[l++], r[l++])) : U(2)
+              (e = r[l]), 114 == e ? (l++, j(63 & r[l++], r[l++])) : U(2)
             );
           case 214:
             return U(4);
@@ -1079,9 +1078,7 @@ export default () =>
                 }
                 let n = bt.test(t);
                 return (
-                  (yt[n ? 0 : 1] += t),
-                  (ft[vt++] = 193),
-                  void b(n ? -i : i)
+                  (yt[n ? 0 : 1] += t), (ft[vt++] = 193), void b(n ? -i : i)
                 );
               }
               r = i < 32 ? 1 : i < 256 ? 2 : i < 65536 ? 3 : 5;

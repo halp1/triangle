@@ -1,5 +1,6 @@
-import type { APIDefaults } from ".";
 import type { User as UserTypes } from "../../types";
+
+import type { APIDefaults } from ".";
 import type { Get, Post } from "./core";
 
 export namespace Users {

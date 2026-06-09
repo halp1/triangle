@@ -1,10 +1,12 @@
-import type { Types } from "../..";
-import type { Events, Game as GameTypes } from "../../types";
 import { API, CONSTANTS, Logger, parseToken } from "../../utils";
 import { Game, type SpectatingStrategy } from "../game";
 import { Ribbon } from "../ribbon";
 import { Room } from "../room";
 import { Social } from "../social";
+
+import type { Types } from "../..";
+import type { Events, Game as GameTypes } from "../../types";
+
 import type { ClientOptions, ClientUser, GameOptions, Warning } from "./types";
 
 export type * from "./types";
@@ -138,9 +140,7 @@ export class Client {
       api.update({ turnstile: options.turnstile });
     }
 
-    const sessionID = `SESS-${Math.floor(
-      Math.random() * Number.MAX_SAFE_INTEGER
-    )}`;
+    const sessionID = `SESS-${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`;
     let self: { id: string; token: string };
     if ("token" in options) {
       if (!options.token) throw new Error("No valid token was provided");

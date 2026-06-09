@@ -1,7 +1,8 @@
 import type { Plugin } from "..";
 
-import type { BlockStatement, Program } from "acorn";
 import * as walk from "acorn-walk";
+
+import type { BlockStatement, Program } from "acorn";
 
 export const unwrapIfStatements = (): Plugin => ({
   name: "Unwrap If Statements",
