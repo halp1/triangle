@@ -1044,7 +1044,7 @@ export namespace ChannelAPI {
       Leaderboard.QueryParams,
       [Leaderboard.Request["leaderboard"]],
       "entries"
-    >("/records/:leaderboard", "entries");
+    >("records/:leaderboard", "entries");
     /** Alias of leaderboard */
     export const lb = leaderboard;
 
