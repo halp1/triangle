@@ -13,11 +13,10 @@ export namespace ChannelAPI {
   export const randomSessionID = (length = 20) =>
     Array.from(
       { length },
-      () =>
-        ["qwertyuiop[asdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890"][
-          Math.floor(Math.random() * (26 + 26 + 10))
-        ]
-    ).join("");
+      () => {
+        const charset = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890"
+        return charset[Math.floor(Math.random() * charset.length)]
+    }).join("");
 
   const config: Types.Config = {
     sessionID: randomSessionID(),
@@ -70,9 +69,9 @@ export namespace ChannelAPI {
       }
     });
 
-    Object.keys(query).forEach((key) => {
-      uri += `?${key}=${query[key]}`;
-    });
+    uri += Object.entries(query).reduce((string, [key, value]) => 
+      `${string.length === 0 ? '?' : '&'}${key}=${value}`
+    , '');
 
     if (config.caching && cache[uri]) {
       if (cache[uri].until > Date.now()) {
@@ -1044,7 +1043,7 @@ export namespace ChannelAPI {
       Leaderboard.QueryParams,
       [Leaderboard.Request["leaderboard"]],
       "entries"
-    >("/records/:leaderboard", "entries");
+    >("records/:leaderboard", "entries");
     /** Alias of leaderboard */
     export const lb = leaderboard;
 
