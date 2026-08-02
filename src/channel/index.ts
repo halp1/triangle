@@ -13,11 +13,10 @@ export namespace ChannelAPI {
   export const randomSessionID = (length = 20) =>
     Array.from(
       { length },
-      () =>
-        "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890".at(
-          Math.floor(Math.random() * (26 + 26 + 10))
-        )
-    ).join("");
+      () => {
+        const charset = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890"
+        return charset[Math.floor(Math.random() * charset.length)]
+    }).join("");
 
   const config: Types.Config = {
     sessionID: randomSessionID(),
@@ -70,9 +69,9 @@ export namespace ChannelAPI {
       }
     });
 
-    Object.keys(query).forEach((key) => {
-      uri += `?${key}=${query[key]}`;
-    });
+    uri += Object.entries(query).reduce((string, [key, value]) => 
+      `${string.length === 0 ? '?' : '&'}${key}=${value}`
+    , '');
 
     if (config.caching && cache[uri]) {
       if (cache[uri].until > Date.now()) {
