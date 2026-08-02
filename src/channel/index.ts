@@ -14,9 +14,9 @@ export namespace ChannelAPI {
     Array.from(
       { length },
       () =>
-        ["qwertyuiop[asdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890"][
+        "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890".at(
           Math.floor(Math.random() * (26 + 26 + 10))
-        ]
+        )
     ).join("");
 
   const config: Types.Config = {
