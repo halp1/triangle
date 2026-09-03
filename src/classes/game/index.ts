@@ -209,7 +209,7 @@ export class Game {
    * @example
    * ```ts
    * // Stop spectating a player by game ID
-   * client.game!.unspectate([12344]);
+   * client.game!.unspectate([1234]);
    * ```
    */
   unspectate(gameid: number[]): boolean[];

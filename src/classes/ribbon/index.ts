@@ -5,7 +5,7 @@ import { validateIncomingMessage } from "../../utils/typia/functional";
 import { amber } from "./amber/loader";
 import { Bits } from "./bits";
 
-import type { Events, Game } from "../../types";
+import type { Events, Game, Social } from "../../types";
 
 import type { RibbonEvents, RibbonSnapshot } from "./types";
 
@@ -117,6 +117,8 @@ export class Ribbon {
     debug: boolean;
   };
 
+  #status: Social.Status;
+
   emitter = new EventEmitter<Events.in.all>();
 
   static async #getCodec(
@@ -157,7 +159,8 @@ export class Ribbon {
     self,
     spooling = true,
     debug,
-    codec
+    codec,
+    status = "online"
   }: {
     logging: LoggingLevel;
     token: string;
@@ -170,6 +173,7 @@ export class Ribbon {
     spooling?: boolean;
     debug: boolean;
     codec: Codec;
+    status?: Social.Status;
   }) {
     this.#token = token;
     this.#handling = handling;
@@ -182,6 +186,8 @@ export class Ribbon {
     this.#api = api;
 
     this.#self = self;
+
+    this.#status = status;
 
     this.#options = {
       logging,
@@ -202,7 +208,8 @@ export class Ribbon {
     userAgent,
     transport = "binary",
     spooling = true,
-    debug = false
+    debug = false,
+    status = "online"
   }: {
     /** @deprecated - use `logging` instead */
     verbose?: boolean;
@@ -213,6 +220,7 @@ export class Ribbon {
     transport?: Transport;
     spooling?: boolean;
     debug?: boolean;
+    status?: Social.Status;
   }): Promise<Ribbon> {
     const api = new API({
       token,
@@ -245,7 +253,8 @@ export class Ribbon {
       self,
       spooling,
       debug,
-      codec
+      codec,
+      status
     });
   }
 
@@ -736,7 +745,7 @@ export class Ribbon {
         if (msg.data.success) {
           this.log("Authorized");
           this.emit("social.presence", {
-            status: "online",
+            status: this.#status,
             detail: "menus"
           });
           this.emitter.emit("client.ready", {
@@ -921,7 +930,8 @@ export class Ribbon {
       handling: this.#handling,
       userAgent: this.#userAgent,
       transport: this.#codec.transport,
-      spooling: this.#options.spooling
+      spooling: this.#options.spooling,
+      status: this.#status
     });
 
     const emitter = this.emitter.export();
@@ -959,6 +969,7 @@ export class Ribbon {
       lastReconnect: this.#lastReconnect,
       reconnectCount: this.#reconnectCount,
       reconnectPenalty: this.#reconnectPenalty,
+      status: this.#status,
 
       options: { ...this.#options },
       emitter: {
@@ -984,7 +995,8 @@ export class Ribbon {
       self: snapshot.self,
       spooling: snapshot.options.spooling,
       debug: snapshot.options.debug,
-      codec
+      codec,
+      status: snapshot.status
     });
 
     ribbon.#sentID = snapshot.sentID;

@@ -178,7 +178,8 @@ export class Client {
       token,
       handling,
       userAgent: options.userAgent || CONSTANTS.userAgent,
-      ...(options.ribbon ?? {})
+      ...(options.ribbon ?? {}),
+      status: options.status
     });
 
     const data = await new Promise<Events.in.Client["client.ready"]>(

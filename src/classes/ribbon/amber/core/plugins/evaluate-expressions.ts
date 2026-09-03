@@ -12,7 +12,7 @@ export const evaluateExpressions = (): Plugin => ({
   apply({ ast, context }) {
     walk.full(ast as any, (node) => {
       // check to see if we can evaluate
-      let validTypes: Expression["type"][] = [
+      const validTypes: Expression["type"][] = [
         "BinaryExpression",
         "ChainExpression",
         "ConditionalExpression",
@@ -54,7 +54,9 @@ export const evaluateExpressions = (): Plugin => ({
             typeof value === "bigint" ? value.toString() + "n" : value
           )
         } as Expression);
-      } catch {}
+      } catch {
+        /** empty */
+      }
     });
   }
 });
