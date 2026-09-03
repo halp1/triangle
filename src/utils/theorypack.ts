@@ -1,5 +1,7 @@
 import m from "./msgpackr";
 
+import type { Packr, Unpackr } from "msgpackr";
+
 const msgpackr = m();
 
 // require theorypack extensions
@@ -15,13 +17,13 @@ msgpackr.addExtension({
   read: (e) => (null === e ? { success: false } : { success: false, error: e })
 });
 
-const unpacker = new msgpackr.Unpackr({
+const unpacker: Unpackr = new msgpackr.Unpackr({
   int64AsType: "number",
   bundleStrings: true,
   sequential: false
 });
 
-const packer = new msgpackr.Packr({
+const packer: Packr = new msgpackr.Packr({
   int64AsType: "number",
   bundleStrings: true,
   sequential: false
