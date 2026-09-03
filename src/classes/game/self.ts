@@ -1,13 +1,16 @@
+import { type BotWrapper, type Hook, Logger } from "../../utils";
+
 import { Game, moveElementToFirst } from ".";
+import { getFullFrame } from "./utils";
+
 import type { Engine } from "../../engine";
 import type { Game as GameTypes } from "../../types";
 import type { Events } from "../../types";
-import type { BotWrapper } from "../../utils";
 import type { Client } from "../client";
-import type { Hook } from "../client/hook";
-import { getFullFrame } from "./utils";
 
 export class Self {
+  static #logger = new Logger("Triangle.js");
+
   #client: Client;
   #hook: Hook<Events.in.all>;
   #frameQueue: GameTypes.Replay.Frame[] = [];
@@ -79,6 +82,7 @@ export class Self {
    * Stops the client's gameplay, when it dies. Does not destroy the game. You don't need to call this manually.
    */
   destroy() {
+    this.#over = true;
     this.#hook.destroy();
 
     if (this.#timeout)
@@ -173,12 +177,18 @@ export class Self {
     const runAfter: GameTypes.Tick.Out["runAfter"] = [];
     if (this.tick) {
       try {
+        const snapshot = this.engine.snapshot();
+
         const res = await this.tick({
           gameid: this.gameid,
           frame: this.engine.frame,
           events: this.#messageQueue.splice(0, this.#messageQueue.length),
           engine: this.engine!
         });
+
+        // ensure the engine is in the same state as before tick is called
+        // in case user mutates engine
+        this.engine.fromSnapshot(snapshot);
 
         const isValidObject = (obj: any) =>
           typeof obj === "object" && obj !== null;
@@ -201,18 +211,18 @@ export class Self {
                     "softDrop",
                     "rotateCW",
                     "rotate180",
-                    "rotateCCW"
+                    "rotateCCW",
+                    "undo",
+                    "redo",
+                    "retry"
                   ] satisfies GameTypes.Tick.Keypress["data"]["key"][]
                 ).includes(k.data.key) ||
                 typeof k.data.subframe !== "number" ||
                 isNaN(k.data.subframe) ||
                 k.data.subframe < 0
               ) {
-                Game.log(
-                  `Invalid key event at index ${idx} passed on frame ${this.engine.frame}:\n${JSON.stringify(k, null, 2)}`,
-                  {
-                    level: "error"
-                  }
+                Self.#logger.error(
+                  `Invalid key event at index ${idx} passed on frame ${this.engine.frame}:\n${JSON.stringify(k, null, 2)}`
                 );
                 return false;
               }
@@ -223,11 +233,8 @@ export class Self {
           runAfter.push(
             ...res.runAfter.filter((ra, idx) => {
               if (typeof ra !== "function") {
-                Game.log(
-                  `Invalid runAfter callback at index ${idx} passed on frame ${this.engine.frame}.`,
-                  {
-                    level: "warning"
-                  }
+                Self.#logger.warn(
+                  `Invalid runAfter callback at index ${idx} passed on frame ${this.engine.frame}.`
                 );
                 return false;
               }
@@ -296,11 +303,8 @@ export class Self {
         (performance.now() - this.startTime!);
 
       if (target <= -2000 && !this.#slowTickWarning) {
-        Game.log(
-          `Triangle.js is lagging behind by more than 2 seconds! Your \`tick\` function is likely taking too long to execute.`,
-          {
-            level: "warning"
-          }
+        Self.#logger.warn(
+          `Triangle.js is lagging behind by more than 2 seconds! Your \`tick\` function is likely taking too long to execute.`
         );
         this.#slowTickWarning = true;
       }
@@ -420,5 +424,7 @@ export class Self {
         data: strategyMap[t.strategy]
       });
     }
+
+    this.#target = t;
   }
 }

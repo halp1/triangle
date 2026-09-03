@@ -1,7 +1,8 @@
-import type { AdapterKey } from ".";
 import type { EngineSnapshot, Mino } from "../../../engine";
 import type { KickTableName } from "../../../engine/utils/kicks/data";
 import type { Game } from "../../../types";
+
+import type { AdapterKey } from ".";
 
 export interface CustomMessageData {
   info: void;
@@ -46,7 +47,7 @@ export namespace Outgoing {
     spins: Game.SpinBonuses;
     comboTable: Game.ComboTable;
 
-    b2bCharing: boolean;
+    b2bCharging: boolean;
     b2bChargeAt: number;
     b2bChargeBase: number;
     b2bChaining: boolean;

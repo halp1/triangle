@@ -21,6 +21,13 @@
     "powershell",
     "python"
   ],
+  "externalSymbolLinkMappings": {
+    "typescript": {
+      "Promise": "#",
+      "Array": "#",
+      "PromiseSettledResult": "#"
+    }
+  },
   "projectDocuments": [
     "documents/Migration.md",
     "documents/Adapters.md",

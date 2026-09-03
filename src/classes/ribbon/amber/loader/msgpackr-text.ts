@@ -1,8 +1,5 @@
-/* eslint-disable */
-// @ts-nocheck
-import { Buffer } from "buffer/index.js";
-
-export default () =>
+export const msgpackr = `
+const msgpackr = () =>
   (function (t) {
     "use strict";
     var n, r, i;
@@ -152,7 +149,7 @@ export default () =>
             let e;
             try {
               e = JSON.stringify(t, (t, e) =>
-                "bigint" == typeof e ? `${e}n` : e
+                "bigint" == typeof e ? (e + "n") : e
               ).slice(0, 100);
             } catch (t) {
               e = "(JSON view not available " + t + ")";
@@ -349,7 +346,7 @@ export default () =>
         }
       }
     }
-    const T = /^[a-zA-Z_$][a-zA-Z\d_$]*$/;
+    const T = /^[a-zA-Z_$][a-zA-Z\\d_$]*$/;
     function E(t, e) {
       function n() {
         if (n.count++ > b) {
@@ -834,7 +831,7 @@ export default () =>
       gt,
       vt = 0,
       yt = null;
-    const bt = /[\u0080-\uFFFF]/,
+    const bt = /[\\u0080-\\uFFFF]/,
       xt = Symbol("record-id");
     class wt extends x {
       constructor(t) {
@@ -1766,3 +1763,4 @@ export default () =>
       t
     );
   })({});
+`;

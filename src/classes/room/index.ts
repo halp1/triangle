@@ -1,9 +1,12 @@
-import type { Events, Game as GameTypes, Room as RoomTypes } from "../../types";
 import { Client } from "../client";
-import type { Hook } from "../client/hook";
 import { Game } from "../game";
+
 import { roomConfigPresets } from "./presets";
 import { ReplayManager } from "./replayManager";
+
+import type { Events, Game as GameTypes, Room as RoomTypes } from "../../types";
+import type { Hook } from "../../utils";
+
 import type { SpectateData } from "./types";
 
 export class Room {

@@ -4,6 +4,7 @@ export interface Social {
   "social.online": number;
 
   "social.dm": Omit<SocialTypes.DM, "ts"> & { ts: string };
+  "unsafe__social.dm": Omit<SocialTypes.DM, "ts"> & { ts: string };
   "social.dm.fail": "they.fail" | "they.ban" | "you.fail" | "you.ban" | string;
 
   "social.presence": {
@@ -22,13 +23,17 @@ export interface Social {
     from: {
       _id: string;
       username: string;
-      avatar_revision: string | null;
+      avatar_revision: number | null;
     };
     to: {
       _id: string;
       username: string;
-      avatar_revision: string | null;
+      avatar_revision: number | null;
     };
+    // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
+    type: "friend" | String;
+    unread: number;
+    updated: Date | string;
   };
 
   "social.notification": SocialTypes.Notification;
@@ -37,6 +42,6 @@ export interface Social {
     sender: string;
     roomid: string;
     roomname: string;
-    roomname_safe: string;
+    roomname_safe?: string;
   };
 }

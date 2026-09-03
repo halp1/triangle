@@ -1,6 +1,9 @@
 import { EventEmitter } from "..";
-import type { Engine, Mino } from "../../engine";
+
 import { Adapter } from "./core";
+
+import type { Engine, Mino } from "../../engine";
+
 import type * as Messages from "./types/messages";
 
 import type { ChildProcessWithoutNullStreams } from "node:child_process";

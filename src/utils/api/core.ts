@@ -1,5 +1,6 @@
-import { type APIDefaults } from ".";
 import { pack } from "..";
+
+import { type APIDefaults } from ".";
 
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -102,7 +103,7 @@ export const core = (defaults: APIDefaults) => {
       headers = {},
       json = false
     }: {
-      token?: string;
+      token?: string | null;
       uri: string;
       body: Record<string, any>;
       headers?: Record<string, string>;

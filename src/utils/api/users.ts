@@ -1,5 +1,6 @@
-import type { APIDefaults } from ".";
 import type { User as UserTypes } from "../../types";
+
+import type { APIDefaults } from ".";
 import type { Get, Post } from "./core";
 
 export namespace Users {
@@ -75,7 +76,6 @@ export const users = (get: Get, post: Post, __: APIDefaults) => {
   /** Checks whethere a user exists */
   const exists = async (username: string): Promise<boolean> => {
     const res = await get<{ exists: boolean }>({
-      token: undefined,
       uri: `users/${username}/exists`
     });
     if (res.success === false) throw new Error(res.error.msg);
@@ -85,7 +85,6 @@ export const users = (get: Get, post: Post, __: APIDefaults) => {
   /** Resolves a username to a user ID */
   const resolve = async (username: string) => {
     const res = await get<{ _id: string }>({
-      token: undefined,
       uri: `users/${encodeURIComponent(username.trim())}/resolve`
     });
     if (res.success === false) throw new Error(res.error.msg + ": " + username);
@@ -100,7 +99,7 @@ export const users = (get: Get, post: Post, __: APIDefaults) => {
       password: string
     ): Promise<{ token: string; id: string }> => {
       const res = await post<{ token: string; userid: string }>({
-        token: undefined,
+        token: null,
         uri: "users/authenticate",
         body: {
           username,

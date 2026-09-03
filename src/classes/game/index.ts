@@ -1,6 +1,8 @@
 import {
   BoardConnections,
+  deepCopy,
   Engine,
+  Mino,
   type EngineInitializeParams,
   type EngineSnapshot,
   type IncomingGarbage,
@@ -8,12 +10,13 @@ import {
   type Tile
 } from "../../engine";
 import { constants } from "../../engine/constants";
-import type { Game as GameTypes } from "../../types";
+import { Logger } from "../../utils";
 import { Client } from "../client";
+
 import { Player, type SpectatingStrategy } from "./player";
 import { Self } from "./self";
 
-import chalk from "chalk";
+import type { Game as GameTypes } from "../../types";
 
 export const moveElementToFirst = <T>(arr: T[], n: number) => [
   arr[n],
@@ -22,6 +25,8 @@ export const moveElementToFirst = <T>(arr: T[], n: number) => [
 ];
 
 export class Game {
+  static #logger = new Logger("Triangle.js");
+
   #client: Client;
   #strategy: SpectatingStrategy;
   #spectatingTimeout: NodeJS.Timeout | null = null;
@@ -56,25 +61,6 @@ export class Game {
     this.rawPlayers = players;
 
     this.#init();
-  }
-
-  /**
-   * @internal
-   * For internal use only.
-   */
-  static log(
-    msg: string,
-    { level = "info" }: { level: "info" | "warning" | "error" } = {
-      level: "info"
-    }
-  ) {
-    const func =
-      level === "info"
-        ? chalk.blue
-        : level === "warning"
-          ? chalk.yellow
-          : chalk.red;
-    console.log(`${func("[Triangle.JS]")}: ${msg}`);
   }
 
   /**
@@ -123,7 +109,7 @@ export class Game {
 
     if (performance.now() - tickStart > 1000 / Game.fps - 1) {
       if (this.#spectateWarningCounter++ === 5) {
-        Game.log(
+        Game.#logger.warn(
           "Spectating is falling behind! You are spectating too many players. Consider reducing the number of players you are spectating to improve performance."
         );
       }
@@ -381,9 +367,12 @@ export class Game {
         allowed: {
           spin180: options.allow180,
           hardDrop: options.allow_harddrop,
-          hold: options.display_hold
+          hold: options.display_hold,
+          undo: options.can_undo,
+          retry: options.can_retry
         },
         infiniteHold: options.infinite_hold,
+        stride: options.stride,
         username: options.username,
         date: new Date()
       },
@@ -397,25 +386,60 @@ export class Game {
   static snapshotFromState(
     frame: number,
     config: EngineInitializeParams,
-    state: GameTypes.State
+    state: GameTypes.State,
+    undoRedoState = false
   ): EngineSnapshot {
+    const queue = {
+      bag: {
+        extra: state.bagex,
+        id: state.bagid,
+        lastGenerated: state.lastGenerated,
+        rng: state.rng
+      },
+      value: [...(state.bag || [])]
+    };
+
+    state.falling ??= {
+      type: Mino.I,
+      x: 0,
+      y: 0,
+      r: 0,
+      hy: 0,
+      irs: 0,
+      kick: 0,
+      keys: 0,
+      flags: 0,
+      safelock: 0,
+      locking: 0,
+      lockresets: 0,
+      rotresets: 0,
+      skip: []
+    };
+
     return {
+      __meta: {
+        isUndoRedo: undoRedoState
+      },
       // TODO: actual connected board
-      board: state.board.toReversed().map((row) =>
-        row.map(
-          (square): Tile =>
-            square
-              ? {
-                  mino: square,
-                  connections:
-                    BoardConnections.TOP |
-                    BoardConnections.RIGHT |
-                    BoardConnections.BOTTOM |
-                    BoardConnections.LEFT
-                }
-              : null
-        )
-      ),
+      board:
+        state.board?.toReversed().map((row) =>
+          row.map(
+            (square): Tile =>
+              square
+                ? {
+                    mino: square,
+                    connections:
+                      BoardConnections.TOP |
+                      BoardConnections.RIGHT |
+                      BoardConnections.BOTTOM |
+                      BoardConnections.LEFT
+                  }
+                : null
+          )
+        ) ??
+        Array.from({ length: config.board.height }, () =>
+          Array.from({ length: config.board.width }, () => null)
+        ),
       falling: {
         aox: 0,
         aoy: 0,
@@ -537,14 +561,36 @@ export class Game {
       stock: state.stock,
       subframe: state.subframe,
       targets: state.targets,
-      queue: {
-        bag: {
-          extra: state.bagex,
-          id: state.bagid,
-          lastGenerated: state.lastGenerated,
-          rng: state.rng
-        },
-        value: [...state.bag]
+      queue,
+      _queue: deepCopy(queue),
+      practice: {
+        ...(state.otherstates
+          ? {
+              undo: state.otherstates.undo.map((s) =>
+                Game.snapshotFromState(frame, config, s, true)
+              ),
+              redo: state.otherstates.redo.map((s) =>
+                Game.snapshotFromState(frame, config, s, true)
+              ),
+              lastPiece: state.otherstates.lastpiece
+                ? Game.snapshotFromState(
+                    frame,
+                    config,
+                    state.otherstates.lastpiece,
+                    true
+                  )
+                : null
+            }
+          : {
+              undo: [],
+              redo: [],
+              lastPiece: null
+            }),
+        retry: state.retry,
+        retryIter: state.retryiter
+      },
+      time: {
+        frameOffset: state.time.frameoffset
       }
     };
   }

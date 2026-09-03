@@ -4,9 +4,10 @@ import { Bag7Plus2 } from "./bag7-2";
 import { Bag7PlusX } from "./bag7-x";
 import { Bag14 } from "./bag14";
 import { Classic } from "./classic";
-import type { Bag } from "./core";
 import { Pairs } from "./pairs";
 import { Random } from "./random";
+
+import type { Bag } from "./core";
 
 export type BagType =
   | "7-bag"

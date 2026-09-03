@@ -10,6 +10,7 @@ on:
 jobs:
   publish-npm:
     runs-on: ubuntu-latest
+    environment: Production
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
@@ -17,14 +18,14 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
       - uses: oven-sh/setup-bun@v2
-      - run: npm ci
+      - run: bun ci
       - run: bun run build
       - name: Publish to npm
         run: |
           if [ "${{ github.event.release.prerelease }}" = "true" ]; then
-            npm publish --tag next
+            npm publish --tag next --access public
           else
-            npm publish
+            npm publish --access public
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}

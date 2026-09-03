@@ -1,3 +1,5 @@
+import { Hook } from "./hook";
+
 export class EventEmitter<T extends Record<string, any>> {
   #listeners: [keyof T, (data: any) => void, boolean][];
   #maxListeners = {
@@ -106,6 +108,10 @@ export class EventEmitter<T extends Record<string, any>> {
     this.#maxListeners = data;
   }
 
+  hook() {
+    return new Hook(this);
+  }
+
   export() {
     return {
       listeners: this.#listeners.map(([event, cb, once]) => ({
@@ -131,3 +137,5 @@ export class EventEmitter<T extends Record<string, any>> {
     return this;
   }
 }
+
+export * from "./hook";

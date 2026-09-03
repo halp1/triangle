@@ -60,9 +60,7 @@ export namespace Game {
   export type GarbageBlocking = "combo blocking" | "limited blocking" | "none";
   /** Garbage target bonus not yet supported. Used in royale mode */
   export type GarbageTargetBonus = "offensive" | "defensive" | "none";
-  /** Only `zero` passthrough supported */
   export type Passthrough = "zero" | "limited" | "consistent" | "full";
-  /** Only `T-spins` supported */
   export type SpinBonuses =
     | "T-spins"
     | "T-spins+"
@@ -406,7 +404,7 @@ export namespace Game {
     bagex: Mino[];
     bagid: number;
     /** Note: `board` is reversed compared to triangle */
-    board: BoardSquare[][];
+    board?: BoardSquare[][];
     /** 0 to 255 */
     boardedges: number[][];
     cancelstreak: number;
@@ -420,7 +418,7 @@ export namespace Game {
     esc: boolean;
     escAllowed: boolean;
     esciter: number;
-    falling: {
+    falling?: {
       flags: number;
       hy: number;
       irs: number;
@@ -514,10 +512,10 @@ export namespace Game {
     lastwasclear: boolean;
     nextwilltank: boolean;
     notyetreceivedattacks: number;
-    otherstates: {
-      lastpiece: null | unknown;
-      undo: unknown[];
-      redo: unknown[];
+    otherstates?: {
+      lastpiece: null | State;
+      undo: State[];
+      redo: State[];
     };
     pause: boolean;
     placement: number;
@@ -860,7 +858,10 @@ export namespace Game {
     | "rotate180"
     | "softDrop"
     | "hardDrop"
-    | "hold";
+    | "hold"
+    | "undo"
+    | "redo"
+    | "retry";
   export namespace Replay {
     export namespace Frames {
       export type all =

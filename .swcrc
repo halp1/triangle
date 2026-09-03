@@ -9,5 +9,9 @@
   "module": {
     "type": "commonjs"
   },
-  "sourceMaps": true
+  "sourceMaps": true,
+  "exclude": [
+    "src/classes/ribbon/amber/node_modules/**/*",
+    "src/classes/ribbon/amber/test/**/*"
+  ]
 }

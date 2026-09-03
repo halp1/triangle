@@ -1,6 +1,8 @@
 import { Ribbon, type LoggingLevel, type Spool, type Transport } from ".";
+
 import type { Events, Game } from "../../types";
 import type { APIDefaults, APITypes, EventEmitter } from "../../utils";
+
 import { Buffer } from "buffer/index.js";
 
 export namespace RibbonEvents {

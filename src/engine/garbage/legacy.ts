@@ -1,10 +1,11 @@
+import { deepCopy, RNG } from "../utils";
+
 import {
   type GarbageQueueInitializeParams,
   type IncomingGarbage,
   type GarbageQueueSnapshot,
   type OutgoingGarbage
 } from ".";
-import { deepCopy, RNG } from "../utils";
 
 const columnWidth = (width: number, garbageHoleSize: number) => {
   return Math.max(0, width - (garbageHoleSize - 1));
@@ -57,18 +58,31 @@ export class LegacyGarbageQueue {
   }
 
   get size() {
-    return this.queue.reduce((a, b) => a + b.amount, 0);
+    let total = 0;
+    for (let i = 0; i < this.queue.length; i++) total += this.queue[i].amount;
+    return total;
   }
 
   receive(...args: IncomingGarbage[]) {
-    this.queue.push(...args.filter((arg) => arg.amount > 0));
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i];
+      if (arg.amount > 0) this.queue.push(arg);
+    }
 
-    while (this.size > this.options.cap.absolute) {
-      const total = this.size;
-      if (this.queue.at(-1)!.amount <= total - this.options.cap.absolute) {
+    const cap = this.options.cap.absolute;
+    let total = 0;
+    for (let i = 0; i < this.queue.length; i++) total += this.queue[i].amount;
+
+    while (total > cap) {
+      const excess = total - cap;
+      const lastIndex = this.queue.length - 1;
+      const last = this.queue[lastIndex];
+      if (last.amount <= excess) {
+        total -= last.amount;
         this.queue.pop();
       } else {
-        this.queue.at(-1)!.amount -= total - this.options.cap.absolute;
+        last.amount -= excess;
+        total -= excess;
       }
     }
   }
@@ -90,15 +104,19 @@ export class LegacyGarbageQueue {
       cancel = 0;
 
     const cancelled: IncomingGarbage[] = [];
+    let currentSize = 0;
+    for (let i = 0; i < this.queue.length; i++)
+      currentSize += this.queue[i].amount;
 
     if (
       pieceCount + 1 <=
         this.options.openerPhase - (legacy.openerPhase ? 1 : 0) &&
-      this.size >= this.sent
+      currentSize >= this.sent
     )
       cancel += amount;
-    while ((send > 0 || cancel > 0) && this.size > 0) {
+    while ((send > 0 || cancel > 0) && this.queue.length > 0) {
       this.queue[0].amount--;
+      currentSize--;
 
       if (
         cancelled.length === 0 ||
@@ -259,7 +277,12 @@ export class LegacyGarbageQueue {
 
     this.queue = queue;
 
-    return res.map((v) => ({ ...v, bombs: this.options.bombs }));
+    const output = new Array(res.length);
+    for (let i = 0; i < res.length; i++) {
+      output[i] = { ...res[i], bombs: this.options.bombs };
+    }
+
+    return output;
   }
 
   round(amount: number): number {
@@ -275,5 +298,9 @@ export class LegacyGarbageQueue {
       default:
         throw new Error(`Invalid rounding mode ${this.options.rounding}`);
     }
+  }
+
+  reset() {
+    this.queue = [];
   }
 }

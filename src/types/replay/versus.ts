@@ -50,6 +50,7 @@ export interface VersusReplay {
           allclear_b2b_sends: boolean;
           allclear_garbage: number;
           allow180: boolean;
+          b2bcharge_at: number;
           b2bcharge_base: number;
           boardheight: number;
           boardwidth: number;
@@ -57,6 +58,8 @@ export interface VersusReplay {
           b2bchaining: boolean;
           b2bcharging: boolean;
           bgmnoreset: boolean;
+          can_retry: boolean;
+          can_undo: boolean;
           countdown: boolean;
           combotable: Game.ComboTable;
           countdown_count: number;
@@ -90,6 +93,7 @@ export interface VersusReplay {
           kickset: KickTable;
           latencymode?: string;
           lockresets: number;
+          locktime: number;
           manual_allowed: boolean;
           messiness_change: number;
           messiness_nosame: boolean;
@@ -116,6 +120,7 @@ export interface VersusReplay {
           slot_counter5?: string;
           song: string;
           spinbonuses: Game.SpinBonuses;
+          stride: boolean;
           usebombs: boolean;
           username: string;
           version: number;

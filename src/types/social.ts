@@ -52,7 +52,7 @@ export namespace Social {
         role: User.Role;
         supporter: boolean;
         supporter_tier: number;
-        verified: boolean;
+        verified?: boolean;
       };
       system: boolean;
     };
@@ -70,17 +70,33 @@ export namespace Social {
     | "supporter_gift"
     | "";
 
-  export interface Notification {
+  export type Notification = {
     _id: string;
-    data: {
-      relationship: Relationship;
-      ismutual: boolean;
-    };
     seen: boolean;
     stream: string;
     ts: string | Date;
-    type: string;
-  }
+  } & (
+    | {
+        data: {
+          relationship: Relationship;
+          ismutual: boolean;
+        };
+        type: "friend";
+      }
+    | {
+        data: {
+          userid: string;
+          username: string;
+          avatar_revision: number | null;
+          months: number;
+        };
+        type: "supporter_gift";
+      }
+    | {
+        data: unknown;
+        type: Exclude<NotificationType, "friend" | "supporter_gift">;
+      }
+  );
 
   export type RelationshipType = "friend" | "block" | "pending";
   export interface Relationship {

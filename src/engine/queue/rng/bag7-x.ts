@@ -1,4 +1,5 @@
 import { Mino } from "../types";
+
 import { Bag } from "./core";
 
 export class Bag7PlusX extends Bag {

@@ -1,22 +1,39 @@
-import type { Types } from "../..";
-import type { Events, Game as GameTypes } from "../../types";
-import { API, CONSTANTS, parseToken } from "../../utils";
+import { API, CONSTANTS, Logger, parseToken } from "../../utils";
 import { Game, type SpectatingStrategy } from "../game";
 import { Ribbon } from "../ribbon";
 import { Room } from "../room";
 import { Social } from "../social";
-import { Hook } from "./hook";
-import type { ClientOptions, ClientUser, GameOptions } from "./types";
+
+import type { Types } from "../..";
+import type { Events, Game as GameTypes } from "../../types";
+
+import type { ClientOptions, ClientUser, GameOptions, Warning } from "./types";
 
 export type * from "./types";
 
 export class Client {
+  static #eventWarnings: {
+    event: keyof Events.in.all;
+    warning: string;
+  }[] = [
+    {
+      event: "social.dm",
+      warning:
+        'This can cause unexpected or erroneous behavior. Instead, use the "client.dm" event. If you really know what you are doing and want to use the "social.dm" event, use the identical "unsafe__social.dm" event.'
+    }
+  ];
+
+  #logger = new Logger("Triangle.js");
+
   /** User information */
   user: ClientUser;
   /** Whether the client has been disconnected. If true, the client needs to be reconnected with `.reconnect()` or destroyed */
   disconnected: boolean = false;
   /** The client's token */
   token: string;
+  /** The warnings that the client will suppress */
+  suppressWarnings?: Warning[];
+
   /** @hidden */
   #handling: GameTypes.Handling;
   #spectatingStrategy!: SpectatingStrategy;
@@ -39,34 +56,6 @@ export class Client {
     create(type?: "public" | "private"): Promise<Room>;
   };
 
-  /**
-   * Raw ribbon handler.
-   * @example
-   * client.on('social.dm', () => console.log('DM received!'));
-   */
-  on: typeof this.ribbon.emitter.on;
-  /**
-   * Raw ribbon handler.
-   * @example
-   * const listener = () => console.log('DM received!');
-   * client.on('social.dm', listener);
-   *
-   * // later
-   * client.off('social.dm', listener);
-   */
-  off: typeof this.ribbon.emitter.off;
-  /**
-   * Raw ribbon handler.
-   * You might want to use `client.wait` instead.
-   * @example
-   * client.once('social.invite', ({ roomid }) => console.log(`Invited to room ${roomid}`));
-   */
-  once: typeof this.ribbon.emitter.once;
-  /**
-   * Raw ribbon handler for sending messages.
-   */
-  emit: typeof this.ribbon.emit;
-
   /** @hideconstructor */
   private constructor(
     token: string,
@@ -74,14 +63,12 @@ export class Client {
     ribbon: Ribbon,
     me: Awaited<ReturnType<API["users"]["me"]>>,
     userAgent: string = CONSTANTS.userAgent,
-    gameOptions: GameOptions
+    gameOptions: GameOptions,
+    suppressWarnings?: Warning[]
   ) {
     this.token = token;
     this.ribbon = ribbon;
-    this.on = ribbon.emitter.on.bind(ribbon.emitter);
-    this.off = ribbon.emitter.off.bind(ribbon.emitter);
-    this.once = ribbon.emitter.once.bind(ribbon.emitter);
-    this.emit = ribbon.emit.bind(ribbon);
+    this.suppressWarnings = suppressWarnings;
 
     this.user = {
       id: me._id,
@@ -153,9 +140,7 @@ export class Client {
       api.update({ turnstile: options.turnstile });
     }
 
-    const sessionID = `SESS-${Math.floor(
-      Math.random() * Number.MAX_SAFE_INTEGER
-    )}`;
+    const sessionID = `SESS-${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`;
     let self: { id: string; token: string };
     if ("token" in options) {
       if (!options.token) throw new Error("No valid token was provided");
@@ -229,13 +214,75 @@ export class Client {
       { handling, spectatingStrategy: "instant", ...options.game }
     );
 
-    client.social = await Social.create(
-      client,
-      options.social || {},
-      data.social
-    );
+    client.social = Social.create(client, options.social || {}, data.social);
 
     return client;
+  }
+
+  /**
+   * Raw ribbon handler.
+   * @example
+   * client.on('client.dm', () => console.log('DM received!'));
+   */
+  on<K extends keyof Events.in.all>(
+    event: K,
+    cb: (data: Events.in.all[K]) => void
+  ): this {
+    if (Client.#eventWarnings.some((w) => w.event === event)) {
+      const warning = Client.#eventWarnings.find(
+        (w) => w.event === event
+      )?.warning;
+
+      this.#logger.warn(
+        `You just tried to bind an event listener to the ${event} event. ${warning}.\nStack trace for the above warning:\n${new Error().stack}`
+      );
+    }
+
+    this.ribbon.emitter.on(event, cb);
+
+    return this;
+  }
+
+  /**
+   * Raw ribbon handler.
+   * @example
+   * const listener = () => console.log('DM received!');
+   * client.on('client.dm', listener);
+   *
+   * // later
+   * client.off('client.dm', listener);
+   */
+  off<K extends keyof Events.in.all>(
+    event: K,
+    cb: (data: Events.in.all[K]) => void
+  ): this {
+    this.ribbon.emitter.off(event, cb);
+    return this;
+  }
+
+  /**
+   * Raw ribbon handler.
+   * You might want to use `client.wait` instead.
+   * @example
+   * client.once('social.invite', ({ roomid }) => console.log(`Invited to room ${roomid}`));
+   */
+  once<K extends keyof Events.in.all>(
+    event: K,
+    cb: (data: Events.in.all[K]) => void
+  ): this {
+    this.ribbon.emitter.once(event, cb);
+    return this;
+  }
+
+  /**
+   * Raw ribbon handler for sending messages.
+   */
+  emit<K extends keyof Events.out.all>(
+    event: K,
+    ...data: Events.out.all[K] extends void ? [] : [Events.out.all[K]]
+  ): this {
+    this.ribbon.emit(event, ...data);
+    return this;
   }
 
   /**
@@ -293,7 +340,7 @@ export class Client {
   }
 
   hook() {
-    return new Hook(this.ribbon.emitter);
+    return this.ribbon.emitter.hook();
   }
 
   /** @hidden */
@@ -353,9 +400,19 @@ export class Client {
       }
     });
 
+    this.on("staff.spam", () => {
+      this.#logger.warn(
+        '"staff.spam" message received. You are sending too many DMs, and some of them failed to go through. You may only send ~5 messages/250 ms.'
+      );
+    });
+
     this.on("client.dead", async () => {
       this.disconnected = true;
       this.room?.destroy();
+    });
+
+    this.ribbon.emitter.on("social.dm", (data) => {
+      this.ribbon.emitter.emit("unsafe__social.dm", data);
     });
   }
 
@@ -387,7 +444,7 @@ export class Client {
       }
     );
     delete this.room;
-    this.social = await Social.create(this, this.social.config, data.social);
+    this.social = Social.create(this, this.social.config, data.social);
   }
 
   /** The client's current handling. Do not change the client's handling while in a room. */
@@ -430,5 +487,3 @@ export class Client {
     if (this.game) delete this.game;
   }
 }
-
-export * from "./hook";

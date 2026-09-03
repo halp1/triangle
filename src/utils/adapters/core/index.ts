@@ -15,7 +15,7 @@ export abstract class Adapter<
       kicks: engine.kickTableName,
       spins: engine.gameOptions.spinBonuses,
       comboTable: engine.gameOptions.comboTable,
-      b2bCharing: !!engine.b2b.charging,
+      b2bCharging: !!engine.b2b.charging,
       b2bChargeAt: engine.b2b.charging ? engine.b2b.charging.at : 0,
       b2bChargeBase: engine.b2b.charging ? engine.b2b.charging.base : 0,
       b2bChaining: engine.b2b.chaining,

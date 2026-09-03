@@ -1,8 +1,11 @@
 import { deepCopy } from "../../engine";
 import { Events, type Social as SocialTypes } from "../../types";
-import { APITypes } from "../../utils";
-import type { Client } from "../client";
+import { APITypes, Hook } from "../../utils";
+
 import { Relationship } from "./relationship";
+
+import type { Client } from "../client";
+
 import type { SocialSnapshot } from "./types";
 
 import chalk from "chalk";
@@ -29,6 +32,7 @@ const processRelationship = (r: SocialTypes.Relationship, selfID: string) => ({
 
 export class Social {
   #client: Client;
+  #hook: Hook<Events.in.all>;
 
   /** The current number of people online */
   online: number;
@@ -56,6 +60,7 @@ export class Social {
     init: SocialInitData | SocialSnapshot
   ) {
     this.#client = client;
+    this.#hook = client.hook();
     this.config = _.merge(Social.defaultConfig, config);
 
     this.#init();
@@ -100,7 +105,7 @@ export class Social {
     this.notifications = init.notifications;
   }
 
-  static async create(
+  static create(
     client: Client,
     config: Partial<SocialTypes.Config>,
     initData: Events.in.Client["client.ready"]["social"]
@@ -152,11 +157,11 @@ export class Social {
       }, 0);
     }
 
-    this.#client.on("social.online", (count) => {
+    this.#hook.on("social.online", (count) => {
       this.online = count;
     });
 
-    this.#client.on("social.notification", async (n) => {
+    this.#hook.on("social.notification", async (n) => {
       this.notifications.splice(0, 0, n);
 
       if (this.config.autoProcessNotifications) {
@@ -192,67 +197,69 @@ export class Social {
       }
     });
 
-    this.#client.on("social.dm", async (raw) => {
-      const dm: SocialTypes.DM = { ...raw, ts: new Date(raw.ts) };
+    this.#hook.on("unsafe__social.dm", this.#dmListener.bind(this));
+  }
 
-      let target = dm.data.user;
+  async #dmListener(raw: Omit<SocialTypes.DM, "ts"> & { ts: string }) {
+    const dm: SocialTypes.DM = { ...raw, ts: new Date(raw.ts) };
 
-      if (dm.data.user === this.#client.user.id) {
-        const userID = dm.stream
-          .split(":")
-          .filter((id) => id !== this.#client.user.id)[0];
+    let target = dm.data.user;
 
-        // failsafe
-        if (!userID) return;
+    if (dm.data.user === this.#client.user.id) {
+      const userID = dm.stream
+        .split(":")
+        .filter((id) => id !== this.#client.user.id)[0];
 
-        target = userID;
-      }
+      // failsafe
+      if (!userID) return;
 
-      let user = this.get({ id: target });
-      if (user) {
-        if (!user.dmsLoaded && this.config.autoLoadDMs) await user.loadDms();
-        else user.dms.push({ ...dm, ts: new Date(dm.ts) });
-      } else {
-        try {
-          const u = await this.who(target);
-          this.other.push(
-            new Relationship(
-              {
-                id: u._id,
-                username: u.username,
-                avatar: u.avatar_revision,
-                relationshipID: ""
-              },
-              this,
-              this.#client
-            )
-          );
+      target = userID;
+    }
 
-          user = this.get({ id: target })!;
-          if (this.config.autoLoadDMs) await user.loadDms();
-        } catch {
-          /* empty */
-        }
-      }
-
-      if (!user) {
-        console.warn(
-          `${chalk.yellowBright("[Triangle.js]")}: Failed to load user data for ${target}. 'client.dm' event discareded.`
+    let user = this.get({ id: target });
+    if (user) {
+      if (!user.dmsLoaded && this.config.autoLoadDMs)
+        await user.loadDms().catch(() => {});
+      else user.dms.push({ ...dm, ts: new Date(dm.ts) });
+    } else {
+      try {
+        const u = await this.who(target);
+        this.other.push(
+          new Relationship(
+            {
+              id: u._id,
+              username: u.username,
+              avatar: u.avatar_revision,
+              relationshipID: ""
+            },
+            this,
+            this.#client
+          )
         );
 
-        user = this.get({ id: dm.data.user })!;
-        if (this.config.autoLoadDMs) await user.loadDms();
+        user = this.get({ id: target })!;
+        if (this.config.autoLoadDMs) await user.loadDms().catch(() => {});
+      } catch {
+        /* empty */
       }
+    }
 
-      // don't trigger client.dm for messages sent by the client itself
-      if (dm.data.user === this.#client.user.id) return;
+    if (!user) {
+      console.warn(
+        `${chalk.yellowBright("[Triangle.js]")}: Failed to load user data for ${target}. 'client.dm' event discareded.`
+      );
 
-      this.#client.emit("client.dm", {
-        relationship: user,
-        raw: dm,
-        content: dm.data.content,
-        reply: (content: string) => this.dm(dm.data.user, content)
-      });
+      return;
+    }
+
+    // don't trigger client.dm for messages sent by the client itself
+    if (dm.data.user === this.#client.user.id) return;
+
+    this.#client.emit("client.dm", {
+      relationship: user,
+      raw: dm,
+      content: dm.data.content,
+      reply: (content: string) => this.dm(dm.data.user, content)
     });
   }
 
@@ -332,13 +339,21 @@ export class Social {
   async dm(
     userID: string,
     message: string
-  ): Promise<SocialTypes.DM | Events.in.all["social.dm.fail"]> {
+  ): Promise<
+    | SocialTypes.DM
+    | Events.in.all["social.dm.fail"]
+    | Events.in.all["staff.spam"]
+  > {
+    if (userID === this.#client.user.id) {
+      throw new Error("You can't DM yourself.");
+    }
+
     try {
       const res = await this.#client.wrap(
         "social.dm",
         { recipient: userID, msg: message },
-        "social.dm",
-        ["social.dm.fail", "client.error"]
+        "unsafe__social.dm",
+        ["social.dm.fail", "staff.spam", "client.error"]
       );
 
       return {
@@ -347,7 +362,9 @@ export class Social {
       };
     } catch (e) {
       if (this.config.suppressDMErrors)
-        return e as Events.in.all["social.dm.fail"];
+        return e as
+          | Events.in.all["social.dm.fail"]
+          | Events.in.all["staff.spam"];
       throw e;
     }
   }
@@ -427,10 +444,10 @@ export class Social {
     return Promise.race([
       new Promise<never>((_, reject) => {
         const onError = (e: string) => {
-          this.#client.off("client.error", onError);
+          this.#hook.off("client.error", onError);
           reject(e);
         };
-        this.#client.once("client.error", onError);
+        this.#hook.once("client.error", onError);
       }),
 
       new Promise<void>((resolve) => {
@@ -447,6 +464,18 @@ export class Social {
   // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
   status(status: SocialTypes.Status, detail: SocialTypes.Detail | String = "") {
     this.#client.emit("social.presence", { status, detail });
+  }
+
+  /**
+   * @internal
+   */
+  destroy() {
+    this.#hook.destroy();
+
+    this.friends = [];
+    this.other = [];
+    this.blocked = [];
+    this.notifications = [];
   }
 
   /**

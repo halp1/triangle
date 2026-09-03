@@ -1,5 +1,5 @@
-import type { Game } from "../types/game";
-import { EventEmitter } from "../utils/events";
+import { EventEmitter, Hook } from "../utils/events";
+
 import {
   Board,
   BoardConnections,
@@ -17,13 +17,6 @@ import {
 import { IGEHandler, type MultiplayerOptions } from "./multiplayer";
 import { Queue, type QueueInitializeParams } from "./queue";
 import { Mino } from "./queue/types";
-import type {
-  EngineSnapshot,
-  Events,
-  IncreasableValue,
-  LockRes,
-  SpinType
-} from "./types";
 import { IncreaseTracker, deepCopy } from "./utils";
 import { garbageCalcV2, garbageData } from "./utils/damageCalc";
 import { type KickTable, legal, performKick } from "./utils/kicks";
@@ -34,6 +27,16 @@ import {
   spinbonusRules
 } from "./utils/kicks/data";
 import { Tetromino, tetrominoes } from "./utils/tetromino";
+
+import type { Game } from "../types/game";
+
+import type {
+  EngineSnapshot,
+  Events,
+  IncreasableValue,
+  LockRes,
+  SpinType
+} from "./types";
 import type { Rotation } from "./utils/tetromino/types";
 
 import chalk from "chalk";
@@ -75,8 +78,11 @@ export interface MiscellaneousOptions {
     spin180: boolean;
     hardDrop: boolean;
     hold: boolean;
+    undo: boolean;
+    retry: boolean;
   };
   infiniteHold: boolean;
+  stride: boolean;
   username?: string;
   date?: Date;
 }
@@ -97,10 +103,13 @@ export interface EngineInitializeParams {
 
 export class Engine {
   queue!: Queue;
+  // internal queue matching tetrio length for handling resets correctly
+  #queue!: Queue;
   held!: Mino | null;
   holdLocked!: boolean;
   falling!: Tetromino;
   #kickTable!: KickTableName;
+  #undoHook!: Hook<Events>;
   board!: Board;
   lastSpin!: SpinType | null;
   lastWasClear!: boolean;
@@ -144,7 +153,6 @@ export class Engine {
       zero: boolean;
       locked: boolean;
       prev: number;
-      frameoffset: number;
     };
     lastPieceTime: number;
   };
@@ -175,6 +183,20 @@ export class Engine {
 
   state!: number;
   stock!: number;
+
+  practice!: {
+    undo: EngineSnapshot[];
+    redo: EngineSnapshot[];
+
+    retry: boolean;
+    retryIter: number;
+
+    lastPiece: EngineSnapshot | null;
+  };
+
+  time!: {
+    frameOffset: number;
+  };
 
   spike!: {
     count: number;
@@ -208,6 +230,8 @@ export class Engine {
     ]);
 
     this.queue = new Queue(options.queue);
+    this.#queue = new Queue(options.queue);
+    this.#queue.minLength = 14; // Note: becomes 6 if 'zenith' bag is used
 
     this.queue.onRepopulate(this.#onQueueRepopulate.bind(this));
 
@@ -284,6 +308,18 @@ export class Engine {
 
     this.misc = options.misc;
 
+    this.practice = {
+      redo: [],
+      undo: [],
+      retry: false,
+      retryIter: 0,
+      lastPiece: null
+    };
+
+    this.time = {
+      frameOffset: 0
+    };
+
     this.gameOptions = options.options;
     this.handling = options.handling;
     this.input = {
@@ -291,7 +327,7 @@ export class Engine {
       rShift: { held: false, arr: 0, das: 0, dir: 1 },
       lastShift: -1,
       firstInputTime: -1,
-      time: { start: 0, zero: true, locked: false, prev: 0, frameoffset: 0 },
+      time: { start: 0, zero: true, locked: false, prev: 0 },
       lastPieceTime: 0,
       keys: {
         softDrop: false,
@@ -313,13 +349,36 @@ export class Engine {
 
     this.#flushRes();
 
+    if (this.#undoHook) this.#undoHook.destroy();
+    this.#undoHook = new Hook(this.events);
+
+    if (this.misc.allowed.undo) {
+      this.#undoHook.on(
+        "falling.lock.pre",
+        this.undoPieceLockHandler.bind(this)
+      );
+      this.#undoHook.on("falling.new", this.undoPieceSpawnHandler.bind(this));
+    }
+
     this.nextPiece();
 
     this.bindAll();
   }
 
   #flushRes() {
-    const res = this.resCache ? deepCopy(this.resCache) : null;
+    let res = null;
+    if (this.resCache) {
+      res = {
+        pieces: this.resCache.pieces,
+        garbage: {
+          sent: [...this.resCache.garbage.sent],
+          received: [...this.resCache.garbage.received]
+        },
+        keys: [...this.resCache.keys],
+        lastLock: this.resCache.lastLock
+      };
+    }
+
     this.resCache = {
       pieces: 0,
       garbage: {
@@ -348,6 +407,9 @@ export class Engine {
     this.rotateCW = this.rotateCW.bind(this);
     this.rotateCCW = this.rotateCCW.bind(this);
     this.rotate180 = this.rotate180.bind(this);
+    this.undo = this.undo.bind(this);
+    this.redo = this.redo.bind(this);
+    this.retry = this.retry.bind(this);
     this.snapshot = this.snapshot.bind(this);
     this.fromSnapshot = this.fromSnapshot.bind(this);
     this.nextPiece = this.nextPiece.bind(this);
@@ -357,8 +419,11 @@ export class Engine {
     this.events.emit("queue.add", pieces);
   }
 
-  snapshot(): EngineSnapshot {
+  snapshot({ isUndoRedo = false } = {}): EngineSnapshot {
     return {
+      __meta: {
+        isUndoRedo
+      },
       board: deepCopy(this.board.state),
       falling: this.falling.snapshot(),
       frame: this.frame,
@@ -368,6 +433,7 @@ export class Engine {
       lastSpin: deepCopy(this.lastSpin),
       lastWasClear: this.lastWasClear,
       queue: this.queue.snapshot(),
+      _queue: this.#queue.snapshot(),
       input: deepCopy(this.input),
       subframe: this.subframe,
       targets: this.multiplayer?.targets,
@@ -377,14 +443,27 @@ export class Engine {
       ige: this.igeHandler.snapshot(),
       state: this.state,
       spike: deepCopy(this.spike),
-      resCache: deepCopy(this.resCache)
+      time: deepCopy(this.time),
+      resCache: deepCopy(this.resCache),
+      practice: isUndoRedo
+        ? {
+            lastPiece: null,
+            redo: [],
+            undo: [],
+            retry: this.practice.retry,
+            retryIter: this.practice.retryIter
+          }
+        : deepCopy(this.practice)
     };
   }
 
   fromSnapshot(snapshot: EngineSnapshot) {
-    const options = deepCopy(this.initializer, [
-      { type: Date, copy: (d) => new Date(d) }
-    ]);
+    // const options = deepCopy(this.initializer, [
+    //   { type: Date, copy: (d) => new Date(d) }
+    // ]);
+
+    const options = this.initializer;
+
     this.board.state = deepCopy(snapshot.board);
     this.falling = new Tetromino({
       boardHeight: this.board.height,
@@ -400,17 +479,20 @@ export class Engine {
       // @ts-expect-error
       this.falling[key] = deepCopy(snapshot.falling[key]);
     }
-    this.frame = snapshot.frame;
-    this.subframe = snapshot.subframe;
+
+    if (!snapshot.__meta.isUndoRedo) {
+      this.frame = snapshot.frame;
+      this.subframe = snapshot.subframe;
+    }
+
     this.garbageQueue.fromSnapshot(snapshot.garbage);
     this.held = snapshot.hold;
     this.holdLocked = snapshot.holdLocked;
     this.lastSpin = deepCopy(snapshot.lastSpin);
     this.lastWasClear = snapshot.lastWasClear;
-    this.queue = new Queue(options.queue);
-    this.queue.fromSnapshot(snapshot.queue);
 
-    this.queue.onRepopulate(this.#onQueueRepopulate.bind(this));
+    this.queue.fromSnapshot(snapshot.queue);
+    this.#queue.fromSnapshot(snapshot._queue);
 
     this.dynamic = {
       gravity: new IncreaseTracker(
@@ -430,13 +512,25 @@ export class Engine {
       )
     };
 
-    for (let i = 0; i < this.frame; i++)
-      for (const key of Object.keys(this.dynamic))
-        this.dynamic[key as keyof typeof this.dynamic].tick();
+    for (let i = 0; i < this.frame; i++) {
+      this.dynamic.gravity.tick();
+      this.dynamic.garbageMultiplier.tick();
+      this.dynamic.garbageCap.tick();
+    }
 
-    this.input = deepCopy(snapshot.input);
+    if (!snapshot.__meta.isUndoRedo) {
+      this.input = deepCopy(snapshot.input);
+    } else {
+      this.input.firstInputTime = snapshot.input.firstInputTime;
+      this.input.time = deepCopy(snapshot.input.time);
+      this.input.lastPieceTime = snapshot.input.lastPieceTime;
+      this.input.keys = {
+        ...deepCopy(snapshot.input.keys),
+        softDrop: this.input.keys.softDrop
+      };
+    }
 
-    if (this.multiplayer && snapshot.targets)
+    if (this.multiplayer && snapshot.targets && !snapshot.__meta.isUndoRedo)
       this.multiplayer.targets = [...snapshot.targets];
 
     this.stats = deepCopy(snapshot.stats);
@@ -444,9 +538,24 @@ export class Engine {
     this.stock = snapshot.stock;
     this.state = snapshot.state;
     this.spike = deepCopy(snapshot.spike);
+    this.time = deepCopy(snapshot.time);
     this.igeHandler.fromSnapshot(snapshot.ige);
 
     this.resCache = deepCopy(snapshot.resCache);
+
+    this.practice = {
+      retry: snapshot.practice.retry,
+      retryIter: snapshot.practice.retryIter,
+      lastPiece: !snapshot.__meta.isUndoRedo
+        ? deepCopy(snapshot.practice.lastPiece)
+        : this.practice.lastPiece,
+      redo: !snapshot.__meta.isUndoRedo
+        ? deepCopy(snapshot.practice.redo)
+        : this.practice.redo,
+      undo: !snapshot.__meta.isUndoRedo
+        ? deepCopy(snapshot.practice.undo)
+        : this.practice.undo
+    };
   }
 
   get kickTable(): (typeof kicks)[KickTableName] {
@@ -462,12 +571,13 @@ export class Engine {
   }
 
   get dynamicStats() {
+    const frame = this.frame - this.time.frameOffset;
     return {
-      apm: this.stats.garbage.attack / (this.frame / 60 / 60) || 0,
-      pps: this.stats.pieces / (this.frame / 60) || 0,
+      apm: this.stats.garbage.attack / (frame / 60 / 60) || 0,
+      pps: this.stats.pieces / (frame / 60) || 0,
       vs:
         ((this.stats.garbage.attack + this.stats.garbage.cleared) /
-          (this.frame / 60)) *
+          (frame / 60)) *
           100 || 0,
       surgePower: this.b2b.charging
         ? Math.floor(
@@ -828,6 +938,7 @@ export class Engine {
 
   nextPiece(ignoreBlockout = false, isHold = false) {
     const newTetromino = this.queue.shift()!;
+    this.#queue.shift();
 
     this.initiatePiece(newTetromino, ignoreBlockout, isHold);
   }
@@ -910,6 +1021,8 @@ export class Engine {
         }
       }
     }
+
+    this.events.emit("falling.new", { piece: this.falling.symbol, isHold });
   }
 
   #considerBlockout(isSilent: boolean = false) {
@@ -1055,11 +1168,102 @@ export class Engine {
     return res;
   }
 
+  undoPieceSpawnHandler({ isHold }: { isHold: boolean }) {
+    if (isHold) return;
+
+    this.practice.lastPiece = this.snapshot({ isUndoRedo: true });
+  }
+
+  undoPieceLockHandler() {
+    this.practice.undo.push(this.practice.lastPiece!);
+
+    if (this.practice.undo.length > 100) this.practice.undo.shift();
+    this.practice.redo.length = 0;
+  }
+
+  undo() {
+    if (!this.misc.allowed.undo || this.practice.undo.length === 0)
+      return false;
+
+    this.practice.redo.push(this.practice.lastPiece!);
+
+    this.practice.lastPiece = this.practice.undo.pop()!;
+
+    this.fromSnapshot(this.practice.lastPiece);
+
+    // TODO: something about garbagequeue filter active
+    // (t.impendingdamage = t.impendingdamage.filter((e) => e.active))
+
+    this.practice.retry = false;
+    this.practice.retryIter = 0;
+  }
+
+  redo() {
+    if (!this.misc.allowed.undo || this.practice.redo.length === 0)
+      return false;
+
+    this.practice.undo.push(this.practice.lastPiece!);
+
+    this.practice.lastPiece = this.practice.redo.pop()!;
+
+    this.fromSnapshot(this.practice.lastPiece);
+
+    // TODO: something about garbagequeue filter active
+    // (t.impendingdamage = t.impendingdamage.filter((e) => e.active))
+
+    this.practice.retry = false;
+    this.practice.retryIter = 0;
+  }
+
+  retry() {
+    if (this.misc.allowed.undo) this.undoPieceLockHandler();
+
+    this.practice.retry = false;
+    this.practice.retryIter = 0;
+
+    this.held = null;
+    this.holdLocked = false;
+
+    this.#queue.clear();
+    this.#queue.repopulateOnce();
+
+    this.queue.fromSnapshot(this.#queue.snapshot());
+
+    this.board.reset();
+    this.garbageQueue.reset();
+
+    this.stats = {
+      combo: -1,
+      b2b: -1,
+      pieces: 0,
+      lines: 0,
+      garbage: {
+        sent: 0,
+        attack: 0,
+        receive: 0,
+        cleared: 0
+      }
+    };
+
+    this.time.frameOffset = this.frame;
+
+    this.nextPiece();
+  }
+
   #maxSpin(...spins: SpinType[]) {
-    const score = (spin: SpinType) => ["none", "mini", "normal"].indexOf(spin);
-    return spins.reduce((a, b) => {
-      return score(a) > score(b) ? a : b;
-    });
+    let best = spins[0];
+    let bestScore = best === "normal" ? 2 : best === "mini" ? 1 : 0;
+
+    for (let i = 1; i < spins.length; i++) {
+      const spin = spins[i];
+      const score = spin === "normal" ? 2 : spin === "mini" ? 1 : 0;
+      if (score >= bestScore) {
+        best = spin;
+        bestScore = score;
+      }
+    }
+
+    return best;
   }
 
   #detectSpin(finOrTst: boolean): SpinType {
@@ -1126,16 +1330,17 @@ export class Engine {
   }
 
   #detectSpinFromCorners(finOrTst: boolean): SpinType {
-    if (
-      legal(
-        this.falling.blocks.map((block) => [
-          block[0] + this.falling.location[0],
-          -block[1] + this.falling.y - 1
-        ]),
-        this.board.state
-      )
-    )
-      return "none";
+    const blocks = this.falling.blocks;
+    const absolute: [number, number][] = new Array(blocks.length);
+    for (let i = 0; i < blocks.length; i++) {
+      const block = blocks[i];
+      absolute[i] = [
+        block[0] + this.falling.location[0],
+        -block[1] + this.falling.y - 1
+      ];
+    }
+
+    if (legal(absolute, this.board.state)) return "none";
 
     let corners = 0;
     let frontCorners = 0;
@@ -1185,29 +1390,34 @@ export class Engine {
 
     // TODO: ARE (line clear, garbage)
 
-    const placed = this.falling.blocks.map(
-      (block) =>
-        [
-          this.falling.symbol,
-          this.falling.location[0] + block[0],
-          this.falling.y - block[1]
-        ] as [Mino, number, number]
-    );
+    const blocks = this.falling.blocks;
+    const placed: [Mino, number, number][] = new Array(blocks.length);
+    const placedPos: [number, number][] = new Array(blocks.length);
+    const connectInput: [number, number][] = new Array(blocks.length);
 
-    this.board.add(
-      ...this.connect(placed.map(([_, x, y]) => [x, -y])).map(
-        ([x, y, s]) =>
-          [{ mino: this.falling.symbol, connections: s }, x, -y] as [
-            { mino: Mino; connections: number },
-            number,
-            number
-          ]
-      )
-    );
+    for (let i = 0; i < blocks.length; i++) {
+      const block = blocks[i];
+      const x = this.falling.location[0] + block[0];
+      const y = this.falling.y - block[1];
+      placed[i] = [this.falling.symbol, x, y];
+      placedPos[i] = [x, y];
+      connectInput[i] = [x, -y];
+    }
 
-    const { lines, garbageCleared } = this.board.clearBombsAndLines(
-      placed.map((b) => [b[1], b[2]])
-    );
+    const connected = this.connect(connectInput);
+    const boardAddParams = new Array(connected.length);
+    for (let i = 0; i < connected.length; i++) {
+      const c = connected[i];
+      boardAddParams[i] = [
+        { mino: this.falling.symbol, connections: c[2] },
+        c[0],
+        -c[1]
+      ];
+    }
+
+    this.board.add(...boardAddParams);
+
+    const { lines, garbageCleared } = this.board.clearBombsAndLines(placedPos);
     const pc = this.board.perfectClear;
 
     this.stats.garbage.cleared += garbageCleared;
@@ -1294,13 +1504,19 @@ export class Engine {
       );
     }
 
+    const filteredGarbage: number[] = [];
+    for (let i = 0; i < gEvents.length; i++) {
+      const g = gEvents[i];
+      if (g > 0) filteredGarbage.push(g);
+    }
+
     const res: LockRes = {
       mino: this.falling.symbol,
       garbageCleared,
       lines,
       spin: this.lastSpin ? this.lastSpin : "none",
-      garbage: gEvents.filter((g) => g > 0),
-      rawGarbage: gEvents.filter((g) => g > 0),
+      garbage: filteredGarbage,
+      rawGarbage: [...filteredGarbage],
       surge: surged,
       stats: this.stats,
       garbageAdded: false,
@@ -1328,13 +1544,14 @@ export class Engine {
             openerPhase: (this.misc.date ?? new Date()) < new Date(2025, 1, 16)
           }
         );
-        cancelEvents.push(
-          ...cancelled.map((c) => ({
+        for (let i = 0; i < cancelled.length; i++) {
+          const c = cancelled[i];
+          cancelEvents.push({
             iid: c.cid,
             amount: c.amount,
             size: c.size
-          }))
-        );
+          });
+        }
 
         if (r === 0) res.garbage.shift();
         else {
@@ -1343,9 +1560,9 @@ export class Engine {
         }
       }
 
-      cancelEvents.forEach((event) => {
-        this.events.emit("garbage.cancel", event);
-      });
+      for (let i = 0; i < cancelEvents.length; i++) {
+        this.events.emit("garbage.cancel", cancelEvents[i]);
+      }
     } else {
       this.lastWasClear = false;
       const garbages = this.garbageQueue.tank(
@@ -1357,7 +1574,8 @@ export class Engine {
 
       if (res.garbageAdded) {
         const tankEvent: Events["garbage.tank"][] = [];
-        garbages.forEach((garbage, idx) => {
+        for (let idx = 0; idx < garbages.length; idx++) {
+          const garbage = garbages[idx];
           this.board.insertGarbage({
             ...garbage,
             bombs: this.garbageQueue.options.bombs,
@@ -1379,13 +1597,15 @@ export class Engine {
           } else {
             tankEvent[tankEvent.length - 1].amount += garbage.amount;
           }
-        });
+        }
 
-        tankEvent.forEach((event) => {
-          this.events.emit("garbage.tank", event);
-        });
+        for (let i = 0; i < tankEvent.length; i++) {
+          this.events.emit("garbage.tank", tankEvent[i]);
+        }
       }
     }
+
+    this.events.emit("falling.lock.pre", undefined);
 
     this.nextPiece();
 
@@ -1398,15 +1618,22 @@ export class Engine {
       res.topout = true;
     }
 
-    if (res.garbage.length > 0)
-      if (this.multiplayer)
-        this.multiplayer.targets.forEach((target) =>
-          res.garbage.forEach((g) =>
-            this.igeHandler.send({ amount: g, playerID: target })
-          )
-        );
+    if (res.garbage.length > 0) {
+      if (this.multiplayer) {
+        for (let i = 0; i < this.multiplayer.targets.length; i++) {
+          const target = this.multiplayer.targets[i];
+          for (let j = 0; j < res.garbage.length; j++) {
+            this.igeHandler.send({ amount: res.garbage[j], playerID: target });
+          }
+        }
+      }
+    }
 
-    const sent = res.garbage.reduce((a, b) => a + b, 0);
+    let sent = 0;
+    for (let i = 0; i < res.garbage.length; i++) {
+      sent += res.garbage[i];
+    }
+
     this.stats.garbage.sent += sent;
 
     if (sent > 0) {
@@ -1435,7 +1662,7 @@ export class Engine {
   #keydown({ data: event }: Game.Replay.Frames.Keypress) {
     this.#processSubframe(event.subframe);
     this.resCache.keys.push(event.key);
-    // TODO: inversion?
+    // TODO: inversion? probably just a qp thing
     // if (this.misc.inverted)
     //   switch (e.key) {
     //     case "moveLeft":
@@ -1466,6 +1693,23 @@ export class Engine {
         this.input.keys.softDrop = true;
         if (this.input.firstInputTime == -1)
           this.input.firstInputTime = this.frame + this.subframe;
+        return;
+
+      // todo: handle exit key somehow?
+      // case "exit":
+      // 	return;
+
+      case "retry":
+        this.practice.retry = true;
+        this.practice.retryIter = 0;
+        return;
+
+      case "undo":
+        this.undo();
+        return;
+
+      case "redo":
+        this.redo();
         return;
 
       case "rotateCCW":
@@ -1559,6 +1803,15 @@ export class Engine {
         this.input.keys.softDrop = false;
         break;
 
+      // todo: handle exit key somehow?
+      // case "exit":
+      // 	return;
+
+      case "retry":
+        this.practice.retry = false;
+        this.practice.retryIter = 0;
+        return;
+
       case "rotateCCW":
         this.input.keys.rotateCCW = false;
         break;
@@ -1595,6 +1848,16 @@ export class Engine {
     this.#processAllShift(delta);
     this.#fall(delta);
     this.subframe = subframe;
+  }
+
+  #processInterrupts() {
+    if (this.misc.allowed.retry && this.practice.retry) {
+      if (this.misc.stride) return this.retry();
+      const tick = this.practice.retryIter++;
+      if (tick > 15) {
+        this.retry();
+      }
+    }
   }
 
   #__internal_shift() {
@@ -1652,8 +1915,8 @@ export class Engine {
   }
 
   #processAllShift(subFrameDiff = 1 - this.subframe) {
-    for (const shift of ["lShift", "rShift"] as const)
-      this.#processShift(shift, subFrameDiff);
+    this.#processShift("lShift", subFrameDiff);
+    this.#processShift("rShift", subFrameDiff);
   }
 
   #tickSpike() {
@@ -1663,8 +1926,9 @@ export class Engine {
     }
   }
 
-  #run(...frames: Game.Replay.Frame[]) {
-    frames.forEach((frame) => {
+  #run(frames: Game.Replay.Frame[]) {
+    for (let i = 0; i < frames.length; i++) {
+      const frame = frames[i];
       switch (frame.type) {
         case "keydown":
           this.#keydown(frame);
@@ -1720,27 +1984,28 @@ export class Engine {
           }
           break;
       }
-    });
+    }
   }
 
   tick(frames: Game.Replay.Frame[]) {
     this.subframe = 0;
 
-    this.#run(...frames);
+    if (frames.length > 0) this.#run(frames);
 
     this.frame++;
     this.#processAllShift();
     this.#fall();
+    this.#processInterrupts();
     // TODO: execute waiting frames
     // TODO: process garbage are
 
     this.#tickSpike();
 
-    Object.keys(this.dynamic).forEach((key) =>
-      this.dynamic[key as keyof typeof this.dynamic].tick()
-    );
+    this.dynamic.gravity.tick();
+    this.dynamic.garbageMultiplier.tick();
+    this.dynamic.garbageCap.tick();
 
-    return { ...this.#flushRes() };
+    return this.#flushRes();
   }
 
   receiveGarbage(...garbage: IncomingGarbage[]) {
@@ -1752,10 +2017,18 @@ export class Engine {
   }
 
   connect(blocks: [x: number, y: number][]) {
-    const exists = (x: number, y: number) =>
-      !!blocks.find(([a, b]) => a === x && y === b);
+    const exists = (x: number, y: number) => {
+      for (let i = 0; i < blocks.length; i++) {
+        const block = blocks[i];
+        if (block[0] === x && block[1] === y) return true;
+      }
+      return false;
+    };
 
-    return blocks.map(([x, y]) => {
+    const out = new Array(blocks.length);
+    for (let i = 0; i < blocks.length; i++) {
+      const x = blocks[i][0];
+      const y = blocks[i][1];
       let state = 0;
       if (!exists(x, y - 1)) state |= BoardConnections.TOP;
       if (!exists(x + 1, y)) state |= BoardConnections.RIGHT;
@@ -1786,8 +2059,10 @@ export class Engine {
         state |= BoardConnections.CORNER;
       }
 
-      return [x, y, state] as const;
-    });
+      out[i] = [x, y, state] as const;
+    }
+
+    return out;
   }
 
   getConnectedPreview(piece: Mino) {

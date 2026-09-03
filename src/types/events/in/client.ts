@@ -1,7 +1,8 @@
-import type { Game, Room } from "../..";
+import type { Events, Game, Room } from "../..";
 import type { Relationship, Room as RoomClass } from "../../../classes";
 import type { Engine } from "../../../engine";
 import type { Social } from "../../social";
+
 import type { Game as GameEvents } from "./game";
 import type { Ribbon } from "./ribbon";
 
@@ -131,6 +132,10 @@ export interface Client {
     relationship: Relationship;
     raw: Social.DM;
     content: string;
-    reply: (message: string) => Promise<Social.DM | string>;
+    reply: (
+      message: string
+    ) => Promise<
+      Social.DM | Events.in.all["social.dm.fail"] | Events.in.all["staff.spam"]
+    >;
   };
 }

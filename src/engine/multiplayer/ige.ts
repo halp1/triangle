@@ -27,9 +27,10 @@ export class IGEHandler {
    */
   constructor(players: number[]) {
     this.#players = new polyfills.Map();
-    players.forEach((player) => {
+    for (let i = 0; i < players.length; i++) {
+      const player = players[i];
       this.#players.set(player, { incoming: 0, outgoing: [] });
-    });
+    }
   }
 
   /**
@@ -49,10 +50,7 @@ export class IGEHandler {
       this.#players.set(playerID, player);
     }
 
-    this.#players.set(playerID, {
-      incoming: player.incoming,
-      outgoing: [...player.outgoing, { iid, amount }]
-    });
+    player.outgoing.push({ iid, amount });
 
     // console.log(
     //   "send",
@@ -95,13 +93,14 @@ export class IGEHandler {
     const newIGEs: GarbageRecord[] = [];
 
     let runningAmount = amount;
-    player.outgoing.forEach((item) => {
-      if (item.iid <= ackiid) return;
+    for (let i = 0; i < player.outgoing.length; i++) {
+      const item = player.outgoing[i];
+      if (item.iid <= ackiid) continue;
       const amt = Math.min(item.amount, runningAmount);
       item.amount -= amt;
       runningAmount -= amt;
       if (item.amount > 0) newIGEs.push(item);
-    });
+    }
 
     this.#players.set(playerID, { incoming: incomingIID, outgoing: newIGEs });
 
@@ -124,9 +123,12 @@ export class IGEHandler {
   }
 
   fromSnapshot(snapshot: IGEHandlerSnapshot) {
-    this.#players = new polyfills.Map(
-      Object.entries(snapshot.players).map(([k, v]) => [Number(k), v])
-    );
+    this.#players = new polyfills.Map();
+    const entries = Object.entries(snapshot.players);
+    for (let i = 0; i < entries.length; i++) {
+      const [k, v] = entries[i];
+      this.#players.set(Number(k), v);
+    }
     this.#iid = snapshot.iid;
   }
 }

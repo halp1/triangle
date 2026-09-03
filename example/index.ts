@@ -1,6 +1,7 @@
+import path from "path";
+
 import { Client } from "@haelp/teto";
 import { BotWrapper, adapters } from "@haelp/teto/utils";
-import path from "path";
 
 const client = await Client.create({
   username: process.env.USERNAME!,

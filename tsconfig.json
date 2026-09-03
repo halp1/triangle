@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
+    "rootDir": "./src",
+    "types": ["node", "bun"],
     "outDir": "dist",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "lib": ["ESNext"],
     "skipLibCheck": true,
     "target": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "module": "ESNext",
     "strict": true,
     "verbatimModuleSyntax": true,
