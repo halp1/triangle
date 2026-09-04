@@ -9,3 +9,4 @@ test/data/replays
 example/solver/target
 
 src/utils/typia/functional
+.typia-build

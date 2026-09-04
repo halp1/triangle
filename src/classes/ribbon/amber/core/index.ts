@@ -3,7 +3,7 @@ import vm, { type Context } from "node:vm";
 import { parse } from "@typescript-eslint/parser";
 import * as walk from "acorn-walk";
 import { generate } from "astring";
-import { analyze, Reference, Scope, Variable } from "eslint-scope";
+import { analyze, type Scope } from "eslint-scope";
 
 import type { Node } from "acorn";
 
@@ -19,9 +19,7 @@ export interface Plugin {
     ast: ReturnType<typeof parse>;
     ancestryMap: Map<number, Node[]>;
     scopeManager: ReturnType<typeof analyze>;
-    getScope: (
-      node: Node
-    ) => Scope<Variable<Reference>, Reference> | null | undefined;
+    getScope: (node: Node) => Scope | null | undefined;
     refresh: (ast?: ReturnType<typeof parse>) => void;
     context: vm.Context;
   }): ReturnType<typeof parse> | void;
@@ -50,7 +48,7 @@ export const deobfuscate = async (options: {
   );
 
   let scopeManager!: ReturnType<typeof analyze>;
-  let nodeAncestryMap = new Map<number, Node[]>();
+  const nodeAncestryMap = new Map<number, Node[]>();
 
   let ast = parse(
     options.source,
@@ -60,7 +58,7 @@ export const deobfuscate = async (options: {
     }
   );
 
-  let refresh = (_ast = ast) => {
+  const refresh = (_ast = ast) => {
     ast = input.ast = _ast;
     scopeManager = analyze(
       _ast as any,

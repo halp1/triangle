@@ -1,6 +1,6 @@
 import { Ribbon, type LoggingLevel, type Spool, type Transport } from ".";
 
-import type { Events, Game } from "../../types";
+import type { Events, Game, Social } from "../../types";
 import type { APIDefaults, APITypes, EventEmitter } from "../../utils";
 
 import { Buffer } from "buffer/index.js";
@@ -82,6 +82,7 @@ export interface RibbonSnapshot {
   lastReconnect: number;
   reconnectCount: number;
   reconnectPenalty: number;
+  status: Social.Status;
 
   options: {
     logging: LoggingLevel;

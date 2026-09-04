@@ -19,7 +19,7 @@ import type {
 export const evalFunctions = (): Plugin => ({
   name: "Eval Functions",
   apply({ context, ast, ancestryMap, getScope }) {
-    let rejectionKey = randomUUID();
+    const rejectionKey = randomUUID();
 
     const bringFunctionInScope = (node: FunctionDeclaration) => {
       const parent = ancestryMap.get(node._id!)?.at(-2);
@@ -73,8 +73,8 @@ export const evalFunctions = (): Plugin => ({
       const customContext = vm.createContext(Object.assign({}, context));
       if (!callee.name) return undefined;
 
-      let definitions: string[] = [];
-      let definedNodes = new Set<number>();
+      const definitions: string[] = [];
+      const definedNodes = new Set<number>();
 
       /** adds a variable to the list of definitions. e.x. If we have s(y, 0, 0, 915) we need `y` */
       const define = (node: Identifier) => {
@@ -105,7 +105,8 @@ export const evalFunctions = (): Plugin => ({
             const firstWrite = def?.references?.find((r) =>
               r.isWrite()
             )?.writeExpr;
-            const target = ancestryMap.get((firstWrite as Node)?._id!)?.at(-2)!;
+            // oxlint-disable-next-line typescript/no-non-null-asserted-optional-chain
+            const target = ancestryMap.get((firstWrite as Node)?._id!)?.at(-2);
             const expr = target as AssignmentExpression;
             walk.simple(expr.right, {
               Identifier(node) {
@@ -144,7 +145,6 @@ export const evalFunctions = (): Plugin => ({
 
       // start recursively pulling in function definitions
       if (defNode && defNode.type === "FunctionDeclaration") {
-        // if (defNode.params.length !== 5) return rejectionKey;
         const scopingCode = bringFunctionInScope(defNode);
         if (scopingCode) raw = scopingCode;
       } else if (!(callee.name in context)) return rejectionKey;
@@ -154,14 +154,8 @@ export const evalFunctions = (): Plugin => ({
 
       try {
         const res = vm.runInContext(raw, customContext);
-        // console.log("EVAL", generate(node), "->", res);
         return res;
-      } catch (e) {
-        // console.error("Code for below error:");
-        // console.log(prettierSync.format(raw, { parser: "typescript" }));
-        // console.log(raw);
-        // console.error(e);
-        // console.warn("(this is likely dead code)")
+      } catch {
         return rejectionKey;
       }
     };

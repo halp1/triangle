@@ -13,7 +13,7 @@ export const evaluateIfStatements = (): Plugin => ({
     walk.simple(ast as any, {
       IfStatement(node) {
         // check to see if we can evaluate
-        let validTypes: Expression["type"][] = [
+        const validTypes: Expression["type"][] = [
           "BinaryExpression",
           "ChainExpression",
           "ConditionalExpression",
@@ -59,7 +59,7 @@ export const evaluateIfStatements = (): Plugin => ({
         }
       },
       ConditionalExpression(node) {
-        let validTypes: Expression["type"][] = [
+        const validTypes: Expression["type"][] = [
           "BinaryExpression",
           "ChainExpression",
           "ConditionalExpression",

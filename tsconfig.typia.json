@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "plugins": [{ "transform": "typia/lib/transform" }],
+    "rootDir": "./src",
+    "outDir": "./.typia-build",
+    "emitDeclarationOnly": false,
+    "declaration": true,
+    "declarationMap": false
+  },
+  "include": ["./src/utils/typia/templates/**/*"],
+  "exclude": []
+}

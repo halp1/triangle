@@ -100,7 +100,7 @@ export const buildObjects = (): Plugin => ({
 
         const propName = (node.property as any).value as string;
 
-        let prop = props.find((p) => {
+        const prop = props.find((p) => {
           if (p.type !== "Property") return false;
           if (p.key.type === "Literal") {
             return p.key.value === propName;

@@ -54,14 +54,14 @@ It is _highly_ recommended that you use a Typescript project for this library if
 It is also recommended (but not required) that you add a typescript path mapping to the `src` directory in your `tsconfig.json` file. This will allow you to import the library like so:
 
 ```ts
-import { Client } from "@triangle";
+import { Client } from "@haelp/teto";
 ```
 
 To do this, add the following to the "compilerOptions" object in your `tsconfig.json` file:
 
 ```json
 "paths": {
-  "@triangle": ["./path/to/triangle/src"]
+  "@haelp/teto": ["./path/to/triangle/src"]
 }
 ```
 

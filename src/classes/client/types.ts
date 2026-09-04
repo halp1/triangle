@@ -41,6 +41,11 @@ export type ClientOptions = (
   ribbon?: Partial<RibbonOptions>;
   /** The `Social` config */
   social?: Partial<Social.Config>;
+  /**
+   * Presence status announced after ribbon has been authorized
+   * @default "online"
+   */
+  status?: Social.Status;
   /** The warnings the client should suppress */
   suppressWarnings?: Warning[];
 };

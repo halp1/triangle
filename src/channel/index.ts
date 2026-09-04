@@ -13,10 +13,11 @@ export namespace ChannelAPI {
   export const randomSessionID = (length = 20) =>
     Array.from(
       { length },
-      () => {
-        const charset = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890"
-        return charset[Math.floor(Math.random() * charset.length)]
-    }).join("");
+      () =>
+        ["qwertyuiop[asdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890"][
+          Math.floor(Math.random() * (26 + 26 + 10))
+        ]
+    ).join("");
 
   const config: Types.Config = {
     sessionID: randomSessionID(),
@@ -69,9 +70,8 @@ export namespace ChannelAPI {
       }
     });
 
-    Object.entries(query).forEach(([key, value]) => {
-      if (value === undefined || value === null) return;
-      uri += `${uri.includes("?") ? "&" : "?"}${key}=${value}`;
+    Object.keys(query).forEach((key) => {
+      uri += `?${key}=${query[key]}`;
     });
 
     if (config.caching && cache[uri]) {
@@ -880,28 +880,7 @@ export namespace ChannelAPI {
 
     export namespace PersonalRecords {
       export interface Response {
-        /**
-         * The requested records. The record will additionally include:
-         */
-        entries: (ChannelAPI.Types.Record & {
-          /**
-           * The prisecter of this entry:
-           */
-          p: {
-            /**
-             * The primary sort key.
-             */
-            pri: number;
-            /**
-             *  The secondary sort key.
-             */
-            sec: number;
-            /**
-             *  The tertiary sort key.
-             */
-            ter: number;
-          };
-        })[];
+        entries: ChannelAPI.Types.Record[];
       }
 
       export interface Request {
@@ -1065,7 +1044,7 @@ export namespace ChannelAPI {
       Leaderboard.QueryParams,
       [Leaderboard.Request["leaderboard"]],
       "entries"
-    >("records/:leaderboard", "entries");
+    >("/records/:leaderboard", "entries");
     /** Alias of leaderboard */
     export const lb = leaderboard;
 
