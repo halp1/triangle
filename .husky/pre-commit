@@ -1,0 +1,6 @@
+if [ -f package-lock.json ]; then
+  echo "package-lock.json is not allowed in the repo root; use bun.lock instead."
+  exit 1
+fi
+
+bun lint
