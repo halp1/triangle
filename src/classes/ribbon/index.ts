@@ -356,7 +356,7 @@ export class Ribbon {
               ? error
               : typeof ErrorEvent !== "undefined" && error instanceof ErrorEvent // this is a bun thing
                 ? error.error
-                : new Error(String(error))
+                : new Error((error as any).error ?? JSON.stringify(error))
           );
         };
 
@@ -731,6 +731,43 @@ export class Ribbon {
         this.log(`nope: ${nopeReason}`, { force: true, level: "error" });
 
         this.#close();
+
+        break;
+      }
+      case "staff.warn": {
+        const { banid, msg: warning } = msg.data;
+
+        const bar = "=".repeat(60);
+        this.log(
+          `\n${bar}\nYOU HAVE BEEN WARNED\nA TETR.IO moderator has left a message for you. Read it thoroughly.\n\n${warning}\n\nwarning id: ${banid}\n${bar}`,
+          { force: true, level: "error" }
+        );
+
+        break;
+      }
+      case "staff.silence": {
+        const { banid, message: reason, expires } = msg.data;
+
+        const bar = "=".repeat(60);
+        const parsed = Date.parse(expires);
+        const expiry = Number.isNaN(parsed)
+          ? `This silence expires at ${expires}.`
+          : parsed - Date.now() >= 54e12
+            ? "This silence will not expire."
+            : `This silence expires at ${new Date(parsed).toISOString()}.`;
+
+        this.log(
+          `\n${bar}\nYOU HAVE BEEN SILENCED\nSilenced users may not chat or create public rooms, but can still submit scores and play online.\n\nYou were silenced for the following reason:\n${reason}\n\n${expiry}\nban id: ${banid}\n${bar}`,
+          { force: true, level: "error" }
+        );
+
+        break;
+      }
+      case "staff.lift": {
+        this.log(`A TETR.IO moderator lifted warning/ban: ${msg.data}.`, {
+          force: true,
+          level: "warning"
+        });
 
         break;
       }

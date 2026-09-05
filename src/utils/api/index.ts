@@ -53,4 +53,5 @@ export class API {
   }
 }
 
+export { banStatusMessage, formatBans } from "./users";
 export * as APITypes from "./wrapper";

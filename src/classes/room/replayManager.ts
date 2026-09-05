@@ -15,16 +15,16 @@ export class ReplayManager {
       ts: new Date().toString(),
       version: 1,
       users: readyPlayers
-        .map((p) => roomPlayers.find((pl) => pl._id === p.userid)!)
+        .map((p) => roomPlayers.find((pl) => pl._id === p.userid) ?? p)
         .map(
           (p) =>
             ({
-              id: p._id,
-              username: p.username,
+              id: "_id" in p ? p._id : p.userid,
+              username: "username" in p ? p.username : p.options.username,
               avatar_revision: 0,
               banner_revision: 0,
               flags: 0,
-              country: p.country
+              country: "country" in p ? p.country : null
             }) satisfies VersusReplay["users"][number]
         ),
       replay: {

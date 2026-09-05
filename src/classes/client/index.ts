@@ -1,4 +1,10 @@
-import { API, CONSTANTS, Logger, parseToken } from "../../utils";
+import {
+  API,
+  CONSTANTS,
+  Logger,
+  banStatusMessage,
+  parseToken
+} from "../../utils";
 import { Game, type SpectatingStrategy } from "../game";
 import { Ribbon } from "../ribbon";
 import { Room } from "../room";
@@ -206,11 +212,16 @@ export class Client {
       }
     );
 
+    const profile = await me;
+
+    const banned = banStatusMessage(profile);
+    if (banned) new Logger("Triangle.js").error(banned);
+
     const client = new Client(
       token,
       sessionID,
       ribbon,
-      await me,
+      profile,
       options.userAgent || CONSTANTS.userAgent,
       { handling, spectatingStrategy: "instant", ...options.game }
     );

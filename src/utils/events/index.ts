@@ -25,7 +25,7 @@ export class EventEmitter<T extends Record<string, any>> {
       console.warn(
         `Max listeners exceeded for event "${String(event)}". Current: ${
           this.#listeners.filter(([e]) => e === event).length
-        }, Max: ${this.#maxListeners.overrides.get(event) ?? this.#maxListeners.default}`
+        }, Max: ${this.#maxListeners.overrides.get(event) ?? this.#maxListeners.default}. \nTrace: ${new Error().stack}`
       );
       if (this.verbose)
         console.warn(
