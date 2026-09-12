@@ -70,8 +70,9 @@ export namespace ChannelAPI {
       }
     });
 
-    Object.keys(query).forEach((key) => {
-      uri += `?${key}=${query[key]}`;
+    Object.entries(query).forEach(([key, value]) => {
+      if (value === undefined || value === null) return;
+      uri += `${uri.includes("?") ? "&" : "?"}${key}=${value}`;
     });
 
     if (config.caching && cache[uri]) {
@@ -880,7 +881,28 @@ export namespace ChannelAPI {
 
     export namespace PersonalRecords {
       export interface Response {
-        entries: ChannelAPI.Types.Record[];
+        /**
+         * The requested records. The record will additionally include:
+         */
+        entries: (ChannelAPI.Types.Record & {
+          /**
+           * The prisecter of this entry:
+           */
+          p: {
+            /**
+             * The primary sort key.
+             */
+            pri: number;
+            /**
+             *  The secondary sort key.
+             */
+            sec: number;
+            /**
+             *  The tertiary sort key.
+             */
+            ter: number;
+          };
+        })[];
       }
 
       export interface Request {
