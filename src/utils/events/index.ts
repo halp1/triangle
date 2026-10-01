@@ -59,6 +59,21 @@ export class EventEmitter<T extends Record<string, any>> {
     return this;
   }
 
+  async emitAsync<K extends keyof T>(event: K, data: T[K]): Promise<any[]> {
+    const toRemove = new Set<number>();
+    const promises = this.#listeners.map(async ([e, cb, once], idx) => {
+      if (e !== event) return undefined;
+      const result = await (cb as (data: T[K]) => any | Promise<any>)(data);
+      if (once) toRemove.add(idx);
+      return result;
+    });
+
+    const results = await Promise.all(promises);
+    this.#listeners = this.#listeners.filter((_, idx) => !toRemove.has(idx));
+
+    return results;
+  }
+
   once<K extends keyof T>(event: K, cb: (data: T[K]) => any | Promise<any>) {
     this.#listeners.push([event, cb, true]);
 
