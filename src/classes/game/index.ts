@@ -6,6 +6,8 @@ import {
   type EngineInitializeParams,
   type EngineSnapshot,
   type IncomingGarbage,
+  type IncreasableValue,
+  type IncreaseTrackerSnapshot,
   type Rotation,
   type Tile
 } from "../../engine";
@@ -416,9 +418,25 @@ export class Game {
       skip: []
     };
 
+    const trackerSnapshot = (
+      initial: IncreasableValue
+    ): IncreaseTrackerSnapshot => ({
+      value:
+        initial.value +
+        (Math.max(0, frame - Math.max(0, Math.floor(initial.marginTime))) *
+          initial.increase) /
+          60,
+      frame
+    });
+
     return {
       __meta: {
         isUndoRedo: undoRedoState
+      },
+      dynamic: {
+        gravity: trackerSnapshot(config.gravity),
+        garbageMultiplier: trackerSnapshot(config.garbage.multiplier),
+        garbageCap: trackerSnapshot(config.garbage.cap)
       },
       // TODO: actual connected board
       board:

@@ -6,6 +6,7 @@ import type {
   Board,
   Engine,
   GarbageQueueSnapshot,
+  IncreaseTrackerSnapshot,
   Mino,
   OutgoingGarbage,
   QueueSnapshot,
@@ -24,6 +25,9 @@ export interface EngineSnapshot {
   /** This data is relevant to the snapshot but not part of the engine's state */
   __meta: {
     isUndoRedo: boolean;
+  };
+  dynamic: {
+    [K in keyof Engine["dynamic"]]: IncreaseTrackerSnapshot;
   };
   frame: number;
   subframe: number;

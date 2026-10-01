@@ -17,7 +17,11 @@ import {
 import { IGEHandler, type MultiplayerOptions } from "./multiplayer";
 import { Queue, type QueueInitializeParams } from "./queue";
 import { Mino } from "./queue/types";
-import { IncreaseTracker, deepCopy } from "./utils";
+import {
+  IncreaseTracker,
+  deepCopy,
+  type IncreaseTrackerSnapshot
+} from "./utils";
 import { garbageCalcV2, garbageData } from "./utils/damageCalc";
 import { type KickTable, legal, performKick } from "./utils/kicks";
 import {
@@ -420,10 +424,19 @@ export class Engine {
   }
 
   snapshot({ isUndoRedo = false } = {}): EngineSnapshot {
+    const dynamic: { [K in keyof Engine["dynamic"]]: IncreaseTrackerSnapshot } =
+      {} as any;
+
+    for (const key in this.dynamic) {
+      dynamic[key as keyof typeof dynamic] =
+        this.dynamic[key as keyof Engine["dynamic"]].snapshot();
+    }
+
     return {
       __meta: {
         isUndoRedo
       },
+      dynamic,
       board: deepCopy(this.board.state),
       falling: this.falling.snapshot(),
       frame: this.frame,
@@ -458,12 +471,6 @@ export class Engine {
   }
 
   fromSnapshot(snapshot: EngineSnapshot) {
-    // const options = deepCopy(this.initializer, [
-    //   { type: Date, copy: (d) => new Date(d) }
-    // ]);
-
-    const options = this.initializer;
-
     this.board.state = deepCopy(snapshot.board);
     this.falling = new Tetromino({
       boardHeight: this.board.height,
@@ -494,28 +501,12 @@ export class Engine {
     this.queue.fromSnapshot(snapshot.queue);
     this.#queue.fromSnapshot(snapshot._queue);
 
-    this.dynamic = {
-      gravity: new IncreaseTracker(
-        options.gravity.value,
-        options.gravity.increase,
-        options.gravity.marginTime
-      ),
-      garbageMultiplier: new IncreaseTracker(
-        options.garbage.multiplier.value,
-        options.garbage.multiplier.increase,
-        options.garbage.multiplier.marginTime
-      ),
-      garbageCap: new IncreaseTracker(
-        options.garbage.cap.value,
-        options.garbage.cap.increase,
-        options.garbage.cap.marginTime
-      )
-    };
-
-    for (let i = 0; i < this.frame; i++) {
-      this.dynamic.gravity.tick();
-      this.dynamic.garbageMultiplier.tick();
-      this.dynamic.garbageCap.tick();
+    if (!snapshot.__meta.isUndoRedo) {
+      for (const key in snapshot.dynamic) {
+        this.dynamic[key as keyof typeof this.dynamic].fromSnapshot(
+          snapshot.dynamic[key as keyof typeof this.dynamic]
+        );
+      }
     }
 
     if (!snapshot.__meta.isUndoRedo) {

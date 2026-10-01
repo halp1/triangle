@@ -1,3 +1,8 @@
+export interface IncreaseTrackerSnapshot {
+  value: number;
+  frame: number;
+}
+
 export class IncreaseTracker {
   #value: number;
 
@@ -21,6 +26,18 @@ export class IncreaseTracker {
     this.frame++;
     if (this.frame > this.margin) this.#value += this.increase / 60;
     return this.get();
+  }
+
+  snapshot(): IncreaseTrackerSnapshot {
+    return {
+      value: this.#value,
+      frame: this.frame
+    };
+  }
+
+  fromSnapshot(snapshot: IncreaseTrackerSnapshot) {
+    this.#value = snapshot.value;
+    this.frame = snapshot.frame;
   }
 
   get() {
