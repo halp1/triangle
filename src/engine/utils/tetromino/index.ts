@@ -1,6 +1,6 @@
 import { deepCopy } from "..";
 import { Mino } from "../../queue/types";
-import { type KickTable, legal, performKick } from "../kicks";
+import { type KickTable, performKick } from "../kicks";
 
 import { tetrominoes } from "./data";
 
@@ -55,14 +55,23 @@ export class Tetromino {
 
   #legalAt(board: Tile[][], x: number, y: number) {
     const blocks = this.blocks;
-    const abs: [number, number][] = new Array(blocks.length);
 
-    for (let i = 0; i < blocks.length; i++) {
+    if (board.length === 0) return false;
+    const boardWidth = board[0].length;
+    const boardHeight = board.length;
+
+    for (let i = 0; i < this.blocks.length; i++) {
       const block = blocks[i];
-      abs[i] = [block[0] + x, -block[1] + y];
+      const abs_x = x + block[0];
+      const abs_y = y - block[1];
+      if (abs_x < 0) return false;
+      if (abs_x >= boardWidth) return false;
+      if (abs_y < 0) return false;
+      if (abs_y >= boardHeight) return false;
+      if (board[abs_y][abs_x]) return false;
     }
 
-    return legal(abs, board);
+    return true;
   }
 
   constructor(options: TetrominoInitializeParams) {

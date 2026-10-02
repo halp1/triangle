@@ -370,18 +370,7 @@ export class Engine {
   }
 
   #flushRes() {
-    let res = null;
-    if (this.resCache) {
-      res = {
-        pieces: this.resCache.pieces,
-        garbage: {
-          sent: [...this.resCache.garbage.sent],
-          received: [...this.resCache.garbage.received]
-        },
-        keys: [...this.resCache.keys],
-        lastLock: this.resCache.lastLock
-      };
-    }
+    const res = this.resCache;
 
     this.resCache = {
       pieces: 0,
@@ -393,7 +382,7 @@ export class Engine {
       lastLock: res?.lastLock ?? 0
     };
 
-    return res!;
+    return res;
   }
 
   reset() {
