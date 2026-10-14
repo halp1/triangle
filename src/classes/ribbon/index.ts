@@ -1,11 +1,11 @@
 import { deepCopy } from "../../engine";
 import { API, type APITypes, docLink, EventEmitter } from "../../utils";
-import { validateIncomingMessage } from "../../utils/typia/functional";
 
 import { amber } from "./amber/loader";
 import { Bits } from "./bits";
 
 import type { Events, Game, Social } from "../../types";
+import type { validateIncomingMessage } from "../../utils/typia/functional";
 
 import type { RibbonEvents, RibbonSnapshot } from "./types";
 
@@ -68,11 +68,18 @@ export class Ribbon {
 
   static SLOW_CODEC_THRESHOLD = 100;
 
+  static #validateIncomingMessage: null | typeof validateIncomingMessage = null;
+
   #socket: WebSocket | null = null;
 
   #token: string;
 
   #handling: Game.Handling;
+
+  #connection: {
+    host: string;
+    secure: boolean;
+  };
 
   #userAgent: string;
 
@@ -123,6 +130,10 @@ export class Ribbon {
 
   static async #getCodec(
     transport: Transport,
+    connection: {
+      host: string;
+      secure: boolean;
+    },
     userAgent: string
   ): Promise<Codec> {
     switch (transport) {
@@ -134,7 +145,11 @@ export class Ribbon {
           decode: (data) => JSON.parse(data.toString("utf-8"))
         };
       case "binary": {
-        const Amber = await amber(userAgent, { global: true });
+        const Amber = await amber(
+          `http${connection.secure ? "s" : ""}://${connection.host}`,
+          userAgent,
+          { global: true }
+        );
         return {
           transport,
           encode: (msg, data) => Amber.Encode(msg, data),
@@ -148,11 +163,20 @@ export class Ribbon {
     }
   }
 
+  static async #loadTypia() {
+    if (Ribbon.#validateIncomingMessage) return;
+    Ribbon.#validateIncomingMessage =
+      await import("../../utils/typia/functional/index.js").then(
+        ({ validateIncomingMessage }) => validateIncomingMessage
+      );
+  }
+
   /** @hideconstructor */
   private constructor({
     logging,
     token,
     handling,
+    connection,
     userAgent,
     spool,
     api,
@@ -165,6 +189,10 @@ export class Ribbon {
     logging: LoggingLevel;
     token: string;
     handling: Game.Handling;
+    connection: {
+      host: string;
+      secure: boolean;
+    };
     userAgent: string;
     transport: Transport;
     spool: Spool;
@@ -177,6 +205,7 @@ export class Ribbon {
   }) {
     this.#token = token;
     this.#handling = handling;
+    this.#connection = connection;
     this.#userAgent = userAgent;
 
     this.#spool = spool;
@@ -205,6 +234,7 @@ export class Ribbon {
     logging,
     token,
     handling,
+    connection,
     userAgent,
     transport = "binary",
     spooling = true,
@@ -216,6 +246,10 @@ export class Ribbon {
     logging?: LoggingLevel;
     token: string;
     handling: Game.Handling;
+    connection: {
+      host: string;
+      secure: boolean;
+    };
     userAgent: string;
     transport?: Transport;
     spooling?: boolean;
@@ -224,7 +258,8 @@ export class Ribbon {
   }): Promise<Ribbon> {
     const api = new API({
       token,
-      userAgent
+      userAgent,
+      endpoint: `http${connection.secure ? "s" : ""}://${connection.host}/api/`
     });
 
     const envPromise = await api.server.environment();
@@ -235,12 +270,13 @@ export class Ribbon {
 
     const loggingLevel = logging ?? (verbose ? "all" : "error");
 
-    const codec = await this.#getCodec(transport, userAgent);
+    const codec = await this.#getCodec(transport, connection, userAgent);
 
     return new Ribbon({
       logging: loggingLevel,
       token,
       handling,
+      connection,
       userAgent,
       transport,
       spool: {
@@ -672,7 +708,8 @@ export class Ribbon {
     const msg = message as RibbonEvents.Raw<Events.in.all>;
 
     if (this.#options.debug && msg.command !== "packets") {
-      const validation = validateIncomingMessage(msg);
+      await Ribbon.#loadTypia();
+      const validation = Ribbon.#validateIncomingMessage!(msg);
       if (!validation.success) {
         this.log(
           `Invalid packet received.\nCommand: ${msg.command}\nErrors: ${JSON.stringify(validation.errors, null, 2)}\nPacket: ${JSON.stringify(msg, null, 2)}`,
@@ -848,7 +885,7 @@ export class Ribbon {
   }
 
   get #uri() {
-    return `wss://${this.#spool.host}/ribbon/${this.#spool.endpoint}`;
+    return `ws${this.#connection.secure ? "s" : ""}://${this.#spool.host}/ribbon/${this.#spool.endpoint}`;
   }
 
   get #hasConnectedOnce() {
@@ -965,6 +1002,7 @@ export class Ribbon {
       logging: this.#options.logging,
       token: this.#token,
       handling: this.#handling,
+      connection: this.#connection,
       userAgent: this.#userAgent,
       transport: this.#codec.transport,
       spooling: this.#options.spooling,
@@ -981,6 +1019,7 @@ export class Ribbon {
     return {
       token: this.#token,
       handling: this.#handling,
+      connection: this.#connection,
       userAgent: this.#userAgent,
       transport: this.#codec.transport,
       spool: this.#spool,
@@ -1019,12 +1058,14 @@ export class Ribbon {
   static async fromSnapshot(snapshot: RibbonSnapshot) {
     const codec = await Ribbon.#getCodec(
       snapshot.transport,
+      snapshot.connection,
       snapshot.userAgent
     );
     const ribbon = new Ribbon({
       logging: snapshot.options.logging,
       token: snapshot.token,
       handling: snapshot.handling,
+      connection: snapshot.connection,
       userAgent: snapshot.userAgent,
       transport: snapshot.transport,
       spool: snapshot.spool,

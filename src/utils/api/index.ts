@@ -13,13 +13,15 @@ export interface APIDefaults {
   userAgent: string;
   /** a cf_clearance Cloudflare turnstile token. */
   turnstile: string | null;
+  endpoint: string;
 }
 
 export class API {
   readonly defaults: APIDefaults = {
     token: "",
     userAgent: CONSTANTS.userAgent,
-    turnstile: null
+    turnstile: null,
+    endpoint: "https://tetr.io/api/"
   };
 
   get!: Get;

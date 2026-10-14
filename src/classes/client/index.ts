@@ -180,9 +180,16 @@ export class Client {
       ihs: "tap"
     };
 
+    const connection = {
+      host: "tetr.io",
+      secure: true,
+      ...(options.connection ?? {})
+    };
+
     const ribbon = await Ribbon.create({
       token,
       handling,
+      connection,
       userAgent: options.userAgent || CONSTANTS.userAgent,
       ...(options.ribbon ?? {}),
       status: options.status
@@ -338,9 +345,13 @@ export class Client {
         resolve(data);
       };
 
+      const stack = new Error().stack;
+
       const rj = (error: string) => {
         disband();
-        reject(new Error(error));
+        reject(
+          new Error(`[wrap ${event} -> ${listen}] ${error}\nTrace: ${stack}`)
+        );
       };
 
       this.on(listen, rs);

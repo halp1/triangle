@@ -55,6 +55,10 @@ export interface RibbonOptions {
 export interface RibbonSnapshot {
   token: string;
   handling: Game.Handling;
+  connection: {
+    host: string;
+    secure: boolean;
+  };
   userAgent: string;
   transport: Transport;
   spool: Spool;

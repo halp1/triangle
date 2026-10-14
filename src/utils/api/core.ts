@@ -25,18 +25,23 @@ export const core = (defaults: APIDefaults) => {
     }): Promise<Res<T>> => {
       let res: Response;
       try {
-        res = await fetch(`https://tetr.io/api/${uri}`, {
-          headers: {
-            Accept: json
-              ? "application/json"
-              : "application/vnd.osk.theorypack",
-            "User-Agent": defaults.userAgent,
-            cookie: `${defaults.turnstile ? "cf_clearance=" + defaults.turnstile : ""}`,
-            Authorization:
-              token === null ? undefined : `Bearer ${token || defaults.token}`,
-            ...headers
-          } as any
-        });
+        res = await fetch(
+          `${defaults.endpoint ?? "https://tetr.io/api/"}${uri}`,
+          {
+            headers: {
+              Accept: json
+                ? "application/json"
+                : "application/vnd.osk.theorypack",
+              "User-Agent": defaults.userAgent,
+              cookie: `${defaults.turnstile ? "cf_clearance=" + defaults.turnstile : ""}`,
+              Authorization:
+                token === null
+                  ? undefined
+                  : `Bearer ${token || defaults.token}`,
+              ...headers
+            } as any
+          }
+        );
       } catch (err: any) {
         throw new Error(`Fetch failed on GET to ${uri}: ${err.message || err}`);
       }
@@ -111,26 +116,31 @@ export const core = (defaults: APIDefaults) => {
     }): Promise<Res<T>> => {
       let res: Response;
       try {
-        res = await fetch(`https://tetr.io/api/${uri}`, {
-          method: "POST",
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore mismatched buffer type (this may throw ts error depending on your config, leave as ts-ignore)
-          body: json ? JSON.stringify(body) : pack.pack(body),
-          headers: {
-            Accept: json
-              ? "application/json"
-              : "application/vnd.osk.theorypack",
-            "User-Agent": defaults.userAgent,
-            cookie: `${defaults.turnstile ? "cf_clearance=" + defaults.turnstile : ""}`,
-            "Content-Type": json
-              ? "application/json"
-              : "application/vnd.osk.theorypack",
+        res = await fetch(
+          `${defaults.endpoint ?? "https://tetr.io/api/"}${uri}`,
+          {
+            method: "POST",
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore mismatched buffer type (this may throw ts error depending on your config, leave as ts-ignore)
+            body: json ? JSON.stringify(body) : pack.pack(body),
+            headers: {
+              Accept: json
+                ? "application/json"
+                : "application/vnd.osk.theorypack",
+              "User-Agent": defaults.userAgent,
+              cookie: `${defaults.turnstile ? "cf_clearance=" + defaults.turnstile : ""}`,
+              "Content-Type": json
+                ? "application/json"
+                : "application/vnd.osk.theorypack",
 
-            Authorization:
-              token === null ? undefined : `Bearer ${token || defaults.token}`,
-            ...headers
-          } as any
-        });
+              Authorization:
+                token === null
+                  ? undefined
+                  : `Bearer ${token || defaults.token}`,
+              ...headers
+            } as any
+          }
+        );
       } catch (err: any) {
         throw new Error(
           `Fetch failed on POST to ${uri}: ${err.message || err}`

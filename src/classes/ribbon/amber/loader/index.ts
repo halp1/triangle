@@ -26,6 +26,7 @@ declare global {
 globalThis.__triangle_buffer__ = Buffer;
 
 export const amber = async (
+  host: string,
   userAgent: string,
   options: {
     global: boolean;
@@ -46,7 +47,8 @@ export const amber = async (
   const serverVersion = await core({
     userAgent,
     token: "",
-    turnstile: null
+    turnstile: null,
+    endpoint: `${host}/api/`
   }).get<Server.Environment>({
     uri: "server/environment"
   });
@@ -73,7 +75,7 @@ export const amber = async (
 
       let text: string;
       try {
-        const response = await fetch("https://tetr.io/js/tetrio.js");
+        const response = await fetch(`${host}/js/tetrio.js`);
         text = await response.text();
       } catch (e: any) {
         e.__networkError = true;

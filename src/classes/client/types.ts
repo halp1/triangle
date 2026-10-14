@@ -34,6 +34,21 @@ export type ClientOptions = (
   /** The client's user agent.
    * @default "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0"
    */
+  /**
+   * The details for the server the client connects to.
+   * @default { host: "tetr.io", secure: true }
+   */
+  connection?: {
+    /**
+     * The server hostname. Protocol and trailing slash should not be included.
+     * @example "tetr.io"
+     */
+    host: string;
+    /**
+     * Whether or not https and wss should be used.
+     */
+    secure: boolean;
+  };
   userAgent?: string;
   /** a cf_clearance Cloudflare turnstile token. */
   turnstile?: string;
