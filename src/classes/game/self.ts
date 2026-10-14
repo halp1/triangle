@@ -11,6 +11,8 @@ import type { Client } from "../client";
 export class Self {
   static #logger = new Logger("Triangle.js");
 
+  static unsafe__skipEngineMutationProtection = false;
+
   #client: Client;
   #hook: Hook<Events.in.all>;
   #frameQueue: GameTypes.Replay.Frame[] = [];
@@ -177,7 +179,9 @@ export class Self {
     const runAfter: GameTypes.Tick.Out["runAfter"] = [];
     if (this.tick) {
       try {
-        const snapshot = this.engine.snapshot();
+        const snapshot = Self.unsafe__skipEngineMutationProtection
+          ? null
+          : this.engine.snapshot();
 
         const res = await this.tick({
           gameid: this.gameid,
@@ -188,7 +192,7 @@ export class Self {
 
         // ensure the engine is in the same state as before tick is called
         // in case user mutates engine
-        this.engine.fromSnapshot(snapshot);
+        if (snapshot) this.engine.fromSnapshot(snapshot);
 
         const isValidObject = (obj: any) =>
           typeof obj === "object" && obj !== null;
@@ -309,9 +313,9 @@ export class Self {
         this.#slowTickWarning = true;
       }
 
-      // Every half second, use timeout even if we lag to ensure the websocket can send frames
-      if (target <= 0 && this.engine.frame % (Game.fps / 2) !== 0) {
-        return this.#tickGame();
+      if (target <= 0) {
+        setImmediate(this.#tickGame.bind(this));
+        return;
       }
 
       this.#timeout = setTimeout(
