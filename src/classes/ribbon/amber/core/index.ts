@@ -1,6 +1,6 @@
 import vm, { type Context } from "node:vm";
 
-import { parse } from "@typescript-eslint/parser";
+import { parse } from "acorn";
 import * as walk from "acorn-walk";
 import { generate } from "astring";
 import { analyze, type Scope } from "eslint-scope";
@@ -54,7 +54,8 @@ export const deobfuscate = async (options: {
     options.source,
     options.parseConfig ?? {
       sourceType: "module",
-      ecmaVersion: 2022
+      ecmaVersion: 2022,
+      ranges: true
     }
   );
 
@@ -65,7 +66,8 @@ export const deobfuscate = async (options: {
       options.parseConfig ??
         ({
           sourceType: "module",
-          ecmaVersion: 2022
+          ecmaVersion: 2022,
+          ranges: true
         } as any)
     );
 

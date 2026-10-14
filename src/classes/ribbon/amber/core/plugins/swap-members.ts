@@ -2,7 +2,7 @@ import type { Plugin } from "..";
 
 import vm from "node:vm";
 
-import { parse } from "@typescript-eslint/parser";
+import { parse } from "acorn";
 import * as walk from "acorn-walk";
 import { generate } from "astring";
 import { findVariable } from "eslint-utils";
@@ -182,7 +182,8 @@ export const swapMembers = (): Plugin => ({
               const src = val.toString();
               const ast = parse(src, {
                 ecmaVersion: 2022,
-                sourceType: "module"
+                sourceType: "module",
+                ranges: true
               });
               const node = ast.body[0];
               changed = true;

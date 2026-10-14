@@ -82,7 +82,8 @@ export const compile = async ({
     initialContext: vm.createContext(context),
     parseConfig: {
       sourceType: "module",
-      ecmaVersion: 2022
+      ecmaVersion: 2022,
+      ranges: true
     },
     onProgress({ step, total }) {
       log.progress(`Compiling codec (${step} / ${total})`, step / total);
@@ -96,7 +97,8 @@ export const compile = async ({
       simplifyIfStatements(),
       rebuild({
         sourceType: "module",
-        ecmaVersion: 2022
+        ecmaVersion: 2022,
+        ranges: true
       }),
       unwrapSequences(),
       buildObjects(),

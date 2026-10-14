@@ -1,6 +1,6 @@
 import type { Plugin } from "..";
 
-import { parse, type ParserOptions } from "@typescript-eslint/parser";
+import { parse, type Options as ParserOptions } from "acorn";
 import { generate } from "astring";
 
 export const rebuild = (options?: ParserOptions): Plugin => ({
@@ -10,7 +10,8 @@ export const rebuild = (options?: ParserOptions): Plugin => ({
       generate(ast),
       options ?? {
         sourceType: "module",
-        ecmaVersion: 2022
+        ecmaVersion: 2022,
+        ranges: true
       }
     );
 
