@@ -1,4 +1,4 @@
-import { polyfills } from "../utils";
+import { deepCopy, polyfills } from "../utils";
 
 export interface GarbageRecord {
   amount: number;
@@ -117,7 +117,7 @@ export class IGEHandler {
 
   snapshot(): IGEHandlerSnapshot {
     return {
-      players: Object.fromEntries(this.#players.entries()),
+      players: deepCopy(Object.fromEntries(this.#players.entries())),
       iid: this.#iid
     };
   }
@@ -127,7 +127,7 @@ export class IGEHandler {
     const entries = Object.entries(snapshot.players);
     for (let i = 0; i < entries.length; i++) {
       const [k, v] = entries[i];
-      this.#players.set(Number(k), v);
+      this.#players.set(Number(k), deepCopy(v));
     }
     this.#iid = snapshot.iid;
   }

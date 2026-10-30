@@ -438,7 +438,7 @@ export class Engine {
       _queue: this.#queue.snapshot(),
       input: deepCopy(this.input),
       subframe: this.subframe,
-      targets: this.multiplayer?.targets,
+      targets: this.multiplayer?.targets.slice(),
       stats: deepCopy(this.stats),
       glock: this.glock,
       stock: this.stock,
