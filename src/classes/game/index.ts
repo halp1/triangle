@@ -97,6 +97,9 @@ export class Game {
     this.players = this.rawPlayers.map(
       (p) => new Player(this.#client, this.#strategy, p, this.rawPlayers)
     );
+    this.self?._setPlayerLookup((gameid) =>
+      this.players.find((p) => p.gameid === gameid)
+    );
 
     this.#spectatingTimeout = setTimeout(
       this.#tick.bind(this),

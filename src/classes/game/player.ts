@@ -31,6 +31,8 @@ export class Player {
   #hook: Hook<Events.in.all>;
   #queue: GameTypes.Replay.Frame[] = [];
   #resolvers: [() => void, (error: string) => void][] = [];
+  #frameWaiters = new Set<{ frame: number; resolve: () => void }>();
+  #ended = false;
 
   #strategy: SpectatingStrategy;
 
@@ -50,7 +52,7 @@ export class Player {
     this.#strategy = strategy;
 
     this.#hook.on("game.replay.state", ({ gameid, data }) => {
-      if (gameid !== this.gameid) return;
+      if (gameid !== this.gameid || !this.scoped) return;
 
       this.#resolvers.forEach(([r]) => r());
       this.#resolvers = [];
@@ -64,6 +66,7 @@ export class Player {
         this.engine.fromSnapshot(
           Game.snapshotFromState(data.frame, this.engine.initializer, data.game)
         );
+        this.#resolveFrameWaiters();
       }
     });
 
@@ -74,11 +77,65 @@ export class Player {
 
       this.#queue.push(...frames);
     });
+
+    this.#hook.on("game.replay.end", ({ gameid }) => {
+      if (gameid !== this.gameid) return;
+      this.#ended = true;
+      this.#releaseFrameWaiters();
+    });
+  }
+
+  /** Whether this player's replay frames are requested from the server. */
+  get scoped() {
+    return this.state !== SpectatingState.Inactive;
+  }
+
+  /**
+   * Resolves once this player's engine reaches `frame`
+   * or early if the player stops being spectated or ends
+   * or early if the waiter is explicitly cancelled
+   */
+  awaitFrame(frame: number) {
+    const waiter = { frame, resolve: () => {} };
+    const cancel = () => {
+      this.#frameWaiters.delete(waiter);
+      waiter.resolve();
+    };
+    const promise = new Promise<void>((resolve) => {
+      waiter.resolve = resolve;
+      if (
+        !this.scoped ||
+        this.#ended ||
+        this.engine.toppedOut ||
+        this.engine.frame >= frame
+      )
+        resolve();
+      else this.#frameWaiters.add(waiter);
+    });
+    return { promise, cancel };
+  }
+
+  #resolveFrameWaiters() {
+    if (this.#ended || this.engine.toppedOut)
+      return this.#releaseFrameWaiters();
+
+    for (const waiter of this.#frameWaiters) {
+      if (this.engine.frame < waiter.frame) continue;
+      this.#frameWaiters.delete(waiter);
+      waiter.resolve();
+    }
+  }
+
+  #releaseFrameWaiters() {
+    for (const waiter of this.#frameWaiters) {
+      this.#frameWaiters.delete(waiter);
+      waiter.resolve();
+    }
   }
 
   spectate() {
     return new Promise<void>((resolve, reject) => {
-      if (this.state === SpectatingState.Active) return;
+      if (this.state === SpectatingState.Active) return resolve();
       if (this.state === SpectatingState.Waiting)
         return this.#resolvers.push([
           () => resolve(),
@@ -96,18 +153,28 @@ export class Player {
     this.#client.emit("game.scope.end", this.gameid);
     this.state = SpectatingState.Inactive;
     this.#queue = [];
+    this.#releaseFrameWaiters();
+    this.#resolvers
+      .splice(0)
+      .forEach(([_, reject]) =>
+        reject("Spectating stopped before it could begin")
+      );
   }
 
   destroy() {
-    this.#resolvers.forEach(([_, r]) =>
-      r("Game ended before spectating could begin")
-    );
+    this.#ended = true;
+    this.#resolvers
+      .splice(0)
+      .forEach(([_, reject]) =>
+        reject("Game ended before spectating could begin")
+      );
 
     if (this.state !== SpectatingState.Inactive) this.unspectate();
 
     this.#resolvers = [];
     this.#hook.destroy();
     this.#queue = [];
+    this.#releaseFrameWaiters();
     this.engine.events.removeAllListeners();
   }
 
@@ -120,6 +187,7 @@ export class Player {
       frames.push(this.#queue.shift()!);
     }
     this.engine.tick(frames);
+    this.#resolveFrameWaiters();
   }
 
   /** @internal */

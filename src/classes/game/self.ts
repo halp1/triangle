@@ -8,6 +8,8 @@ import type { Game as GameTypes } from "../../types";
 import type { Events } from "../../types";
 import type { Client } from "../client";
 
+import type { Player } from "./player";
+
 export class Self {
   static #logger = new Logger("Triangle.js");
 
@@ -24,6 +26,9 @@ export class Self {
   #pauseIGEs = false;
   #forcePauseIGEs = false;
   #igeQueue: GameTypes.IGE[] = [];
+  #deferredIGEs = new Set<() => boolean>();
+  #releasedIGEs = new Set<GameTypes.IGE>();
+  #findPlayer: (gameid: number) => Player | undefined = () => undefined;
   #slowTickWarning = false;
   #players: GameTypes.Ready["players"];
   // @ts-expect-error
@@ -56,6 +61,14 @@ export class Self {
 
   /** The maximum amount of time before all IGEs are force-flushed */
   static maxIGETimeout = 30000;
+  /**
+   * Defer interaction_confirm events that start timer for garbage in garbage queue
+   * until the corresponding send from the opponent is seen
+   */
+  static deferSpectatedIGEs = true;
+  static #deferrableIGEs = new Set(["interaction_confirm", "kev", "targeted"]);
+  static #maxDeferFrameGap = 200;
+  static #maxDeferTime = 4000;
   /** Frames per message */
   static #fpm = 12;
 
@@ -89,6 +102,12 @@ export class Self {
 
     if (this.#timeout)
       this.#timeout = (clearTimeout(this.#timeout) as any) || null;
+
+    this.#deferredIGEs.forEach((cancel) => cancel());
+    this.#deferredIGEs.clear();
+    this.#releasedIGEs.clear();
+    this.#igeQueue = [];
+    this.#findPlayer = () => undefined;
 
     this.engine.events.removeAllListeners();
 
@@ -338,6 +357,7 @@ export class Self {
   }
 
   #flushIGEs() {
+    if (this.#over) return;
     if (
       this.igesPaused &&
       this.lastIGEFlush + Self.maxIGETimeout > performance.now()
@@ -349,7 +369,54 @@ export class Self {
     this.lastIGEFlush = performance.now();
   }
 
+  /** @internal */
+  _setPlayerLookup(findPlayer: (gameid: number) => Player | undefined) {
+    this.#findPlayer = findPlayer;
+  }
+
+  #deferralSource(ige: GameTypes.IGE) {
+    if (!Self.deferSpectatedIGEs) return null;
+    if (!Self.#deferrableIGEs.has(ige.type)) return null;
+
+    const { gameid, frame } = ige.data as { gameid?: number; frame?: number };
+    if (gameid == null || frame == null) return null;
+
+    const player = this.#findPlayer(gameid);
+    if (!player?.scoped || player.engine.frame >= frame) return null;
+
+    const gap = this.engine.frame - player.engine.frame;
+    if (!gap || gap > Self.#maxDeferFrameGap) return null;
+
+    return { player, frame };
+  }
+
+  #defer(ige: GameTypes.IGE, player: Player, frame: number) {
+    const wait = player.awaitFrame(frame);
+    const cancel = () => {
+      if (!this.#deferredIGEs.delete(cancel)) return false;
+      clearTimeout(timeout);
+      wait.cancel();
+      return true;
+    };
+    const release = () => {
+      if (!cancel() || this.#over) return;
+
+      this.#releasedIGEs.add(ige);
+      this.#igeQueue.push(ige);
+      this.#flushIGEs();
+    };
+    const timeout = setTimeout(release, Self.#maxDeferTime);
+
+    this.#deferredIGEs.add(cancel);
+    wait.promise.then(release);
+  }
+
   #__internal_handleIGE(ige: GameTypes.IGE) {
+    if (!this.#releasedIGEs.delete(ige)) {
+      const source = this.#deferralSource(ige);
+      if (source) return this.#defer(ige, source.player, source.frame);
+    }
+
     const frame: GameTypes.Replay.Frame = {
       frame: this.engine.frame,
       type: "ige",
